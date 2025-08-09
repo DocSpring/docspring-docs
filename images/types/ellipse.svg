@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="8px" viewBox="0 0 14 8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>ellipse</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Form-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="home-mockup" transform="translate(-9.000000, -337.000000)" fill-rule="nonzero" fill="#696969">
+            <path d="M16,344 C19.3869073,344 22,342.506804 22,341 C22,339.493196 19.3869073,338 16,338 C12.6130927,338 10,339.493196 10,341 C10,342.506804 12.6130927,344 16,344 Z M16,345 C12.1340068,345 9,343.209139 9,341 C9,338.790861 12.1340068,337 16,337 C19.8659932,337 23,338.790861 23,341 C23,343.209139 19.8659932,345 16,345 Z" id="ellipse"></path>
+        </g>
+    </g>
+</svg>

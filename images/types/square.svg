@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>Square</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Form-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="home-mockup" transform="translate(-31.000000, -306.000000)" fill-rule="nonzero" fill="#696969">
+            <g id="fields-list" transform="translate(0.000000, 92.000000)">
+                <g id="title-mr" transform="translate(31.000000, 211.000000)">
+                    <path d="M2.00585866,4 C1.44991848,4 1,4.44976457 1,5.00585866 L1,14.9941413 C1,15.5500815 1.44976457,16 2.00585866,16 L11.9941413,16 C12.5500815,16 13,15.5502354 13,14.9941413 L13,5.00585866 C13,4.44991848 12.5502354,4 11.9941413,4 L2.00585866,4 Z M2.00585866,3 L11.9941413,3 C13.1029399,3 14,3.89805351 14,5.00585866 L14,14.9941413 C14,16.1029399 13.1019465,17 11.9941413,17 L2.00585866,17 C0.897060126,17 0,16.1019465 0,14.9941413 L0,5.00585866 C0,3.89706013 0.898053512,3 2.00585866,3 Z" id="square"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

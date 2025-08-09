@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>Circle</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Form-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="home-mockup" transform="translate(-31.000000, -349.000000)" fill-rule="nonzero" fill="#696969">
+            <g id="fields-list" transform="translate(0.000000, 92.000000)">
+                <g id="title-mrs" transform="translate(31.000000, 254.000000)">
+                    <path d="M7,4 C3.68918004,4 1,6.69126752 1,10 C1,13.31082 3.69126752,16 7,16 C10.31082,16 13,13.3087325 13,10 C13,6.68918004 10.3087325,4 7,4 Z M7,3 C10.8581267,3 14,6.13400675 14,10 C14,13.8581267 10.8659932,17 7,17 C3.14187327,17 0,13.8659932 0,10 C0,6.14187327 3.13400675,3 7,3 Z" id="circle"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

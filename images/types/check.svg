@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="12px" viewBox="0 0 14 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>Check</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Form-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="home-mockup" transform="translate(-31.000000, -811.000000)" fill-rule="nonzero" fill="#696969">
+            <g id="fields-list" transform="translate(0.000000, 92.000000)">
+                <g id="text-field" transform="translate(31.000000, 714.000000)">
+                    <path d="M12.7376028,5.16830745 C12.513339,4.94389752 12.1455114,4.94389752 11.9211015,5.16830745 L4.67902018,12.4108273 C4.45461025,12.6352373 4.08692883,12.6352373 3.86251889,12.4108273 L2.07878888,10.6272435 C1.85437894,10.4028336 1.48669752,10.4028336 1.26228759,10.6272435 L0.168307449,11.7218084 C-0.056102483,11.9462184 -0.056102483,12.3138998 0.168307449,12.5383097 L3.86251889,16.2317902 C4.08692883,16.4562001 4.45461025,16.4562001 4.67902018,16.2317902 L13.8315829,7.07878888 C14.056139,6.85423275 14.056139,6.48669752 13.8315829,6.2621414 L12.7376028,5.16830745 Z" id="check"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

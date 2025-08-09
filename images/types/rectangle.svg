@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="8px" viewBox="0 0 14 8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
+    <title>rectangle</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Form-Editor" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="home-mockup" transform="translate(-9.000000, -295.000000)" fill-rule="nonzero" fill="#696969">
+            <path d="M11.0058587,296 C10.4499185,296 10,296.449765 10,297.005859 L10,300.994141 C10,301.550082 10.4497646,302 11.0058587,302 L20.9941413,302 C21.5500815,302 22,301.550235 22,300.994141 L22,297.005859 C22,296.449918 21.5502354,296 20.9941413,296 L11.0058587,296 Z M11.0058587,295 L20.9941413,295 C22.1029399,295 23,295.898054 23,297.005859 L23,300.994141 C23,302.10294 22.1019465,303 20.9941413,303 L11.0058587,303 C9.89706013,303 9,302.101946 9,300.994141 L9,297.005859 C9,295.89706 9.89805351,295 11.0058587,295 Z" id="rectangle"></path>
+        </g>
+    </g>
+</svg>
