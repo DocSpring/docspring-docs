@@ -1,0 +1,24 @@
+---
+title: Integrations Overview
+description: Configure integrations for your DocSpring account
+---
+
+import { LinkCard, Aside } from '@astrojs/starlight/components'
+
+Configure integrations for your DocSpring account.
+
+At the moment we only support an AWS S3 integration, so you can upload PDFs to your own S3 bucket. This integration applies to all templates, submissions, and combined submissions in your account.
+
+<Aside type="note">
+  We will be adding more integrations in the future. We are also working on a
+  redesign and improved UI, so you will have more fine-grained control over
+  integrations.
+</Aside>
+
+## Available Integrations
+
+<LinkCard
+  title="AWS S3 Integration"
+  href="/docs/integrations/aws-s3/"
+  description="Upload generated PDFs to your own S3 bucket"
+/>

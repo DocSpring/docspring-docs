@@ -1,0 +1,57 @@
+---
+title: Compare DocSpring Forms
+description: Compare DocSpring's form options to choose the best solution for your needs
+sidebar:
+  order: 0
+---
+
+import { LinkCard, Aside, Code, Icon } from '@astrojs/starlight/components'
+
+DocSpring supports three different kinds of forms that can be used to fill out and generate PDFs.
+
+- [Web Forms](/docs/forms/web-forms/)
+  - Ideal for turning complex PDFs into a simple web-based form with inputs and checkboxes.
+- [Visual Forms](/docs/forms/visual-forms/)
+  - Show a visual representation of the PDF to users and allow them to fill out the fields. Similar to filling out a PDF form in Acrobat or Preview on macOS.
+- [Data Requests](/docs/forms/data-requests/)
+  - Generate legally binding electronic signatures with UETA/ESIGN compliance. Renders a visual form inside a secure iframe and adds compliance features and audit trails.
+
+<Aside type="tip">
+  All forms can either be hosted on the DocSpring website or embedded on your
+  own website.
+</Aside>
+
+### Key Differences
+
+| Feature                      | Web Forms                                                               | Visual Forms                                                            | Data Requests                                                           |
+| ---------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Available on DocSpring.com   | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Embed on your own website    | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Field validation             | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Mobile support               | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Works with PDF templates     | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Works with HTML templates    | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           |
+| Visual PDF preview           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Audit trail tracking         | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| User authentication tracking | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Legally binding e-signatures | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+
+## Next Steps
+
+<LinkCard
+  title="Web Forms"
+  href="/docs/forms/web-forms/"
+  description="Learn more about web forms"
+/>
+
+<LinkCard
+  title="Visual Forms"
+  href="/docs/forms/visual-forms/"
+  description="Learn more about visual forms"
+/>
+
+<LinkCard
+  title="Data Requests"
+  href="/docs/forms/data-requests/"
+  description="Learn more about data requests"
+/>

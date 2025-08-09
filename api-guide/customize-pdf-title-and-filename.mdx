@@ -1,0 +1,36 @@
+---
+title: Customize PDF Title and Filename
+description: Learn how to customize the PDF title and filename in DocSpring
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+When generating PDFs through the DocSpring API, you can customize both the PDF title (shown in PDF reader applications) and the filename in the download URL.
+
+## Customize the PDF Title
+
+You can customize the PDF title by setting the `pdf_title` key in the submission metadata.
+
+For example, if you set `pdf_title` to `Custom PDF Title`, then PDF reader applications will display this title.
+
+<Aside type="note">
+  By default, the PDF title is set to the name of the template.
+</Aside>
+
+## Customize the PDF Filename in the Download URL
+
+You can customize the PDF filename by setting the `pdf_filename` key in the submission metadata. DocSpring will add the `.pdf` extension automatically.
+
+For example, if you set `pdf_filename` to `custom_pdf_file123`, the PDF URL will end with: `/submissions/<submission_id>/custom_pdf_file123.pdf`
+
+<Aside type="note">
+  By default, the PDF URL will end with `/submissions/<submission_id>.pdf`
+</Aside>
+
+<Aside type="tip">
+  Custom PDF filenames have a maximum length of 128 characters, and can include
+  the following characters: `0-9 A-Z a-z - _ .`. Any other characters will be
+  replaced with an underscore.
+</Aside>

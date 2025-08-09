@@ -1,0 +1,38 @@
+---
+title: Special Newline Characters
+description: Use %%LF%% as a replacement for newline characters in API integrations
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+## The `%%LF%%` Sequence
+
+If you are integrating with a service that makes it difficult to send literal [newline](https://en.wikipedia.org/wiki/Newline) characters (`\n`) in the submission data, you can use this special sequence of characters: `%%LF%%`
+
+DocSpring will automatically replace any instances of `%%LF%%` with a newline character (`\n`) in the submission data.
+
+<Aside type="note">
+  You will still see `%%LF%%` if you view the "Data" tab for a Submission or in
+  the API Request Logs. We will make the `%%LF%%` → `\n` substitution
+  immediately before inserting the data into your PDF template.
+</Aside>
+
+## Example
+
+If your integration sends:
+
+```json
+{
+  "address": "123 Main Street%%LF%%Suite 100%%LF%%New York, NY 10001"
+}
+```
+
+DocSpring will render it in the PDF as:
+
+```
+123 Main Street
+Suite 100
+New York, NY 10001
+```

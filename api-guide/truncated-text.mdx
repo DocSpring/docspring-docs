@@ -1,0 +1,49 @@
+---
+title: When Text Doesn't Fit in a Field
+description: Handle text that doesn't fit in a PDF field
+sidebar:
+  order: 5
+---
+
+import { Aside, Code } from '@astrojs/starlight/components'
+
+If the full text can't fit in a field and the field's "Overflow" option is set to "Truncate",
+DocSpring will store any truncated text in the submission.
+This will be returned as a `truncated_text` object when you make a **Get Submission** API request.
+
+### Response Format
+
+<Code
+  code={`{
+    "submission": {
+      // ... other submission data ...
+      "truncated_text": {
+        "title": ["text that could not fit in the field"]
+      }
+      // ... other submission data ...
+    }
+  }`}
+  lang="json"
+  title="Example submission response with truncated text"
+/>
+
+Every key in the `truncated_text` object is a field name, and each value is an array of strings.
+
+<Aside type="note">
+  Most of the time this will be an array with a single string. However, if a
+  template contains multiple fields that share the same name (e.g. rendering the
+  same text in multiple places on the PDF), then the array may contain multiple
+  truncated strings from each individual field.
+</Aside>
+
+## Use Case: Addendum Pages
+
+Some government and immigration forms have an optional addendum page that can be attached if any text is too long to fit in one of the fields.
+
+You could:
+
+1. Check the `truncated_text` for each submission
+2. Set up another template to generate any addendum pages when necessary
+3. Use the Combine PDFs API endpoint to merge the main PDF form and any addendum pages
+
+This approach ensures all submitted information is captured, even when form fields have size limitations.

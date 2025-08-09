@@ -1,0 +1,217 @@
+---
+title: Embedded Web Forms
+description: Step-by-step guide to embed DocSpring web forms on your website
+---
+
+import { Code, Aside, LinkCard } from '@astrojs/starlight/components'
+import getEmbedVersion from '@utils/embed-versions'
+
+You can embed DocSpring web forms on your own website, allowing users to fill out forms and generate PDFs without leaving your site. Users can be redirected to a different page after submitting the form, or you can run custom code in JavaScript callbacks.
+
+<Aside type="tip">
+  Before you start, make sure you've configured your template's privacy settings
+  to allow public access.
+</Aside>
+
+<LinkCard
+  title="Configure Template Privacy Settings"
+  href="/docs/forms/web-forms/#configure-template-privacy-settings"
+  description="Learn how to set up your template for public access"
+/>
+
+## Quick Start
+
+To embed a form on your website, copy the following code and replace `TEMPLATE_ID` with your actual template ID:
+
+<Code code={`<link
+    rel="stylesheet"
+    href="https://cdn.docspring.com/embed/simple_form.v${getEmbedVersion('simple_form', 'css')}.css"
+  />
+  <script
+    type="text/javascript"
+    src="https://cdn.docspring.com/embed/simple_form.v${getEmbedVersion('simple_form')}.js"
+  ></script>
+
+<div class="dsp-form"></div>
+<script>DocSpring.createSimpleForm('.dsp-form', 'TEMPLATE_ID')</script>`}
+lang="html" title="Basic embedded form" />
+
+That's it! The form will be rendered inside the `<div class="dsp-form"></div>` element.
+
+## Examples
+
+### Basic Form with Options
+
+Here's an example that demonstrates common options:
+
+<Code code={`<div class="dsp-form"></div>
+  <script>
+    DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+      // Set default values for form fields
+      defaultData: {
+        name: 'John Smith',
+        email: 'john@example.com'
+      },
+
+      // Add metadata to the submission
+      metadata: {
+        userId: '12345',
+        source: 'website'
+      },
+
+      // Customize button labels
+      submitButtonLabel: 'Generate PDF',
+      clearButtonLabel: 'Reset Form',
+
+      // Redirect after submission
+      redirectURL: 'https://example.com/thank-you'
+    })
+
+</script>`} lang="html" title="Form with common options" />
+
+### Form with Callbacks
+
+Use callbacks to hook into form events:
+
+<Code code={`<div class="dsp-form"></div>
+  <script>
+    DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+      // Called when form is submitted
+      onSubmit: function(formData) {
+        console.log('Form submitted with data:', formData);
+        // Track analytics event
+        gtag('event', 'form_submit', {
+          'event_category': 'engagement',
+          'event_label': 'pdf_generation'
+        });
+      },
+
+      // Called when form is saved
+      onSave: function(submission) {
+        console.log('Submission saved with ID:', submission.id);
+      },
+
+      // Called when PDF is ready (if Submission Privacy is "Public")
+      onProcessed: function(submission) {
+        console.log('PDF ready! Download URL:', submission.download_url);
+        // Show custom success message
+        alert('Your PDF is ready to download!');
+      },
+
+      // Called on error
+      onError: function(response) {
+        console.error('Error:', response);
+        alert('An error occurred. Please try again.');
+      }
+    })
+
+</script>`} lang="html" title="Form with event callbacks" />
+
+### Advanced Example
+
+For a complete example that uses all available options and callbacks:
+
+- [View HTML source](https://docspring.com/embed_form_example?view_source=true)
+- [See the live form](https://docspring.com/embed_form_example)
+
+## Handling Form Submission
+
+### Redirect After Submission
+
+You can redirect users to a thank you page or another URL after they submit the form. The redirect URL can be configured in two ways:
+
+1. **In the template settings** - Set a default redirect URL for all forms
+2. **In the JavaScript options** - Override the default for specific forms
+
+The submission details will be appended to the redirect URL as query parameters:
+
+```
+https://example.com/thank-you?submission_id=sub_123&template_id=tpl_123&template_name=My%20Template
+```
+
+<Aside type="note">
+  The redirect behavior depends on your template's "Submission Privacy" setting:
+  - **Private**: Redirects immediately after saving - **Public**: Waits for PDF
+  processing before redirecting (unless `waitForPDF` is set to `false`)
+</Aside>
+
+### Custom Success Handling
+
+Instead of redirecting, you can handle successful submissions with JavaScript:
+
+<Code code={`DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+    // Don't redirect - handle success in JavaScript
+    redirectURL: null,
+
+    onProcessed: function(submission) {
+      // Hide the form
+      document.querySelector('.dsp-form').style.display = 'none';
+
+      // Show a custom success message
+      const successDiv = document.getElementById('success-message');
+      successDiv.innerHTML = \`
+        <h2>Thank you!</h2>
+        <p>Your PDF has been generated.</p>
+        <a href="\${submission.download_url}" class="btn btn-primary">
+          Download PDF
+        </a>
+      \`;
+      successDiv.style.display = 'block';
+    }
+
+})`} lang="javascript" title="Custom success handling" />
+
+## Styling the Form
+
+The embedded form comes with default styles, but you can customize the appearance to match your website:
+
+<Code code={`<style>
+    /* Customize form container */
+    .dsp-form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Style form inputs */
+    .dsp-form input[type="text"],
+    .dsp-form textarea {
+      border: 2px solid #007bff;
+      border-radius: 4px;
+    }
+
+    /* Style submit button */
+    .dsp-form button[type="submit"] {
+      background-color: #28a745;
+      border-color: #28a745;
+      font-size: 18px;
+      padding: 10px 30px;
+    }
+
+    /* Style clear button */
+    .dsp-form button[type="button"] {
+      background-color: #6c757d;
+      border-color: #6c757d;
+    }
+
+</style>`} lang="css" title="Custom form styles" />
+
+## Next Steps
+
+<LinkCard
+  title="Web Forms JavaScript API Reference"
+  href="/docs/forms/js-libraries/web-forms-js/"
+  description="Complete reference for all options and callbacks"
+/>
+
+<LinkCard
+  title="Web Forms Changelog"
+  href="/docs/changelogs/simple-forms-js/"
+  description="Changelog entries for the Web Forms JavaScript library"
+/>
+
+<LinkCard
+  title="Web Forms Documentation"
+  href="/docs/forms/web-forms/"
+  description="Learn about query parameters and advanced configuration"
+/>

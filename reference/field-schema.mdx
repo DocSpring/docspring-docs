@@ -1,0 +1,40 @@
+---
+title: Field Schema
+description: Complete schema reference for template fields in the DocSpring API
+sidebar:
+  order: 3
+---
+
+import { Code, LinkCard } from '@astrojs/starlight/components'
+import openapi from '@root/openapi/v1/openapi.json'
+
+This page shows the complete JSON schema for template fields, including all possible properties and their types.
+
+<LinkCard
+  title="Field Defaults"
+  href="/docs/reference/field-defaults/"
+  description="See the default values for all field properties"
+/>
+
+## Required Properties
+
+The only required properties for a field are:
+
+- `name` - The field name/identifier
+- `page` - The page number (for PDF templates only)
+
+All other properties are optional and will use the [default values](/docs/reference/field-defaults/)
+
+## Field Schema
+
+The following schema is extracted from the DocSpring OpenAPI specification. It shows all available field properties, their types, and validation rules.
+
+export const fieldSchema = openapi.paths[
+  '/templates/{template_id}/add_fields'
+].put.parameters.find((p) => p.name === 'data').schema.properties.fields.items
+
+<Code
+  code={JSON.stringify(fieldSchema, null, 2)}
+  lang="json"
+  title="Field JSON Schema"
+/>

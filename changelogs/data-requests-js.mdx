@@ -1,0 +1,103 @@
+---
+title: Data Requests JS Library
+description: Changelog and version history for the Data Requests JavaScript library
+sidebar:
+  order: 1
+---
+
+import { Aside, Badge, LinkCard } from '@astrojs/starlight/components'
+
+This client-side JavaScript library allows you to embed a signing form on your own website
+to collect legally binding electronic signatures and generate signed PDFs.
+
+<LinkCard
+  title="Embedded Data Requests Guide"
+  href="/docs/guides/embedded-forms/embedded-data-requests/"
+  description="Learn how to embed an e-signature workflow on your website"
+/>
+
+## Changelog
+
+### 2.3.4 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jul 19, 2024
+</div>
+
+- Improved support for mobile devices and tablets.
+- Improved logic for injected CSS when adding iframe to page.
+
+### 2.3.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 2, 2023
+</div>
+
+- Added `DocSpring.setField(name_or_id, value)` function to set the value of a field.
+- Fixed `DocSpring.focusField(name_or_id)` function. You can now focus a field by name or numeric ID.
+
+### 2.3.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 6, 2021
+</div>
+
+- Added a `footerHTML` option that allows you to configure content for a custom footer.
+
+### 2.3.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 25, 2020
+</div>
+
+- **For inline iframes:** Changed default `iframe` style to `display: block; min-height: 500px;`. (`display: block`
+  removes any space at the bottom of inline iframes.)
+- Added `iframeClass` and `iframeStyle` options, so that you can configure the `class=""` and `style=""` attributes
+  on the `iframe` element. (Available for both modal and inline iframes.)
+
+### 2.2.4
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 25, 2020
+</div>
+
+- Fixed crash for any browsers configured to block all cookies. Before this fix, the loading spinner
+  would sometimes get stuck and the signing iframe would fail to load.
+
+### 2.2.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 24, 2020
+</div>
+
+- Improved logging and error reporting to investigate iframe loading issues
+
+### 2.2.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 2, 2020
+</div>
+
+- Fixed bug where static form data could not be overridden after clearing a field
+
+### 2.0.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on May 20, 2019
+</div>
+
+- Renamed FormAPI to DocSpring
+
+---
+
+### Why haven't we updated this library recently?
+
+The Data Requests library is a short piece of code that inserts our secure signing iframe into a webpage
+and provides a JavaScript API to interact with the iframe, so it doesn't need to be updated very often.
+The signing experience inside the iframe uses our [Visual Forms library](/docs/forms/js-libraries/visual-forms-js/).
+
+<LinkCard
+  title="View the Visual Forms Changelog"
+  href="/docs/changelogs/visual-forms-js/"
+  description="View the latest updates and bug fixes for our signing experience"
+/>

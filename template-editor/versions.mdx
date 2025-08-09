@@ -1,0 +1,91 @@
+---
+title: Template Versions
+description: Learn how to use DocSpring's template versioning system to manage changes safely
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+DocSpring supports template versioning to help you manage changes to your templates safely. Every template has a draft version for making changes, and you can publish these changes as numbered versions (e.g., `1.2.3`) that won't affect your existing API integrations.
+
+## How Versioning Works
+
+### Draft vs Published Versions
+
+- **Draft Version**: Every template starts with a draft version that you can freely edit
+- **Published Versions**: When ready, publish your draft as a numbered version (e.g., `1.2.3`)
+  - Published versions are read-only and cannot be modified
+  - You can still make changes to your draft without affecting published versions
+  - API calls default to using the latest published version
+
+### Version Numbers
+
+DocSpring uses semantic versioning (`major.minor.patch`).
+When an API endpoint supports a template version parameter, you can pass the following values:
+
+- Full version: `1.2.3`
+- Partial version: `1.2` (uses the latest `1.2.x` version)
+- Major version only: `1` (uses the latest `1.x.x` version)
+- `latest`: Uses the latest published version
+- `draft`: Uses the draft version
+
+## Managing Versions
+
+### Publishing a Version
+
+1. Make your changes in the draft version
+2. Click the "Versions" link in the template dropdown to open the Versions modal
+3. Click "Publish Version" and choose which number to increment:
+   - Major (`1.0.0`): For breaking changes
+   - Minor (`0.1.0`): For new features
+   - Patch (`0.0.1`): For bug fixes
+4. Add an optional description to track what changed
+
+### Working with Versions
+
+- **View Version History**: Open the Versions modal to see all published versions
+- **Restore Previous Version**: Click "Restore to Draft" to roll back to an older version
+- **Copy Version**: Create a new template from any published version
+- **Track Version in Template**: Add the `@@version` field to show "draft" or the current version string
+- **View Version in Submissions**: The exact template version is stored with each submission
+
+## Using Versions in Your Integration
+
+### Generate PDF API
+
+When generating PDFs, use the `version` parameter to specify which template version to use:
+
+```bash
+POST /api/v1/templates/<TEMPLATE_ID>/submissions
+{
+  "version": "1.2.3",  # Specific version
+  "data": { ... }
+}
+```
+
+Version parameter options:
+
+- Omit parameter: Uses latest published version (or draft if none published)
+- `"version": "1.2.3"`: Uses a specific version
+- `"version": "1.2"`: Uses the latest `1.2.x` version
+- `"version": "latest"`: Uses latest published version (or draft, if no versions have been published)
+- `"version": "draft"`: Uses the draft version
+
+### Web Forms
+
+When viewing a template's web form:
+
+- If you're signed in and own the template:
+  - The draft version is shown by default
+  - Add `?version=latest` to view the latest published version
+  - Add `?version=1.2.3` to view a specific version
+
+- If you're not signed in or don't own the template:
+  - The latest published version is shown by default
+  - Falls back to draft if no published versions exist
+  - Add `?version=1.2.3` to view a specific version
+
+The "Form" and "Visual" buttons in the template editor will include the version that you are
+currently viewing (`?version=draft` by default.) Make sure to check the version parameter
+before you share the form URL.

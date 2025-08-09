@@ -1,0 +1,48 @@
+---
+title: Web Forms + Data Requests
+description: Using web forms to collect data, then creating a data request to sign the PDF
+---
+
+import { LinkCard, Aside, Code, Icon } from '@astrojs/starlight/components'
+
+You can use a web form to gather information with text inputs,
+then create a data request that is prefilled with the data from the web form.
+The data request will show a preview of the PDF with the filled-in data before asking
+the user to sign the form.
+
+<LinkCard
+  title="View Combined Forms Example"
+  href="https://docspring.com/embed_simple_plus_data_request_example"
+  description="Example combining simple forms with data requests"
+/>
+
+<Aside type="tip">
+  "View Source" in your browser to see how the JavaScript library is used in the
+  example above.
+</Aside>
+
+In this example, we use the simple embedded forms to show a form, but we hide the signature field in the `processTemplateSchema` callback by removing it from the template schema. We also cancel the PDF submission by returning `false` in the `onSubmit` callback. When the simple form is submitted, we send the data to our server, which makes an API call to create a prefilled data request.
+
+<Aside type="caution">
+  You must always use a data request if you are collecting legally binding
+  electronic signatures. If you only use a simple form with a signature field,
+  the user could be signing a document that they haven't seen. DocSpring will
+  also not be able to store any information about how the user was
+  authenticated, so these signatures will not be legally binding.
+</Aside>
+
+For the initial data collection step, you could use any form library that supports JSON schemas, such as [react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form).
+
+## Next Steps
+
+<LinkCard
+  title="Web Forms JavaScript API Reference"
+  href="/docs/forms/js-libraries/web-forms-js/"
+  description="Complete reference for DocSpring.createSimpleForm() options and callbacks"
+/>
+
+<LinkCard
+  title="Data Requests JavaScript API Reference"
+  href="/docs/forms/js-libraries/data-requests-js/"
+  description="Complete reference for DocSpring.createVisualForm() options and callbacks"
+/>

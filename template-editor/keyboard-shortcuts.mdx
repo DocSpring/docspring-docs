@@ -1,0 +1,57 @@
+---
+title: Editor Keyboard Shortcuts
+description: Keyboard shortcuts reference for the DocSpring Template Editor
+sidebar:
+  order: 9
+  label: Keyboard Shortcuts
+---
+
+import { Kbd, KbdPicker } from 'starlight-kbd/components'
+
+<strong style="margin-right: 1rem;">Operating System:</strong> <KbdPicker />
+
+## General Shortcuts
+
+| Key                                                                             | Action                                     |
+| ------------------------------------------------------------------------------- | ------------------------------------------ |
+| <Kbd mac="Command+Z" windows="Control+Z" linux="Control+Z" />                   | Undo                                       |
+| <Kbd mac="Command+Shift+Z" windows="Control+Shift+Z" linux="Control+Shift+Z" /> | Redo                                       |
+| <Kbd mac="Command+S" windows="Control+S" linux="Control+S" />                   | Save                                       |
+| <Kbd mac="Command+F" windows="Control+F" linux="Control+F" />                   | Focus the "Filter" input to filter fields  |
+| <Kbd mac="Escape" windows="Escape" linux="Escape" />                            | Unfocus any text inputs, or deselect field |
+
+## With a Selected Field
+
+| Key                                                                                                                                                                                                                                                     | Action                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| <Kbd mac="ArrowUp" windows="ArrowUp" linux="ArrowUp" />, <Kbd mac="ArrowDown" windows="ArrowDown" linux="ArrowDown" />, <Kbd mac="ArrowLeft" windows="ArrowLeft" linux="ArrowLeft" />, <Kbd mac="ArrowRight" windows="ArrowRight" linux="ArrowRight" /> | Move the field. Hold <Kbd mac="Shift" windows="Shift" linux="Shift" /> to increase the distance. |
+| <Kbd mac="Backspace" windows="Backspace" linux="Backspace" /> or <Kbd mac="Delete" windows="Delete" linux="Delete" />                                                                                                                                   | Delete the field                                                                                 |
+| <Kbd mac="n" windows="n" linux="n" />                                                                                                                                                                                                                   | Focus the `Name` input                                                                           |
+| <Kbd mac="t" windows="t" linux="t" />                                                                                                                                                                                                                   | Focus the `Title` input                                                                          |
+| <Kbd mac="d" windows="d" linux="d" />                                                                                                                                                                                                                   | Focus the `Description` input                                                                    |
+| <Kbd mac="r" windows="r" linux="r" />                                                                                                                                                                                                                   | Toggle `Required`                                                                                |
+| <Kbd mac="h" windows="h" linux="h" />                                                                                                                                                                                                                   | Toggle `Hidden`                                                                                  |
+| <Kbd mac="s" windows="s" linux="s" />                                                                                                                                                                                                                   | Toggle `Static`                                                                                  |
+| <Kbd mac="b" windows="b" linux="b" />                                                                                                                                                                                                                   | Toggle `Bold`                                                                                    |
+| <Kbd mac="u" windows="u" linux="u" />                                                                                                                                                                                                                   | Toggle `Uppercase`                                                                               |
+| <Kbd mac="m" windows="m" linux="m" />                                                                                                                                                                                                                   | Toggle `Multiline`                                                                               |
+| <Kbd mac="c" windows="c" linux="c" />                                                                                                                                                                                                                   | Toggle `Comb` _(Comb Cells input is focussed)_                                                   |
+| <Kbd mac="Command+C" windows="Control+C" linux="Control+C" />                                                                                                                                                                                           | Copy the selected field                                                                          |
+| <Kbd mac="Command+V" windows="Control+V" linux="Control+V" />                                                                                                                                                                                           | Paste the copied field                                                                           |
+
+## Change New Field Type
+
+| Key                                   | Field Type      |
+| ------------------------------------- | --------------- |
+| <Kbd mac="1" windows="1" linux="1" /> | String          |
+| <Kbd mac="2" windows="2" linux="2" /> | Number          |
+| <Kbd mac="3" windows="3" linux="3" /> | Date            |
+| <Kbd mac="4" windows="4" linux="4" /> | Check           |
+| <Kbd mac="5" windows="5" linux="5" /> | Square          |
+| <Kbd mac="6" windows="6" linux="6" /> | Circle          |
+| <Kbd mac="7" windows="7" linux="7" /> | Rectangle       |
+| <Kbd mac="8" windows="8" linux="8" /> | Ellipse         |
+| <Kbd mac="9" windows="9" linux="9" /> | Image           |
+| <Kbd mac="0" windows="0" linux="0" /> | Signature       |
+| <Kbd mac="q" windows="q" linux="q" /> | QR Code _(URL)_ |
+| <Kbd mac="w" windows="w" linux="w" /> | Barcode         |

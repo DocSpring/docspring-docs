@@ -1,0 +1,71 @@
+---
+title: Visual Forms
+description: Core documentation for visual PDF forms - both hosted and embedded
+---
+
+import { LinkCard, Aside, Code, Icon } from '@astrojs/starlight/components'
+
+Visual Forms allow you to embed a PDF form filling interface directly on your website. Unlike [Data Requests](/docs/forms/data-requests/), visual forms do not include compliance features like audit trails or authentication tracking - they're simply a visual component for filling out PDF templates.
+
+<Aside type="tip">
+  Use Visual Forms when you need a simple form filling interface. Use Data
+  Requests when you need legally binding electronic signatures with UETA/ESIGN
+  compliance.
+</Aside>
+
+## How Visual Forms Work
+
+1. Share a linke to the visual form page for a template `/templates/<template_id>/visual_form`
+2. **Users fill out the form** with a visual interface that matches your PDF
+3. **PDF is generated** and available for download
+
+## Key Features
+
+- Real-time preview of the PDF as users fill it out
+- Field validation and formatting
+- Support for all DocSpring field types
+- Mobile-responsive design
+- No user accounts needed
+- Perfect for internal forms or non-legal documents
+
+<LinkCard
+  title="See the difference between visual forms and other types of forms"
+  href="/docs/forms/compare-docspring-forms/"
+  description="Compare web forms, visual forms, and data requests"
+/>
+
+## Template Configuration
+
+Visual forms work with any PDF template. Key settings to consider:
+
+### Submission Privacy
+
+- **Public**: PDFs can be downloaded immediately after generation
+- **Private**: Requires authentication to download the generated PDF
+
+### Redirect URL
+
+Configure where users go after form submission:
+
+1. Set in template settings as default
+2. Override with `redirectURL` option in the query params
+
+## Next Steps
+
+<LinkCard
+  title="Template Editor"
+  href="/docs/template-editor/introduction/"
+  description="Learn how to create templates for visual forms"
+/>
+
+<LinkCard
+  title="Embedding Visual Forms on Your Own Website"
+  href="/docs/guides/embedded-forms/embedded-visual-forms/"
+  description="Step-by-step guide to embedding visual forms on your own website"
+/>
+
+<LinkCard
+  title="Embedded Visual Forms JavaScript API Reference"
+  href="/docs/forms/js-libraries/visual-forms-js/"
+  description="Complete API reference for DocSpring.createVisualForm()"
+/>

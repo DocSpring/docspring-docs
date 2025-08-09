@@ -1,0 +1,29 @@
+---
+title: Field Defaults
+description: Default values for all field properties in the DocSpring API
+sidebar:
+  order: 3
+---
+
+import { Code, LinkCard } from '@astrojs/starlight/components'
+import fieldDefaults from '@client_shared/field_defaults.json'
+
+You can manually add a new field to a template by sending an Add Field API request.
+You can also modify existing fields or add many new fields at once with an Update Template request.
+
+When adding fields to a template, the only required property is `name`.
+`page` is also required for PDF templates but not for HTML templates.
+
+All other field properties will be set to the following default values:
+
+<Code
+  code={JSON.stringify(fieldDefaults.field, null, 2)}
+  lang="json"
+  title="Default field values"
+/>
+
+<LinkCard
+  title="Field Schema"
+  href="/docs/reference/field-schema/"
+  description="See the data types and enum values for each field property"
+/>

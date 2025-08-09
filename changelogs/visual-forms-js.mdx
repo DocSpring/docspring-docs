@@ -1,0 +1,356 @@
+---
+title: Visual Forms JS Library
+description: Changelog and version history for the Visual Forms JavaScript library
+sidebar:
+  order: 3
+---
+
+import { Aside, Badge, LinkCard } from '@astrojs/starlight/components'
+
+This client-side JavaScript library allows you to embed a visual form on your own website
+to fill out PDF templates and generate PDFs.
+
+<LinkCard
+  title="Embedded Visual Forms Guide"
+  href="/docs/guides/embedded-forms/embedded-visual-forms/"
+  description="Learn how to embed our visual forms on your website"
+/>
+
+<Aside type="caution">
+  The visual forms library does not provide any ESIGN/UETA compliance features
+  such as audit trail logging. It is used internally by the [Data
+  Requests](/docs/guides/embedded-forms/embedded-data-requests/) library when we
+  display the signing form inside a secure iframe. Please use the data requests
+  library if you need to collect legally binding signatures.
+</Aside>
+
+## Changelog
+
+### 2.7.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jul 10, 2025
+</div>
+
+- Updated JavaScript build process and dependencies
+
+### 2.7.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jan 31, 2025
+</div>
+
+- Added support for template versioning. You can now specify a template version when showing the form.
+
+### 2.6.5
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Dec 4, 2024
+</div>
+
+- Fixed issue with formula fields that couldn't operate on individual fields in arrays.
+
+### 2.6.4
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 17, 2024
+</div>
+
+- Fixed issues with clicking "Next" to select the next field. We will now show the "all fields completed" message once the user has clicked through all fields in the form (including optional fields.) We also show the completed message if all required fields are filled out but no field is currently selected.
+
+### 2.6.3
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jul 19, 2024
+</div>
+
+- Improved signature field layout on mobile devices and tablets
+- Fixed some issues with zooming and scrolling
+
+### 2.6.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Dec 19, 2023
+</div>
+
+- Fix drop down menu not showing scrollbar
+
+### 2.6.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Dec 19, 2023
+</div>
+
+- Add support for formula calculations
+
+### 2.5.10
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 25, 2023
+</div>
+
+- Add test flag to enable test submissions through the embedded form
+
+### 2.5.9
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 18, 2023
+</div>
+
+- Updated styling, upgraded library for select elements
+
+### 2.5.7
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 2, 2023
+</div>
+
+- Added `DocSpring.setField(name_or_id, value)` function to set the value of a field.
+- Updated `DocSpring.focusField(name_or_id)` function to accept either a field name or a numeric ID.
+
+### 2.5.6
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 8, 2023
+</div>
+
+- Fixed issue with signature modal when phone screen is rotated
+
+### 2.5.5
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 16, 2022
+</div>
+
+- Added "shrink to fit" support for multi-line fields using the Truncate: "Shrink to Fit" option. The font size will now decrease to fit all of the text in the field. _(Please note that this is an approximation. The text may be slightly different on the generated PDF.)_
+
+### 2.5.4
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 25, 2022
+</div>
+
+- Dates provided as static form data are now formatted correctly using the specified date format
+
+### 2.5.3
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 10, 2022
+</div>
+
+- Added the Lovtony Script font as an option for signature fields
+
+### 2.5.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 6, 2021
+</div>
+
+- Added a `footerHTML` option that allows you to configure content for a custom footer.
+
+### 2.5.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 4, 2021
+</div>
+
+- Added support for shrink-to-fit on multi-line fields
+
+### 2.5.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 2, 2021
+</div>
+
+- Added support for background color, opacity, text alignment for fields with static data
+- Added `fieldOverrides` option for visual forms, so that you can override field properties (e.g. `required`, `hidden`)
+- Added documentation for `DocSpring.***()` functions to control the form UI:
+  - `DocSpring.clearForm()`
+  - `DocSpring.submitForm()`
+  - `DocSpring.focusNextField()`
+  - `DocSpring.focusField(id)`
+- Added a "Preview Mode" that allows you to use the visual forms as a read-only preview for static data.
+  - `previewMode: true`
+  - `previewModeButtonLabel: "Agree"`
+  - `onPreviewModeButtonClicked: function () { ... }`
+
+### 2.4.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jan 12, 2021
+</div>
+
+- Added support for image uploads (click to select an image file)
+
+### 2.4.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Dec 15, 2020
+</div>
+
+- Fixed the "terms of service" link so that it opens in a new window. (Also removed the `X-Frame-Options` header from this page, so that it is possible to render inside an embedded iframe.)
+
+### 2.4.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 24, 2020
+</div>
+
+- Fixed signature modal layout on various tablet and mobile screen sizes
+
+### 2.3.12
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 28, 2020
+</div>
+
+- Added support for the "Invert Boolean Condition" field option, where a checkbox will show as checked when the value is false.
+- Allow a checkbox to be unchecked if it is part of an optional "radio group" with string conditions.
+
+### 2.3.11
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 7, 2020
+</div>
+
+- Added a new `skipAgreeToTermsOfService` option for visual forms. Setting `skipAgreeToTermsOfService: true` will skip the "Agree to Terms" step, so clicking the "Continue" button will immediately submit the data and generate a PDF. _NOTE: This option is only available for Visual Forms, and it is not available for Data Requests._
+
+### 2.3.10
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Sep 27, 2020
+</div>
+
+- Fixed issue where fields could be horizontally shifted on Windows and Linux when the form was rendered with a vertical scrollbar.
+
+### 2.3.9
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Sep 24, 2020
+</div>
+
+- Fixed vertical alignment for text in select dropdowns. Text should now be vertically centered properly.
+
+### 2.3.8
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Sep 9, 2020
+</div>
+
+- _For [Data Request](/docs/guides/embedded-forms/embedded-data-requests/) users:_ Added support for all `field_overrides` (from the [Generate PDF](/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions) API requests), so that field options can be configured dynamically for each data request.
+
+### 2.3.7
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 7, 2020
+</div>
+
+- Added a new `signatureLegalDisclaimerMessage` string option, added `formData` parameter for `agreeToTermsTitle` and `agreeToTermsMessage` string options. _(Only used with Data Requests.)_
+
+### 2.3.6
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 4, 2020
+</div>
+
+- Added `agreeToTermsTitle` and `agreeToTermsMessage` string options. _(Only used with Data Requests.)_
+
+### 2.3.5
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 18, 2020
+</div>
+
+- Added support for multiline fields so that users can enter text with multiple lines. Also added
+  support for the "Number of Lines" option, which vertically divides the field into a fixed number of lines.
+
+### 2.3.4
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 6, 2020
+</div>
+
+- Fixed bug with field_overrides option for submissions with data requests. If a field override is provided, fields will now be correctly marked as required or optional in visual forms.
+
+### 2.3.3
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 4, 2020
+</div>
+
+- Fixed a bug where select dropdown menus were hidden behind other fields.
+
+### 2.3.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 28, 2020
+</div>
+
+- Fixed error when opening the signature font drop-down and pressing backspace
+- Added 'Type Signature' heading above the name input when typing a signature
+
+### 2.3.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 27, 2020
+</div>
+
+- Made some internal changes for better error handling and debugging
+
+### 2.3.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 25, 2020
+</div>
+
+- Fixed crash for any browsers configured to block all cookies. Before this fix, the loading spinner
+  would sometimes get stuck and the signing iframe would fail to load.
+
+### 2.2.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 7, 2020
+</div>
+
+- Increased legibility of tabs heading in the signature modal.
+
+### 2.2.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Apr 2, 2020
+</div>
+
+- Fixed bug where static form data could not be overridden after clearing a field
+
+### 2.1.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 1, 2020
+</div>
+
+- Show all previous signatures and date fields for multiple data requests
+
+### 2.0.3
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jan 17, 2020
+</div>
+
+- Allow past dates to be selected in date pickers
+
+### 2.0.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 25, 2019
+</div>
+
+- Improve date picker styles
+- Improve text rendering in fields
+
+### 2.0.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on May 20, 2019
+</div>
+
+- Renamed FormAPI to DocSpring

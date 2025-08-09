@@ -1,0 +1,153 @@
+---
+title: Embedded Data Requests
+description: Step-by-step guide to implement UETA and ESIGN compliant electronic signatures
+---
+
+import { LinkCard, Aside, Code, Icon } from '@astrojs/starlight/components'
+import getEmbedVersion from '@utils/embed-versions'
+
+This guide walks through implementing data requests for collecting legally binding electronic signatures. For conceptual documentation about how data requests work, see the [Data Requests documentation](/docs/forms/data-requests/).
+
+## Implementation Steps
+
+### 1. Create a Submission with a Data Request
+
+<LinkCard
+  title="Create Data Requests API Guide"
+  href="/docs/api-guide/create-data-requests/"
+  description="Learn how to create PDF submissions with pending data requests"
+/>
+
+Your data request will include:
+
+- The user's full name
+- The user's email address
+- The fields that the user must fill out (including signature fields)
+- Some optional metadata to save on this data request
+- Details about how and when the user has been authenticated
+
+<Aside type="tip">
+  While many authentication fields are optional, provide as much detail as you
+  can. This helps DocSpring build a comprehensive audit trail and ensures
+  electronic signatures will be legally binding if contested in court.
+</Aside>
+
+### 2. Notify the User
+
+<LinkCard
+  title="Create Data Request Event API"
+  href="/docs/api/#tag/data-requests/post/data_requests/{data_request_id}/events"
+  description="API documentation for creating data request events"
+/>
+
+DocSpring does not currently send emails on your behalf, so your server must send an email to your user with a link to the page where they can sign the document. The URL will be a link to your own domain, since you will be embedding the DocSpring JavaScript in a page within your own application.
+
+Once you have sent the email, inform DocSpring about this event by making an API request to the Create Data Request Event endpoint. This event will be shown on the audit trail page once the PDF has been generated.
+
+**Example audit trail log:**
+
+```
+2024-01-01 12:00:00 - Sent via email to Test (test@example.com)
+2024-01-01 12:10:00 - Test (test@example.com) signed in via username/password
+2024-01-01 12:10:00 - Viewed by Test (test@example.com)
+2024-01-01 12:20:00 - Signed by Test (test@example.com)
+2024-01-01 12:20:00 - Document completed
+```
+
+You will need to track the "sent via email" event and authentication details yourself. The "viewed" and "signed" events will be automatically recorded by DocSpring when the user interacts with the form.
+
+### 3. Request an Authentication Token
+
+<LinkCard
+  title="Create Data Request Authentication Token API"
+  href="/docs/api/#tag/data-requests/post/data_requests/{data_request_id}/tokens"
+  description="API documentation for creating authentication tokens"
+/>
+
+Once the user clicks the link and is ready to sign the form, you will need to create a one-time authentication token for your data request. This authentication token can only be used once. You should request this token immediately before showing the signing form to the user.
+
+### 4. Update Authentication Details
+
+<LinkCard
+  title="Update Data Request API"
+  href="/docs/api/#tag/data-requests/put/data_requests/{data_request_id}"
+  description="API documentation for updating data requests"
+/>
+
+If there is a significant delay between creating the Data Request and showing the signing form to the user, ensure that the authentication details are accurate. You can make an API request to update these details if the user has signed in again. (However, you cannot update a Data Request if it has already been viewed or completed.)
+
+### 5. Render the Signing Form
+
+After you fetch an authentication token, the response will include an authenticated URL that you can provide to your user. Visiting this URL will take them to a signing form hosted on the docspring.com domain.
+
+To embed the form on your own website, copy the following code into your page:
+
+<Code code={`<script
+    type="text/javascript"
+    src="https://cdn.docspring.com/embed/data_request.v${getEmbedVersion('data_request')}.js"
+  ></script>
+
+  <script>
+    DocSpring.createVisualForm({
+      dataRequestId: 'DATA_REQUEST_ID',
+      tokenId: 'TOKEN_ID',
+      tokenSecret: 'TOKEN_SECRET',
+    })
+</script>`} lang="html" title="Basic data request embed" />
+
+This code will open the form in a modal overlay. You may also pass a CSS selector as the first argument, and the iframe element will be appended to that selector. (However, mobile browsers will always use a full-screen overlay.)
+
+<LinkCard
+  title="View Complete Example"
+  href="https://docspring.com/embed_data_request_example"
+  description="Interactive example with all available options"
+/>
+
+<Aside type="tip">
+  "View Source" in your browser to see how the JavaScript library is used in the
+  example above.
+</Aside>
+
+## Web Forms + Data Requests
+
+<LinkCard
+  title="Using Web Forms and Data Requests Together"
+  href="/docs/guides/embedded-forms/web-forms-with-data-requests/"
+  description="Use web forms to collect data, then create a data request to sign the PDF"
+/>
+
+## Redirect After Submission
+
+After the user submits the form, you can redirect them to a different URL. The redirect URL can be configured in the template settings, or it can be passed as an option to `DocSpring.createVisualForm()` (The `createVisualForm` option will override the template's redirect URL.)
+
+The submission details will be appended to the redirect URL as query parameters:
+
+```
+https://example.com/?submission_id=sub_123&template_id=tpl_123&template_name=My%20Template
+```
+
+<Aside type="note">
+  - **Private submissions**: Redirects immediately after saving - **Public
+  submissions**: Waits for PDF processing before redirecting (unless
+  `waitForPDF` is set to `false`)
+</Aside>
+
+## Next Steps
+
+<LinkCard
+  title="Data Requests JavaScript API Reference"
+  href="/docs/forms/js-libraries/data-requests-js/"
+  description="Complete reference for DocSpring.createVisualForm() options and callbacks"
+/>
+
+<LinkCard
+  title="Data Requests Documentation"
+  href="/docs/forms/data-requests/"
+  description="Learn about data requests and how they work"
+/>
+
+<LinkCard
+  title="Data Requests Changelog"
+  href="/docs/changelogs/data-requests-js/"
+  description="Changelog entries for the Data Requests JavaScript library"
+/>

@@ -1,0 +1,132 @@
+---
+title: Create Data Requests
+description: Learn how to create PDF submissions with pending data requests
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+### Create a new PDF job submission with pending data requests
+
+This feature allows you to request information or signatures from one or more people. When you have a pending data request, you can then redirect your user to a form hosted on docspring.com, embed this form on your website, or send them a link via email.
+
+Once all of the data requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server.
+
+:::tip
+See the [Data Requests](/docs/forms/data-requests/) documentation for more information about how data requests work.
+:::
+
+### API Endpoint
+
+This uses the same API endpoint as a regular PDF generation request, with an additional `data_requests` array.
+
+<LinkCard
+  title="POST /api/v1/templates/{template_id}/submissions"
+  description="Generate a PDF from a template"
+  href="/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions"
+/>
+
+### Parameters
+
+The request body must be a JSON object with the following properties:
+
+- `data` _(object, required)_: Data to fill in the fields. Must match the template schema.
+- `metadata` _(object, optional)_: Any additional data, such as a user id. `metadata` will be included in webhook requests.
+- `test` _(boolean, optional)_: `true` to generate a test PDF, `false` for a live PDF. Test PDFs are free, but watermarked.
+- `data_requests` _(array of objects, optional)_: Each object in the array can have the following properties:
+  - `email` _(string, required)_: The user's email address.
+  - `name` _(string, optional)_: The user's name.
+  - `fields` _(array of field names, optional)_: The field names that the person must fill in.
+    - If there is a single data request, then you can omit the `fields` property if you want the person to fill in all of the template's fields. If you provide a value in the submission `data`, then the user will not be asked to fill in that field.
+    - If your submission includes multiple data requests, then you must specify the fields that each person should fill out.
+  - `metadata` _(object, optional)_: Any additional data that you want to associate with this data request.
+  - `auth_type` _(string, required)_: One of: `password`, `oauth`, `email_link`, `phone_number`, `ldap`, `saml`
+    - Use `email_link` if you are sending an authenticated link in an email.
+  - `auth_session_started_at` _(string, required)_: The timestamp when the user was authenticated.
+    - We will set `auth_session_started_at` automatically when `auth_type` is `email_link`.
+  - `auth_second_factor_type` _(string, optional)_: One of: `none`, `phone_number`, `totp`, `mobile_push`, `security_key`, `fingerprint`.
+  - `auth_provider` _(string, optional)_: If `auth_type` is `oauth`, then please tell us the service (e.g. _google_, _facebook_, _twitter_)
+  - `auth_session_id_hash` _(string, optional)_: SHA256 hash of (salt + session ID) _(if your application uses a session ID)_
+  - `auth_user_id_hash` _(string, optional)_: User ID, or SHA256 hash of (salt + User ID)
+  - `auth_username_hash` _(string, optional)_: Username, or SHA256 hash of (salt + username)
+  - `auth_phone_number_hash` _(string, optional)_: Phone number, or SHA256 hash of (salt + phone number) _(if the user used their phone for authentication)_
+
+:::note
+Please [contact us](https://docspring.com/contact/) if you need a different `auth_type` or `auth_second_factor_type`.
+:::
+
+### Authentication Details
+
+It's important to provide accurate authentication details in case an electronic signature is disputed.
+You can send us SHA256 hashes if you don't want to disclose too much information about
+your user accounts. (However, you must never send a plaintext session ID, because
+this is very sensitive information.)
+
+If your user ID column is an incrementing integer, then it
+is important to use a salt to hide this information.
+We recommend configuring a single salt that you use for all of your SHA256 hashes.
+Alternatively, you can use a different salt for each user, and store this in
+your database. But please make sure you never lose this salt, otherwise there is no way to
+prove that the SHA256 hashes match the records in your database.
+
+### Example Response
+
+```json
+{
+  "id": "sub_1234567890abcdef01",
+  "state": "waiting_for_data_requests",
+  "test": true,
+  "expired": false,
+  "expires_at": "2018-10-22T19:00:09Z",
+  "metadata": {
+    "user_id": 42
+  },
+  "processed_at": null,
+  "batch_id": null,
+  "data_requests": [
+    {
+      "id": "drq_1234567890abcdef01",
+      "name": "John Smith",
+      "email": "jsmith@example.com",
+      "fields": ["name", "signature"],
+      "order": 0,
+      "state": "pending",
+      "viewed_at": null,
+      "completed_at": null
+    }
+  ],
+  "download_url": null,
+  "permanent_download_url": null
+}
+```
+
+### See Also
+
+<LinkCard
+  title="Data Requests Overview"
+  href="/docs/forms/data-requests/"
+  description="Learn about data requests and how they work"
+/>
+
+<LinkCard
+  title="API Reference: Generate PDF"
+  href="/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions"
+  description="Full API reference for the generate PDF endpoint"
+/>
+
+<LinkCard
+  title="Create Data Request Event"
+  href="/docs/api/#tag/data-requests/post/data_requests/{data_request_id}/events"
+  description="Track user interactions with data request forms"
+/>
+
+<LinkCard
+  title="Create Data Request Auth Token"
+  href="/docs/api/#tag/data-requests/post/data_requests/{data_request_id}/tokens"
+  description="Generate authentication tokens for secure data requests"
+/>
+
+<LinkCard
+  title="Update Data Request"
+  href="/docs/api/#tag/data-requests/put/data_requests/{data_request_id}"
+  description="Update existing data request information"
+/>

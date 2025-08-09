@@ -1,0 +1,188 @@
+---
+title: Web Forms JavaScript API
+description: JavaScript API reference for DocSpring.createSimpleForm()
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+The Web Forms JavaScript library allows you to embed web forms on your website for collecting data from your users and filling out PDF templates.
+
+<LinkCard
+  title="Implementation Guide for Web Forms"
+  href="/docs/guides/embedded-forms/embedded-web-forms/"
+  description="Step-by-step guide to embedding web forms on your website"
+/>
+
+<LinkCard
+  title="Web Forms Changelog"
+  href="/docs/changelogs/simple-forms-js/"
+  description="Changelog entries for the Web Forms JavaScript library"
+/>
+
+## DocSpring.createSimpleForm()
+
+Creates an embedded web form (or "simple form") for a DocSpring template.
+
+### Syntax
+
+```javascript
+DocSpring.createSimpleForm(css_selector, template_id, options_and_callbacks)
+```
+
+### Parameters
+
+| Parameter               | Type   | Required | Description                                                            |
+| ----------------------- | ------ | -------- | ---------------------------------------------------------------------- |
+| `css_selector`          | string | Yes      | CSS selector for the container element where the form will be rendered |
+| `template_id`           | string | Yes      | The ID of your DocSpring template (e.g., `'tpl_123456'`)               |
+| `options_and_callbacks` | object | No       | Configuration options and event callbacks                              |
+
+### Options
+
+| Option                        | Type    | Default               | Description                                                                                                                                                     |
+| ----------------------------- | ------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defaultData`                 | object  | `{}`                  | An object containing default values for form fields. Keys should match field names in your template.                                                            |
+| `metadata`                    | object  | `{}`                  | An object containing metadata for the submission. This data is included in API responses and webhooks but not in the PDF.                                       |
+| `showClearButton`             | boolean | `true`                | Set to `false` to hide the "Clear" button                                                                                                                       |
+| `clearButtonLabel`            | string  | `"Clear"`             | Text for the clear button                                                                                                                                       |
+| `submitButtonLabel`           | string  | `"Submit Form"`       | Text for the submit button                                                                                                                                      |
+| `submitButtonSavingLabel`     | string  | `"Saving..."`         | Text shown on submit button while saving                                                                                                                        |
+| `submitButtonProcessingLabel` | string  | `"Generating PDF..."` | Text shown on submit button while waiting for PDF processing                                                                                                    |
+| `redirectURL`                 | string  | `null`                | URL to redirect to after form submission. Overrides the template's default redirect URL.                                                                        |
+| `waitForPDF`                  | boolean | `true`                | If `redirectURL` is provided, set to `false` to redirect immediately instead of waiting for PDF processing. Has no effect if "Submission Privacy" is "Private". |
+
+<Aside type="note">
+  When "Submission Privacy" is set to "Private", `waitForPDF` is always `false`
+  - the form will redirect or show the thank you message immediately after
+  saving.
+</Aside>
+
+### Callbacks
+
+| Callback                | Parameters             | Description                                                                                                                                                                         |
+| ----------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `processTemplateSchema` | `jsonSchema` (mutable) | Called before the form is rendered. Modify the template schema to customize form behavior. You can hide fields by removing them from the schema.                                    |
+| `onClearForm`           | None                   | Called after the clear button is pressed                                                                                                                                            |
+| `onSubmit`              | `formData` (object)    | Called when the submit button is pressed. Parameter contains all form field values.                                                                                                 |
+| `onSave`                | `submission` (object)  | Called when the form has been saved. Parameter contains submission attributes including `id`.                                                                                       |
+| `onProcessed`           | `submission` (object)  | Called when the PDF has been processed. Only called if "Submission Privacy" is "Public". Parameter contains submission attributes including `id`, `download_url`, and `expires_at`. |
+| `onError`               | `response` (object)    | Called if there is an error with the request. Parameter is the response from the AJAX request.                                                                                      |
+
+### Return Value
+
+Returns a form instance object with methods for programmatic control (currently undocumented).
+
+## Examples
+
+### Basic Usage
+
+```javascript
+DocSpring.createSimpleForm('.dsp-form', 'tpl_123456')
+```
+
+### With Default Data
+
+```javascript
+DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+  defaultData: {
+    name: 'John Smith',
+    email: 'john@example.com',
+    date: '2024-01-15',
+  },
+})
+```
+
+### With All Options
+
+```javascript
+DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+  // Options
+  defaultData: {
+    name: 'John Smith',
+  },
+  metadata: {
+    userId: '12345',
+    source: 'website',
+  },
+  showClearButton: true,
+  clearButtonLabel: 'Reset',
+  submitButtonLabel: 'Generate My PDF',
+  submitButtonSavingLabel: 'Please wait...',
+  submitButtonProcessingLabel: 'Creating your PDF...',
+  redirectURL: 'https://example.com/success',
+  waitForPDF: false,
+
+  // Callbacks
+  processTemplateSchema: function (jsonSchema) {
+    // Hide the email field
+    delete jsonSchema.properties.email
+  },
+  onClearForm: function () {
+    console.log('Form cleared')
+  },
+  onSubmit: function (formData) {
+    console.log('Form submitted:', formData)
+  },
+  onSave: function (submission) {
+    console.log('Submission saved:', submission.id)
+  },
+  onProcessed: function (submission) {
+    console.log('PDF ready:', submission.download_url)
+  },
+  onError: function (response) {
+    console.error('Error:', response)
+  },
+})
+```
+
+## Submission Object
+
+The `submission` object passed to `onSave` and `onProcessed` callbacks contains:
+
+| Property       | Type   | Available In       | Description                                             |
+| -------------- | ------ | ------------------ | ------------------------------------------------------- |
+| `id`           | string | Both               | Unique identifier for the submission                    |
+| `state`        | string | Both               | Current state: `"pending"`, `"processed"`, or `"error"` |
+| `created_at`   | string | Both               | ISO 8601 timestamp when submission was created          |
+| `download_url` | string | `onProcessed` only | URL to download the generated PDF                       |
+| `expires_at`   | string | `onProcessed` only | ISO 8601 timestamp when the download URL expires        |
+
+## Error Handling
+
+The `onError` callback receives a response object with:
+
+| Property       | Type   | Description                               |
+| -------------- | ------ | ----------------------------------------- |
+| `status`       | number | HTTP status code                          |
+| `statusText`   | string | HTTP status text                          |
+| `responseJSON` | object | Parsed JSON error response (if available) |
+| `responseText` | string | Raw response text                         |
+
+### Common Error Scenarios
+
+```javascript
+onError: function(response) {
+  if (response.status === 422) {
+    // Validation error
+    const errors = response.responseJSON.errors;
+    console.error('Validation failed:', errors);
+  } else if (response.status === 401) {
+    // Authentication error
+    console.error('Template not configured for public access');
+  } else {
+    // Other error
+    console.error('Error:', response.statusText);
+  }
+}
+```
+
+## Browser Compatibility
+
+The embedded forms library supports all modern browsers:
+
+- Chrome 60+
+- Firefox 55+
+- Safari 11+
+- Edge 79+
+
+_Older versions of Internet Explorer are not supported._

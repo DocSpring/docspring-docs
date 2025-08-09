@@ -1,0 +1,273 @@
+---
+title: Embedded Visual Forms
+description: Step-by-step guide to embed visual PDF forms on your website
+---
+
+import { LinkCard, Aside, Code } from '@astrojs/starlight/components'
+import getEmbedVersion from '@utils/embed-versions'
+
+This guide walks through implementing visual forms for PDF generation without the compliance features of data requests. For conceptual documentation about visual forms, see the [Visual Forms documentation](/docs/forms/visual-forms/).
+
+## Implementation Steps
+
+### 1. Prepare Your Template
+
+First, ensure your PDF template is configured for visual forms:
+
+1. **Upload your PDF** to DocSpring
+2. **Add form fields** using the Template Editor
+3. **Configure template settings**:
+   - Set submission privacy (Public recommended)
+   - Configure redirect URL (optional)
+   - Set up field defaults and validation
+
+<LinkCard
+  title="Template Editor Guide"
+  href="/docs/template-editor/introduction/"
+  description="Learn how to create and configure PDF templates"
+/>
+
+### 2. Include the JavaScript Library
+
+Add the visual forms library to your webpage:
+
+<Code
+  code={`<script
+    type="text/javascript"
+    src="https://cdn.docspring.com/embed/visual_form.v${getEmbedVersion('visual_form')}.js"
+></script>`}
+  lang="html"
+  title="Include visual forms library"
+/>
+
+### 3. Initialize the Form
+
+Create a visual form with your template ID:
+
+<Code
+  code={`<script>
+    DocSpring.createVisualForm({
+      templateId: 'YOUR_TEMPLATE_ID'
+    })
+</script>`}
+  lang="html"
+  title="Basic initialization"
+/>
+
+This opens the form as a modal overlay. For inline embedding:
+
+<Code code={`<div id="form-container"></div>
+
+  <script>
+    DocSpring.createVisualForm('#form-container', {
+      templateId: 'YOUR_TEMPLATE_ID'
+    })
+</script>`} lang="html" title="Inline form" />
+
+### 4. Pre-fill Form Data (Optional)
+
+You can pre-populate form fields with default or static data:
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'YOUR_TEMPLATE_ID',
+
+    // Default values (user can modify)
+    defaultFormData: {
+      customer: {
+        name: 'John Smith',
+        email: 'john@example.com'
+      },
+      date: '2024-01-15'
+    },
+
+    // Static values (user cannot modify)
+    staticFormData: {
+      company_name: 'Acme Corporation',
+      invoice_number: 'INV-2024-001'
+    }
+
+})`} lang="javascript" title="Pre-filled form data" />
+
+<Aside type="note">
+  Form data must match your template's JSON schema structure. Use nested objects
+  for grouped fields.
+</Aside>
+
+### 5. Handle Form Events
+
+Add callbacks to respond to form events:
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'YOUR_TEMPLATE_ID',
+
+    // Form is ready
+    onLoad: function() {
+      console.log('Form loaded');
+    },
+
+    // Field interactions
+    onFieldChange: function(field) {
+      console.log('Field changed:', field.name, field.value);
+    },
+
+    // Form submission
+    onSubmit: function(formData) {
+      console.log('Form submitted:', formData);
+      // Send data to your server if needed
+    },
+
+    // PDF generation
+    onProcessed: function(data) {
+      console.log('PDF ready:', data.downloadURL);
+      // Custom handling (analytics, notifications, etc.)
+    },
+
+    // Error handling
+    onError: function(error) {
+      console.error('Form error:', error);
+      alert('There was an error processing your form.');
+    }
+
+})`} lang="javascript" title="Event callbacks" />
+
+### 6. Customize the Experience
+
+Visual forms offer extensive customization options:
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'YOUR_TEMPLATE_ID',
+
+    // UI Options
+    focusFirstFieldOnLoad: true,
+    showSignatureModalOnFocus: true,
+    downloadButtonLabel: 'Get My Document',
+
+    // Skip terms of service
+    skipAgreeToTermsOfService: true,
+
+    // Custom messages
+    pdfProcessingTitle: 'Creating Your Document...',
+    completedTitle: function(template) {
+      return 'Your ' + template.name + ' is Ready!';
+    },
+
+    // Redirect after completion
+    redirectURL: 'https://yoursite.com/thank-you',
+    waitForPDF: false  // Redirect immediately
+
+})`} lang="javascript" title="Customization options" />
+
+### 7. Style the Form (Optional)
+
+Apply custom CSS to match your brand:
+
+<Code code={`.dsp-form {
+    font-family: 'Your Font', sans-serif;
+  }
+
+.dsp-button.dsp-primary {
+background-color: #your-brand-color;
+border-color: #your-brand-color;
+}
+
+.dsp-header {
+background-color: #f8f9fa;
+border-bottom: 1px solid #dee2e6;
+}
+
+.dsp-field.focused {
+box-shadow: 0 0 0 3px rgba(your-color, 0.1);
+}`} lang="css" title="Custom styling" />
+
+### 8. Handle Field Overrides (Advanced)
+
+Dynamically modify field properties:
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'YOUR_TEMPLATE_ID',
+
+    fieldOverrides: {
+      // Hide sensitive fields
+      ssn: { hidden: true },
+
+      // Change field styling
+      signature: {
+        backgroundColor: 'FFFEF0',
+        borderColor: '2E7D32'
+      },
+
+      // Make fields required
+      email: { required: true }
+    }
+
+})`} lang="javascript" title="Field overrides" />
+
+## Production Deployment
+
+### Domain Verification
+
+DocSpring verifies that forms are loaded from authorized domains.
+Add your domain in the template settings.
+
+<Aside type="caution">
+  Remember to remove `domainVerification: false` before deploying to production.
+</Aside>
+
+## Troubleshooting
+
+### Common Issues
+
+**Form doesn't load**
+
+- Check template ID is correct
+- Verify domain is authorized
+- Check browser console for errors
+
+**Fields don't appear**
+
+- Verify template has form fields and has been saved successfully
+- Check if fields are hidden by overrides
+- Make sure you are using the right template version - you may need to publish a new version.
+
+**PDF doesn't generate**
+
+- Check API logs for validation errors
+
+### Debug Mode
+
+Enable debugging for detailed console logs:
+
+<Code
+  code={`DocSpring.DEBUG = true;
+DocSpring.createVisualForm({
+    templateId: 'YOUR_TEMPLATE_ID'
+})`}
+  lang="javascript"
+  title="Enable debug logging"
+/>
+
+## Next Steps
+
+<LinkCard
+  title="Visual Forms JavaScript API Reference"
+  href="/docs/forms/js-libraries/visual-forms-js/"
+  description="Complete API reference with all options and callbacks"
+/>
+
+<LinkCard
+  title="Visual Forms Documentation"
+  href="/docs/forms/visual-forms/"
+  description="Learn about visual forms and how they work"
+/>
+
+<LinkCard
+  title="Data Requests Guide"
+  href="/docs/guides/embedded-forms/embedded-data-requests/"
+  description="When you need legally binding signatures with compliance"
+/>
+
+<LinkCard
+  title="Visual Forms Changelog"
+  href="/docs/changelogs/visual-forms-js/"
+  description="Changelog entries for the Visual Forms JavaScript library"
+/>

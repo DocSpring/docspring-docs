@@ -1,0 +1,221 @@
+---
+title: Data Requests JavaScript API
+description: JavaScript API reference for DocSpring.createDataRequest()
+---
+
+import { Code, Aside, LinkCard } from '@astrojs/starlight/components'
+
+The Data Requests JavaScript library allows you to embed signing forms on your website for collecting electronic signatures.
+
+<LinkCard
+  title="Implementation Guide for Data Requests"
+  href="/docs/guides/embedded-forms/embedded-data-requests/"
+  description="Step-by-step guide to implementing UETA and ESIGN compliant electronic signatures"
+/>
+
+<LinkCard
+  title="Data Requests Changelog"
+  href="/docs/changelogs/data-requests-js/"
+  description="Changelog entries for the Data Requests JavaScript library"
+/>
+
+## DocSpring.createVisualForm()
+
+Creates an embedded signing form for collecting electronic signatures.
+
+### Syntax
+
+```javascript
+DocSpring.createVisualForm(cssSelector, optionsAndCallbacks)
+// or
+DocSpring.createVisualForm(optionsAndCallbacks)
+```
+
+### Parameters
+
+| Parameter             | Type   | Required | Description                                                            |
+| --------------------- | ------ | -------- | ---------------------------------------------------------------------- |
+| `cssSelector`         | string | No       | CSS selector for the container element where the form will be rendered |
+| `optionsAndCallbacks` | object | Yes      | Configuration options and event callbacks                              |
+
+### Required Options
+
+| Option          | Type   | Description          |
+| --------------- | ------ | -------------------- |
+| `dataRequestId` | string | Your Data Request ID |
+| `tokenId`       | string | Your Token ID        |
+| `tokenSecret`   | string | Your Token Secret    |
+
+### Configuration Options
+
+| Option                      | Type    | Default          | Description                                                                                                |
+| --------------------------- | ------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `defaultFormData`           | object  | `{}`             | Default data to fill in the fields (can be modified by the user)                                           |
+| `staticFormData`            | object  | `{}`             | Static data to fill in the fields (cannot be modified by the user)                                         |
+| `redirectURL`               | string  | `null`           | Redirect to this URL after submitting the form (overrides the template's redirect URL)                     |
+| `redirectURLQueryParams`    | boolean | `true`           | Automatically add `submission_id`, `template_id`, and `template_name` query params to the redirect URL     |
+| `waitForPDF`                | boolean | `true`           | If `redirectURL` is provided, set to `false` to redirect immediately instead of waiting for PDF processing |
+| `domainVerification`        | boolean | `true`           | Set to `false` during development to disable domain verification                                           |
+| `focusFirstFieldOnLoad`     | boolean | `false`          | Automatically focus the first field after the form is loaded                                               |
+| `showSignatureModalOnFocus` | boolean | `false`          | Automatically open the signature popup when a signature field is focused                                   |
+| `closeModalOnClickOverlay`  | boolean | `true`           | Allow the user to close the form by clicking on the modal overlay                                          |
+| `showTermsOfServiceLink`    | boolean | `true`           | Show a link to DocSpring's terms of service on the "Accept Terms" screen                                   |
+| `downloadButtonLabel`       | string  | `"Download PDF"` | Change the download button label                                                                           |
+| `showPdfProcessingSpinner`  | boolean | `true`           | Show a spinner while the PDF is being processed                                                            |
+| `iframeClass`               | string  | `null`           | CSS class for the iframe element                                                                           |
+| `iframeStyle`               | string  | `null`           | Inline styles for the iframe element                                                                       |
+| `footerHTML`                | string  | `null`           | Custom HTML content for the footer                                                                         |
+
+<Aside type="note">
+  When "Submission Privacy" is set to "Private", `waitForPDF` is always `false`
+  - the form will redirect or show the thank you message immediately after
+  saving.
+</Aside>
+
+### String Options
+
+Customize the titles and messages shown in the header. These options can be either a plain string or a function that returns a string.
+
+| Option                            | Function Arguments                                         | Description                                                      |
+| --------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| `signatureLegalDisclaimerMessage` | `template` (object)                                        | Legal disclaimer text shown below the signature pad when signing |
+| `agreeToTermsTitle`               | `template` (object), `formData` (object)                   | Title for the "Agree to terms of service" step                   |
+| `agreeToTermsMessage`             | `template` (object), `formData` (object)                   | Message for the "Agree to terms of service" step                 |
+| `waitingForDataRequestsTitle`     | `remainingDataRequestsCount` (number), `template` (object) | Title when there are still pending data requests                 |
+| `waitingForDataRequestsMessage`   | `remainingDataRequestsCount` (number), `template` (object) | Message when there are still pending data requests               |
+| `submittingTitle`                 | `template` (object)                                        | Title when the data is being submitted                           |
+| `submittingMessage`               | `template` (object)                                        | Message when the data is being submitted                         |
+| `pdfProcessingTitle`              | `template` (object)                                        | Title when the PDF is being processed                            |
+| `pdfProcessingMessage`            | `template` (object)                                        | Message when the PDF is being processed                          |
+| `completedTitle`                  | `template` (object), `downloadURL` (string)                | Title when the PDF has been processed                            |
+| `pdfProcessedMessage`             | `template` (object), `downloadURL` (string)                | Message when the PDF has been processed                          |
+| `completedTitleNoDownload`        | `template` (object)                                        | Title when data is saved but no download URL is available        |
+
+### Callbacks
+
+| Callback                  | Parameters                           | Description                                                                       |
+| ------------------------- | ------------------------------------ | --------------------------------------------------------------------------------- |
+| `onInitialize`            | -                                    | Called when the form has been initialized                                         |
+| `onLoad`                  | -                                    | Called when all form pages have been loaded                                       |
+| `onClearForm`             | -                                    | Called after the clear button is pressed and the form is cleared                  |
+| `onFieldFocus`            | `{ id, name, value }`                | Called when a field gains focus                                                   |
+| `onFieldBlur`             | `{ id, name, value }`                | Called when a field loses focus                                                   |
+| `onFieldChange`           | `{ id, name, value, previousValue }` | Called when a field value changes                                                 |
+| `onShowAcceptTerms`       | -                                    | Called when the user clicks "Continue" to show the final "Accept Terms" screen    |
+| `onSubmit`                | `formData` (object)                  | Called when the submit button is pressed                                          |
+| `onSave`                  | `submissionId`                       | Called when the form has been saved                                               |
+| `onProcessed`             | `{ submissionId, downloadUrl }`      | Called when the PDF has been processed (only if "Submission Privacy" is "Public") |
+| `onRemainingDataRequests` | `remainingDataRequestsCount`         | Called when other data requests still need to be filled in                        |
+| `onError`                 | `error`                              | Called if there is an error with the request                                      |
+
+## Global Functions
+
+These global functions allow you to interact with the form. Note that only one DocSpring form can be displayed on a page.
+
+| Function                                | Parameters                                                       | Description                                                     |
+| --------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------- |
+| `DocSpring.clearForm()`                 | -                                                                | Clear all data on the form and reset to default values          |
+| `DocSpring.submitForm()`                | -                                                                | Submit the form. Validation errors will be displayed if present |
+| `DocSpring.focusNextField()`            | -                                                                | Focus the next field (same as clicking "Next" button)           |
+| `DocSpring.focusField(name_or_id)`      | `name_or_id`: Field name or numeric ID                           | Focus a specific field                                          |
+| `DocSpring.setField(name_or_id, value)` | `name_or_id`: Field name or numeric ID<br/>`value`: Value to set | Set the value for a specific field                              |
+| `DocSpring.closeModal()`                | -                                                                | Close and hide the data request modal                           |
+
+## Examples
+
+### Basic Usage
+
+<Code
+  code={`DocSpring.createVisualForm({
+      dataRequestId: 'drq_123456',
+      tokenId: 'tok_123456',
+      tokenSecret: 'secret_123456'
+  })`}
+  lang="javascript"
+  title="Basic data request form"
+/>
+
+### With Custom Options
+
+<Code code={`DocSpring.createVisualForm('.form-container', {
+    // Required options
+    dataRequestId: 'drq_123456',
+    tokenId: 'tok_123456',
+    tokenSecret: 'secret_123456',
+
+    // Prefill data
+    defaultFormData: {
+      name: 'John Smith',
+      email: 'john@example.com'
+    },
+
+    // Static data that can't be changed
+    staticFormData: {
+      company: 'Acme Corp'
+    },
+
+    // Redirect after completion
+    redirectURL: 'https://example.com/thank-you',
+    waitForPDF: false,
+
+    // UI customization
+    downloadButtonLabel: 'Get My Document',
+    showSignatureModalOnFocus: true,
+
+    // Callbacks
+    onSubmit: function(formData) {
+      console.log('Form submitted:', formData);
+    },
+
+    onProcessed: function(data) {
+      console.log('PDF ready:', data.downloadUrl);
+    },
+
+    onError: function(error) {
+      console.error('Error:', error);
+    }
+
+})`} lang="javascript" title="Data request with options" />
+
+### Custom Messages
+
+<Code code={`DocSpring.createVisualForm({
+    dataRequestId: 'drq_123456',
+    tokenId: 'tok_123456',
+    tokenSecret: 'secret_123456',
+
+    // Custom messages
+    signatureLegalDisclaimerMessage: 'By signing, I agree to the terms.',
+
+    agreeToTermsTitle: function(template, formData) {
+      return 'Please Review and Sign ' + template.name;
+    },
+
+    completedTitle: function(template, downloadURL) {
+      return 'Your ' + template.name + ' is Ready!';
+    },
+
+    pdfProcessedMessage: 'Your document has been generated successfully.'
+
+})`} lang="javascript" title="Custom messages" />
+
+## Debugging
+
+Enable debug logging to troubleshoot issues:
+
+```javascript
+DocSpring.DEBUG = true
+```
+
+This will show extra debugging log messages in the developer console. If you are experiencing any problems with your integration, please enable logging and include the console logs in your support request.
+
+## Browser Compatibility
+
+The data requests library supports all modern browsers:
+
+- Chrome 60+
+- Firefox 55+
+- Safari 11+
+- Edge 79+
+
+_Older versions of Internet Explorer are not supported._

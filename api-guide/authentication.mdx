@@ -1,0 +1,146 @@
+---
+title: API Authentication
+description: Learn how to authenticate with the DocSpring API
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Code, LinkCard } from '@astrojs/starlight/components'
+import fs from 'fs'
+import path from 'path'
+
+export const authenticationExamples = {
+  javascript: await getCodeSample('javascript', 'test_authentication', 'js'),
+  typescript: await getCodeSample('typescript', 'test_authentication', 'ts'),
+  ruby: await getCodeSample('ruby', 'test_authentication', 'rb'),
+  python: await getCodeSample('python', 'test_authentication', 'py'),
+  php: await getCodeSample('php', 'test_authentication', 'php'),
+  java: await getCodeSample('java', 'test_authentication', 'java'),
+  csharp: await getCodeSample('csharp', 'test_authentication', 'cs'),
+  go: await getCodeSample('go', 'test_authentication', 'go'),
+  elixir: await getCodeSample('elixir', 'test_authentication', 'exs'),
+}
+
+export async function getCodeSample(language, filename, extension) {
+  const filePath = path.join(
+    process.cwd(),
+    '..',
+    'api_clients',
+    'rswag_tests',
+    language,
+    'docs',
+    `${filename}.${extension}`
+  );
+
+try {
+const content = await fs.promises.readFile(filePath, 'utf-8');
+return content.trim();
+} catch (error) {
+return '// TODO: Add authentication example';
+}
+}
+
+DocSpring uses API tokens for authentication. You can authenticate using HTTP basic authentication.
+Use your API token ID as the username, and the API token secret as the password.
+
+<LinkCard
+  title="API Tokens"
+  href="https://app.docspring.com/api_tokens"
+  description="Manage your API tokens in the DocSpring dashboard"
+/>
+
+## Environment Variables
+
+All DocSpring API clients support authentication via environment variables. Set the following environment variables, and the client will automatically use them:
+
+- `DOCSPRING_TOKEN_ID` - Your API token ID
+- `DOCSPRING_TOKEN_SECRET` - Your API token secret
+
+This allows you to keep your credentials out of your code:
+
+```bash
+export DOCSPRING_TOKEN_ID="your_token_id"
+export DOCSPRING_TOKEN_SECRET="your_token_secret"
+```
+
+Then initialize the client without passing credentials:
+
+```ruby
+# Ruby
+client = DocSpring::Client.new  # Automatically uses ENV variables
+
+# JavaScript/TypeScript
+const client = new DocSpring.Client();  // Automatically uses process.env
+
+# Python
+client = docspring.Client()  # Automatically uses os.environ
+```
+
+## HTTP Basic Authentication
+
+"HTTP basic authentation" means that you need to send an `Authorization` header with
+the value `Basic` followed by `token_id:token_secret` in Base64 encoding.
+
+Some tools such as `curl` can create the `Authorization` header for you:
+
+```bash
+curl -u API_TOKEN_ID:API_TOKEN_SECRET \
+  https://sync.api.docspring.com/api/v1/authentication
+```
+
+Or you can create the Base64 encoded string manually:
+
+```bash
+# echo -n "API_TOKEN_ID:API_TOKEN_SECRET" | base64
+QVBJX1RPS0VOX0lEOkFQSV9UT0tFTl9TRUNSRVQ=
+
+curl -H "Authorization: Basic QVBJX1RPS0VOX0lEOkFQSV9UT0tFTl9TRUNSRVQ=" \
+  https://sync.api.docspring.com/api/v1/authentication
+```
+
+## Test Authentication
+
+Our API includes an `/authentication` endpoint that you can use to make sure your API tokens are valid.
+
+<Tabs syncKey="language">
+  <TabItem label="cURL">
+    <Code code={`curl -u API_TOKEN_ID:API_TOKEN_SECRET \\
+    https://sync.api.docspring.com/api/v1/authentication`} lang="bash" />
+  </TabItem>
+
+<TabItem label="Ruby">
+  <Code code={authenticationExamples.ruby} lang="ruby" />
+</TabItem>
+
+<TabItem label="JavaScript">
+  <Code code={authenticationExamples.javascript} lang="javascript" />
+</TabItem>
+
+<TabItem label="TypeScript">
+  <Code code={authenticationExamples.typescript} lang="typescript" />
+</TabItem>
+
+<TabItem label="Python">
+  <Code code={authenticationExamples.python} lang="python" />
+</TabItem>
+
+<TabItem label="PHP">
+  <Code code={authenticationExamples.php} lang="php" />
+</TabItem>
+
+<TabItem label="Java">
+  <Code code={authenticationExamples.java} lang="java" />
+</TabItem>
+
+<TabItem label="C#">
+  <Code code={authenticationExamples.csharp} lang="csharp" />
+</TabItem>
+
+<TabItem label="Go">
+  <Code code={authenticationExamples.go} lang="go" />
+</TabItem>
+
+  <TabItem label="Elixir">
+    <Code code={authenticationExamples.elixir} lang="elixir" />
+  </TabItem>
+</Tabs>

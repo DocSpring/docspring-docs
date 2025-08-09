@@ -1,0 +1,392 @@
+---
+title: Field Data Types
+description: Learn about the different types of data you can use in DocSpring form fields
+sidebar:
+  order: 0
+---
+
+import { Aside, Badge } from '@astrojs/starlight/components'
+
+<style>{`
+  .sl-markdown-content h3 {
+    font-size: 1.3rem;
+  }
+
+  /* Shared styles for all data type headings */
+  .sl-markdown-content h2[id]:before {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+    margin-right: 18px;
+    margin-left: -50px;
+    vertical-align: middle;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  /* Specific icons for each data type */
+  .sl-markdown-content h2#string:before {
+    background-image: url('/docs/images/types/string.svg');
+  }
+  .sl-markdown-content h2#number:before {
+    background-image: url('/docs/images/types/number.svg');
+  }
+  .sl-markdown-content h2#boolean:before {
+    background-image: url('/docs/images/types/boolean.svg');
+  }
+  .sl-markdown-content h2#date:before {
+    background-image: url('/docs/images/types/date.svg');
+  }
+  .sl-markdown-content h2#address:before {
+    background-image: url('/docs/images/types/address.svg');
+  }
+  .sl-markdown-content h2#country:before {
+    background-image: url('/docs/images/types/country.svg');
+  }
+  .sl-markdown-content h2#email:before {
+    background-image: url('/docs/images/types/email.svg');
+  }
+  .sl-markdown-content h2#url:before {
+    background-image: url('/docs/images/types/url.svg');
+  }
+  .sl-markdown-content h2#image:before {
+    background-image: url('/docs/images/types/image.svg');
+  }
+  .sl-markdown-content h2#signature:before {
+    background-image: url('/docs/images/types/signature.svg');
+  }
+  .sl-markdown-content h2#barcode:before {
+    background-image: url('/docs/images/types/barcode.svg');
+  }
+  .sl-markdown-content h2#combined:before {
+    background-image: url('/docs/images/types/combined.svg');
+  }
+`}</style>
+
+export const DisplayTypes = ({ types }) => (
+  <div className="display-types">
+    {types.map((type) => (
+      <a
+        key={type}
+        href={`/docs/reference/field-display-types/#${type.toLowerCase().replace(' ', '-')}`}
+        className="display-type-badge"
+      >
+        {type}
+      </a>
+    ))}
+  </div>
+)
+
+**"Data Types" are the type of data that you send in your API request.**
+
+Data types can be different to the [Display Types](/docs/reference/field-display-types/) that you use to render data on the PDF.
+For example, a boolean `true` or `false` value can be used to show or hide a check mark on the PDF.
+Or if you set the display type to "Text", the field could display the text "true" or "false" (or any other values you configure.)
+
+## String
+
+### Field Options
+
+If you add some Field Options, then the value must be one of those options. A select list will be displayed on online forms.
+
+<img
+  src="/docs/images/template_editor/field-options.png"
+  alt="Field Options"
+  style={{ width: '250px' }}
+/>
+
+### Conditions
+
+When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Condition. The field will only be displayed when the value matches the condition. The condition predicate can be one of: _Equals_, _Contains_, _Starts With_, _Ends With_, or _Regex_.
+
+<img
+  src="/docs/images/template_editor/conditions.png"
+  alt="Conditions"
+  style={{ width: '250px' }}
+/>
+
+### Display Types
+
+<DisplayTypes types={['Text', 'Check', 'Shape', 'QR Code', 'Barcode']} />
+
+## Number
+
+A _Number_ field can be an integer or a float. When _Integer_ is checked, the value must be an integer. (No decimal places.)
+
+### Validations
+
+You can define a Minimum and Maximum value. You can check the "Exclusive" checkboxes to exclude the given value from the range. For example:
+
+- When "Exclusive Minimum" is checked: `value > Minimum`
+- When "Exclusive Minimum" is not checked: `value >= Minimum`
+
+In the following example, the value must be an integer. The value must be greater than `0`, and less than or equal to `1000`.
+
+<img
+  src="/docs/images/template_editor/number-options.png"
+  alt="Number Options"
+  style={{ width: '250px' }}
+/>
+
+### Formulas
+
+A _Number_ field can be a formula that performs a calculation. Formulas can reference other _Number_ fields.
+View the [Formula documentation](/docs/template-editor/formulas/) for more information about formula syntax, operators, and functions.
+
+<img
+  src="/docs/images/template_editor/formulas.png"
+  alt="Formulas"
+  style={{ width: '250px' }}
+/>
+
+### Conditions
+
+When a _Number_ field is displayed as a _Check_ or _Shape_, you can define a Condition. The field will only be displayed when the value matches the condition. The condition predicate can be one of: _Equals_, _Greater or Equal_, _Greater_, _Less or Equal_, _Less_, or _In Range_.
+
+<img
+  src="/docs/images/template_editor/number-condition-range.png"
+  alt="Number Conditions"
+  style={{ width: '250px' }}
+/>
+
+### Display Types
+
+<DisplayTypes types={['Text', 'Check', 'Shape']} />
+
+## Boolean
+
+A _Boolean_ value must be either `true` or `false`.
+
+### Text
+
+When a _Boolean_ field is displayed as _Text_, the text will be either "Yes" or "No". These strings can be configured for each field. You can also set default values in the template settings.
+
+<img
+  src="/docs/images/template_editor/boolean-text.png"
+  alt="Boolean Text"
+  style={{ width: '250px' }}
+/>
+
+### Check or Shape
+
+When a _Boolean_ field is displayed as a _Check_ or _Shape_, the field will only be displayed when the value is `true`.
+
+### Display Types
+
+<DisplayTypes types={['Text', 'Check', 'Shape']} />
+
+## Date
+
+_Date_ values must be a string formatted as: `YYYY-MM-DD`.
+
+When _Include Time_ is checked, the value must be a timestamp formatted as: `YYYY-MM-DDThh:mm:ss.fffZ`.
+
+A _Date_ field can be formatted using a format string. DocSpring supports the [`strftime` format directives from the Ruby programming language](https://apidock.com/ruby/DateTime/strftime).
+
+<img
+  src="/docs/images/template_editor/date-options.png"
+  alt="Date Options"
+  style={{ width: '250px' }}
+/>
+
+### Example
+
+Some forms may have separate fields for month, day, and year. You could configure three fields that all share the name `date`, but use different format strings for each field:
+
+- `%-m` for month
+- `%-d` for day
+- `%Y` for year
+
+<img
+  src="/docs/images/template_editor/day-month-year.png"
+  alt="Date Formats"
+  style={{ width: '400px' }}
+/>
+
+### Display Types
+
+<DisplayTypes types={['Text']} />
+
+## Address
+
+The _Address_ type can be used to show a text input that autocompletes an address.
+Address autocompletion is powered by Google Maps.
+
+The address is currently formatted as a single string.
+We are working to improve this so that you can render the
+address parts as separate fields.
+
+If you need this ability now, you should create separate text fields for each
+part (e.g. street, city, state, zip, country.)
+
+### Display Types
+
+<DisplayTypes types={['Text']} />
+
+## Country
+
+The _Country_ type can be used to show a dropdown list of countries in the online form.
+Otherwise, it is just a _String_ field that can accept any value.
+
+### Display Types
+
+<DisplayTypes types={['Text', 'Check', 'Shape']} />
+
+## Email
+
+An _Email_ value must be a valid email address.
+
+### Display Types
+
+<DisplayTypes types={['Text', 'QR Code', 'Barcode']} />
+
+## URL
+
+A _URL_ value must be a valid URL.
+
+### Display Types
+
+<DisplayTypes types={['Text', 'QR Code', 'Barcode']} />
+
+## Image
+
+An _Image_ value can be a Base64 encoded image, or a URL where the image can be downloaded.
+
+_(Support for direct image uploads is coming soon.)_
+
+- Request with a Base64 encoded image:
+
+```json
+"photo": {
+  "base64": "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGB ..."
+}
+```
+
+- Request with an image URL:
+
+```json
+"photo": {
+  "url": "https://source.unsplash.com/random"
+}
+```
+
+See the [Image Display Type](/docs/reference/field-display-types/#image) section for information about resizing and cropping images.
+
+### Display Types
+
+<DisplayTypes types={['Image']} />
+
+## Signature
+
+A _Signature_ field adds a signature pad to the online form:
+
+<img
+  src="/docs/images/template_editor/signature_field.jpg"
+  alt="Signature Field"
+  style={{ width: '500px' }}
+/>
+
+The online form will submit the signature as a Base64 encoded image.
+
+When you are generating a PDF via an API request, the _Signature_ type is a subset of the [Image](#image) type: You can submit a Base64 encoded image (`base64`), or a URL where the image can be downloaded (`url`).
+
+<Aside>
+  When requesting signatures from your users, we recommend using the
+  [signature_pad](https://github.com/szimek/signature_pad) library. You can
+  generate a PNG image with `signaturePad.toDataURL()`
+</Aside>
+
+You can also ask the user to type their full name. Then submit a `text` object with the user's name and their choice of typeface:
+
+```json
+"signature": {
+  "text": {
+    "name": "John Smith",
+    "typeface": "Dancing Script"
+  },
+}
+```
+
+- `name` must be the user's full name.
+- `typeface` must be one of the following fonts:
+  - [Dancing Script](https://fonts.google.com/specimen/Dancing%20Script)
+  - [Satisfy](https://fonts.google.com/specimen/Satisfy)
+  - [Cookie](https://fonts.google.com/specimen/Cookie)
+  - [Great Vibes](https://fonts.google.com/specimen/Great%20Vibes)
+  - [Caveat](https://fonts.google.com/specimen/Caveat)
+  - [Sunshiney](https://fonts.google.com/specimen/Sunshiney)
+  - [Sedgwick Ave](https://fonts.google.com/specimen/Sedgwick%20Ave)
+  - [Sacramento](https://fonts.google.com/specimen/Sacramento)
+  - [Lovtony Script](https://www.dafont.com/lovtony.font)
+
+<Aside>
+  [Let us know](https://docspring.com/contact) if you want us to add a new font.
+</Aside>
+
+### Display Types
+
+<DisplayTypes types={['Image']} />
+
+_(used internally)_
+
+## Barcode
+
+A _Barcode_ data type ensures that you submit a valid barcode.
+The value can be rendered as a barcode image or as a string.
+
+You must configure the correct barcode [symbology](https://en.wikipedia.org/wiki/Barcode#Symbologies) (type).
+DocSpring supports the following symbologies:
+
+- [EAN-13](https://en.wikipedia.org/wiki/International_Article_Number)
+  - 12 digits _(a checksum digit is added)_
+  - _Pattern:_ `/^[0-9]{12}$/`
+- [EAN-8](https://en.wikipedia.org/wiki/EAN-8)
+  - 7 digits _(a checksum digit is added)_
+  - _Pattern:_ `/^[0-9]{7}$/`
+- [UPC-A](https://en.wikipedia.org/wiki/Universal_Product_Code)
+  - 11 digits _(DocSpring adds the leading zero)_
+  - _Pattern:_ `/^[0-9]{11}$/`
+- [PDF417](https://en.wikipedia.org/wiki/PDF417)
+  - Any ASCII character
+  - _(No validation)_
+- [Code 128](https://en.wikipedia.org/wiki/Code_128)
+  - Any ASCII character
+  - _(No validation)_
+- [Code 93](https://en.wikipedia.org/wiki/Code_93)
+  - Uppercase letters, digits, `- . $ / + % SPACE`
+  - _Pattern:_ `/^[A-Z0-9\-\.\$\/\+% ]+$/`
+- [Code 39](https://en.wikipedia.org/wiki/Code_39)
+  - Uppercase letters, digits, `- . $ / + % SPACE`
+  - _Pattern:_ `/^[A-Z0-9\-\.\$\/\+% ]+$/`
+- [Code 25](https://en.wikipedia.org/wiki/Code_25)
+  - Digits
+  - _Pattern:_ `/^[0-9]+$/`
+
+<Aside>
+  Please contact support@docspring.com if you need a different symbology.
+</Aside>
+
+### Display Types
+
+<DisplayTypes types={['Text', 'Barcode']} />
+
+## Combined
+
+_Combined_ fields allow you to combine multiple field values into a single string.
+
+For example, you could combine `first_name` and `last_name` fields into a single `full_name` field:
+
+<img
+  src="/docs/images/template_editor/combined-fields.png"
+  alt="Combined Field Names"
+  style={{ width: '250px' }}
+/>
+
+The _Separator_ value can be any string (including an empty string.)
+
+### Display Types
+
+<DisplayTypes types={['Text']} />

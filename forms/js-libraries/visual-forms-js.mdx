@@ -1,0 +1,292 @@
+---
+title: Visual Forms JavaScript API
+description: JavaScript API reference for DocSpring.createVisualForm()
+---
+
+import { Code, Aside, LinkCard } from '@astrojs/starlight/components'
+
+The Visual Forms JavaScript library allows you to embed a visual PDF form directly on your
+website so that your users can fill it out and generate a PDF.
+It doesn't provide the compliance and audit trail features of [data requests](/docs/forms/js-libraries/data-requests-js/),
+but it provides more flexibility and has many options for customization and styling.
+
+<LinkCard
+  title="Implementation Guide for Visual Forms"
+  href="/docs/guides/embedded-forms/embedded-visual-forms/"
+  description="Step-by-step guide to embedding visual forms on your website"
+/>
+
+<LinkCard
+  title="Visual Forms Changelog"
+  href="/docs/changelogs/visual-forms-js/"
+  description="Changelog entries for the Visual Forms JavaScript library"
+/>
+
+## DocSpring.createVisualForm()
+
+Creates an embedded visual form for filling out PDF templates.
+
+### Syntax
+
+```javascript
+DocSpring.createVisualForm(cssSelector, optionsAndCallbacks)
+// or
+DocSpring.createVisualForm(optionsAndCallbacks)
+```
+
+### Parameters
+
+| Parameter             | Type   | Required | Description                                                                                                           |
+| --------------------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `cssSelector`         | string | No       | CSS selector for the container element where the form will be rendered. If omitted, the form opens as a modal overlay |
+| `optionsAndCallbacks` | object | Yes      | Configuration options and event callbacks                                                                             |
+
+### Required Options
+
+| Option            | Type   | Description                                    |
+| ----------------- | ------ | ---------------------------------------------- |
+| `templateId`      | string | Your Template ID                               |
+| `templateVersion` | string | Template version to use (defaults to "latest") |
+
+<Aside type="note">
+  You can alternatively pass `templateData` with cached template data instead of
+  `templateId` to make the page load faster.
+</Aside>
+
+### Configuration Options
+
+| Option                      | Type    | Default           | Description                                                              |
+| --------------------------- | ------- | ----------------- | ------------------------------------------------------------------------ |
+| `templateData`              | object  | `null`            | Cached template data (alternative to `templateId`)                       |
+| `defaultFormData`           | object  | `{}`              | Default values for fields (can be changed by the user)                   |
+| `staticFormData`            | object  | `{}`              | Static values for fields (cannot be changed by the user)                 |
+| `fieldOverrides`            | object  | `{}`              | Override field properties like `hidden` or `backgroundColor`             |
+| `redirectURL`               | string  | `null`            | Redirect to this URL after submitting the form                           |
+| `waitForPDF`                | boolean | `true`            | If `redirectURL` is provided, wait for PDF processing before redirecting |
+| `focusFirstFieldOnLoad`     | boolean | `false`           | Automatically focus the first field when the form loads                  |
+| `showSignatureModalOnFocus` | boolean | `false`           | Open signature modal automatically when signature field is focused       |
+| `showHeader`                | boolean | `true`            | Show the form header with navigation buttons                             |
+| `adjustHeaderOnScroll`      | boolean | `true`            | Keep header at top of page when scrolling                                |
+| `showClearButton`           | boolean | `true`            | Show the "Clear Form" button                                             |
+| `showTermsOfServiceLink`    | boolean | `true`            | Show the terms of service link                                           |
+| `skipAgreeToTermsOfService` | boolean | `false`           | Skip the "agree to terms" step                                           |
+| `previewMode`               | boolean | `false`           | Show form in preview mode with a single "Close" button                   |
+| `previewModeButtonLabel`    | string  | `"Close"`         | Label for the preview mode button                                        |
+| `termsOfServiceLabel`       | string  | `"DocSpring ToS"` | Label for terms of service link                                          |
+| `termsOfServiceURL`         | string  | DocSpring ToS     | URL for terms of service                                                 |
+| `showPdfProcessingSpinner`  | boolean | `true`            | Show spinner while PDF is processing                                     |
+| `downloadButtonLabel`       | string  | `"Download PDF"`  | Label for the download button                                            |
+
+### String Options
+
+Customize the titles and messages shown in the form. These options can be either a plain string or a function that returns a string.
+
+| Option                          | Function Arguments                                         | Description                                |
+| ------------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
+| `pdfProcessingTitle`            | `template` (object)                                        | Title when PDF is being processed          |
+| `pdfProcessingMessage`          | `template` (object)                                        | Message when PDF is being processed        |
+| `waitingForDataRequestsTitle`   | `remainingDataRequestsCount` (number), `template` (object) | Title when waiting for data requests       |
+| `waitingForDataRequestsMessage` | `remainingDataRequestsCount` (number), `template` (object) | Message when waiting for data requests     |
+| `completedTitle`                | `template` (object), `downloadURL` (string)                | Title when PDF is ready for download       |
+| `completedTitleNoDownload`      | `template` (object)                                        | Title when form is submitted (no download) |
+| `pdfProcessedMessage`           | `template` (object), `downloadURL` (string)                | Message when PDF is ready                  |
+| `footerHTML`                    | `template` (object)                                        | Custom HTML for the footer                 |
+
+### Callbacks
+
+| Callback                     | Parameters                                                                  | Description                                   |
+| ---------------------------- | --------------------------------------------------------------------------- | --------------------------------------------- |
+| `onClearForm`                | -                                                                           | Called when the form is cleared               |
+| `onFieldFocus`               | `{ id, name, value, containerElement, inputElement }`                       | Called when a field gains focus               |
+| `onFieldBlur`                | `{ id, name, value, containerElement, inputElement }`                       | Called when a field loses focus               |
+| `onFieldChange`              | `{ event, id, name, value, previousValue, containerElement, inputElement }` | Called when a field value changes             |
+| `onShowAcceptTerms`          | -                                                                           | Called when showing the "accept terms" screen |
+| `onSubmit`                   | `formData` (object)                                                         | Called when the form is submitted             |
+| `onSave`                     | `submissionId` (string)                                                     | Called when the submission is saved           |
+| `onProcessed`                | `{ submissionId, downloadURL }`                                             | Called when the PDF is processed              |
+| `onError`                    | `error`                                                                     | Called if an error occurs                     |
+| `onPreviewModeButtonClicked` | -                                                                           | Called when preview mode button is clicked    |
+
+## Global Functions
+
+These global functions allow you to interact with the form. Note that only one DocSpring form can be displayed on a page.
+
+| Function                                | Parameters                                                       | Description                                      |
+| --------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
+| `DocSpring.clearForm()`                 | -                                                                | Clear all data and reset to defaults             |
+| `DocSpring.submitForm()`                | -                                                                | Submit the form (shows validation errors if any) |
+| `DocSpring.focusNextField()`            | -                                                                | Focus the next field                             |
+| `DocSpring.focusField(name_or_id)`      | `name_or_id`: Field name or numeric ID                           | Focus a specific field                           |
+| `DocSpring.setField(name_or_id, value)` | `name_or_id`: Field name or numeric ID<br/>`value`: Value to set | Set a field's value                              |
+
+## Examples
+
+### Basic Usage
+
+<Code
+  code={`DocSpring.createVisualForm('.form-container', {
+    templateId: 'tpl_123456'
+  })`}
+  lang="javascript"
+  title="Basic visual form"
+/>
+
+### Modal Overlay
+
+<Code
+  code={`// Omit the CSS selector to open as a modal
+  DocSpring.createVisualForm({
+    templateId: 'tpl_123456',
+    templateVersion: '2'
+  })`}
+  lang="javascript"
+  title="Visual form as modal"
+/>
+
+### With Pre-filled Data
+
+<Code code={`DocSpring.createVisualForm('.form-container', {
+    templateId: 'tpl_123456',
+
+    // Default values (user can change)
+    defaultFormData: {
+      customer: {
+        name: 'John Smith',
+        email: 'john@example.com'
+      }
+    },
+
+    // Static values (user cannot change)
+    staticFormData: {
+      invoice_number: 'INV-2024-001',
+      date: '2024-01-15'
+    }
+
+})`} lang="javascript" title="Pre-filled form data" />
+
+### Custom Configuration
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'tpl_123456',
+
+    // Skip terms and auto-focus first field
+    skipAgreeToTermsOfService: true,
+    focusFirstFieldOnLoad: true,
+
+    // Custom messages
+    pdfProcessingTitle: 'Generating Your Document...',
+    completedTitle: function(template) {
+      return 'Your ' + template.name + ' is Ready!';
+    },
+
+    // Redirect after completion
+    redirectURL: 'https://example.com/thank-you',
+    waitForPDF: false,
+
+    // Callbacks
+    onFieldChange: function(field) {
+      console.log('Field changed:', field.name, field.value);
+    },
+
+    onSubmit: function(formData) {
+      console.log('Submitting:', formData);
+    },
+
+    onProcessed: function(data) {
+      console.log('PDF ready:', data.downloadURL);
+      // Custom download handling
+      window.location.href = data.downloadURL;
+    }
+
+})`} lang="javascript" title="Advanced configuration" />
+
+### Field Overrides
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'tpl_123456',
+
+    // Hide certain fields or change properties
+    fieldOverrides: {
+      internal_notes: {
+        hidden: true
+      },
+      signature: {
+        backgroundColor: 'FFFEF0'
+      }
+    }
+
+})`} lang="javascript" title="Field property overrides" />
+
+### Preview Mode
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'tpl_123456',
+
+    // Show form in preview mode
+    previewMode: true,
+    previewModeButtonLabel: 'Close Preview',
+
+    // Pre-fill with sample data
+    staticFormData: {
+      customer: { name: 'Sample Customer' },
+      amount: 1000
+    },
+
+    onPreviewModeButtonClicked: function() {
+      console.log('Preview closed');
+      // Hide the preview container
+    }
+
+})`} lang="javascript" title="Preview mode" />
+
+### Custom Footer
+
+<Code code={`DocSpring.createVisualForm({
+    templateId: 'tpl_123456',
+
+    footerHTML: function(template) {
+      return '<div class="dsp-footerLeft">' +
+        '<button class="dsp-button dsp-primary" onclick="customSave()">Save Draft</button>' +
+      '</div>' +
+      '<div class="dsp-footerRight">' +
+        '<button class="dsp-button" onclick="customCancel()">Cancel</button>' +
+      '</div>';
+    }
+
+})`} lang="javascript" title="Custom footer buttons" />
+
+## Field Types Support
+
+Visual forms support all DocSpring field types:
+
+- Text fields
+- Number fields
+- Date fields
+- Checkboxes
+- Radio buttons
+- Select dropdowns
+- Signatures
+- Images
+- Combined fields
+
+## Styling
+
+The visual form can be styled by targeting the following CSS classes:
+
+- `.dsp-form` - Main form container
+- `.dsp-field` - Field container
+- `.dsp-button` - Buttons
+- `.dsp-primary` - Primary buttons
+- `.dsp-header` - Form header
+- `.dsp-footer` - Form footer
+
+## Browser Compatibility
+
+The visual forms library supports all modern browsers:
+
+- Chrome 60+
+- Firefox 55+
+- Safari 11+
+- Edge 79+
+
+_Older versions of Internet Explorer are not supported._

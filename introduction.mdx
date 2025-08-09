@@ -1,0 +1,55 @@
+---
+title: DocSpring Documentation
+description: DocSpring is a service that makes it easy to fill out and generate PDF documents.
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
+
+DocSpring is a service that makes it easy to fill out and generate PDF documents.
+
+<div class="intro-cards">
+  <CardGrid>
+    <Card title="Easy PDF Generation" icon="document">
+      Upload PDF templates and fill them with data via our API
+    </Card>
+    <Card title="Powerful Template Editor" icon="pencil">
+      Configure form fields with our visual drag-and-drop editor
+    </Card>
+    <Card title="Web Forms" icon="laptop">
+      Automatically generate web forms from your PDF templates
+    </Card>
+    <Card title="E-signatures" icon="pen">
+      Collect legally binding electronic signatures with Data Requests
+    </Card>
+  </CardGrid>
+</div>
+
+## Getting Started
+
+- You can upload PDF templates and configure form fields in our [template editor](/docs/template-editor/introduction/).
+- You can also create a template using [HTML and CSS](/docs/html-templates/overview/).
+
+You can generate PDFs by [posting data to our API](/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions), or filling out an online form. We can [automatically generate web forms](/docs/forms/web-forms/) from the fields in your template. You can also [embed these web forms on your own website](/docs/guides/embedded-forms/embedded-web-forms/), and your users can fill out the form to generate a PDF.
+
+## Synchronous API
+
+The DocSpring API supports both synchronous and asynchronous requests.
+
+- Requests to `sync.api.docspring.com` are **synchronous** by default. _(We wait for the PDF to be processed before returning a response.)_
+  - _Use `sync.api-eu.docspring.com` for the EU region._
+- Requests to `api.docspring.com` are **asynchronous** by default. _(Pending PDF is returned immediately.)_
+  - _Use `api-eu.docspring.com` for the EU region._
+
+<LinkCard
+  title="Synchronous vs. Asynchronous API requests"
+  href="/docs/api-guide/synchronous-requests/"
+  description="Learn about the difference between sync.api.docspring.com and api.docspring.com"
+/>
+
+## E-signatures
+
+You can collect legally binding electronic signatures by creating [Data Requests](/docs/forms/data-requests/). Your users can visit a signing form hosted on [docspring.com](https://docspring.com), or you can embed the signing form on your own website.
+
+## API Reference
+
+Our API documentation has examples for JavaScript, Ruby, Python, PHP, C# (.Net), and Bash (curl). More client libraries and examples are coming soon. Please [contact us](mailto:support@docspring.com) to request a client library for a different programming language.

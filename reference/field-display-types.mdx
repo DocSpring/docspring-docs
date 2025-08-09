@@ -1,0 +1,116 @@
+---
+title: Field Display Types
+description: Learn about the different display types available for fields in the DocSpring Template Editor
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+<style>{`
+  .sl-markdown-content h3 {
+    font-size: 1.1rem;
+  }
+`}</style>
+
+**"Display Types" determine how data is displayed on the PDF.**
+
+Display types can be different to the [Data Types](/docs/reference/field-data-types/) that you send in your API request.
+For example, a boolean `true` or `false` value can be used to show or hide a check mark on the PDF.
+Or if you set the display type to "Text", the field could display the text "true" or "false" (or any other values you configure.)
+
+## Text
+
+### Typeface (Font)
+
+When you choose a "monospace" typeface, we will automatically calculate the maximum number
+of characters that can fit in the field. This will be added to the API schema as a validation.
+
+### Multiline
+
+When "Multiline" is checked, the text will wrap across multiple lines.
+When unchecked, the text will be displayed as a single line.
+
+### Comb
+
+When checked, the field is divided into equally spaced boxes, or "combs", and one character is placed in each comb. You can configure the number of comb cells.
+
+DocSpring will display the lines that divide each cell:
+
+![Three SSN Fields with Comb options](@images/template_editor/three-ssn-fields-with-comb.png)
+
+DocSpring will display the lines that divide each cell, and these lines can be useful when you're not sure how many cells are in a field. For larger comb fields, continue incrementing the "Comb Cells" value until all of the lines match up.
+
+<Aside type="tip">
+  View the [SSN Fields](/docs/template-editor/ssn-fields/) tutorial to see how
+  you can use the "Comb Offset" option to format an SSN into three separate
+  sections.
+</Aside>
+
+### Other Text Options
+
+- Font Size
+- Bold
+- Uppercase
+- Color
+- Opacity
+- Horizontal Alignment: _(Left, Center, Right)_
+- Vertical Alignment: _(Bottom, Center, Top)_
+
+## Check
+
+You can configure the check character, color, and opacity.
+
+![Check Options](@images/template_editor/check-options.png)
+
+## Shape
+
+You can configure a fill, border, or both. You can also configure the border width, and opacity.
+
+![Shape Options](@images/template_editor/shape-options.png)
+
+## Image
+
+### Image Scaling
+
+Images can be scaled to fit, scaled to fill, or stretched to fill the field dimensions.
+
+![Image Scaling Options](@images/template_editor/image-scaling-options.png)
+
+![Image Scaling Examples](@images/template_editor/image-scaling-examples.jpg)
+
+### Scale Gravity
+
+When you choose "scale to fit" or "scale to fill", you can configure the "gravity".
+This lets you control the image position (for "fit"), or which part of the image is cropped (for "fill").
+
+![Scale Gravity Options](@images/template_editor/scale-gravity-options.png)
+
+![Scale Gravity Examples](@images/template_editor/scale-gravity-examples.jpg)
+
+See the [Image Data Type](/docs/reference/field-data-types/#image) section for information about images.
+
+## QR Code
+
+[_Strings_](/docs/reference/field-data-types/#string),
+[_Emails_](/docs/reference/field-data-types/#email), and
+[_URLs_](/docs/reference/field-data-types/#url)
+can be displayed as QR Codes.
+
+![QR Code](@images/template_editor/qr-code.png)
+
+## Barcode
+
+The following field data types can be displayed as barcodes:
+[_Barcode_](/docs/reference/field-data-types/#barcode),
+[_String_](/docs/reference/field-data-types/#string),
+[_Email_](/docs/reference/field-data-types/#email), and
+[_URL_](/docs/reference/field-data-types/#url).
+
+<Aside type="note">
+  Note that the _Barcode_ data type can also be displayed as plain text.
+</Aside>
+
+_Strings_, _Emails_, and _URLs_ use the `Code 128` symbology, which supports any ASCII character.
+
+![Barcode](@images/template_editor/barcode.png)

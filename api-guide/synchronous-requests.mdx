@@ -1,0 +1,38 @@
+---
+title: Synchronous API Requests
+description: Learn about synchronous vs asynchronous API requests in DocSpring
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+The DocSpring API supports both synchronous and asynchronous API requests.
+
+- **Synchronous API requests** make it much easier to integrate DocSpring with your application. When you make a synchronous API request, the API will wait until the PDF is generated before returning a `201` response with the `download_url`.
+- **Asynchronous requests** are useful when generating a PDF takes a long time, or when you want to generate a PDF in the background. When you make an asynchronous request, the API will return a `201` response immediately, and you can check the status of the request later.
+
+<Aside type="tip">
+  We recommend using the `sync.api.docspring.com` subdomain for all API
+  requests. The synchronous subdomain supports **all API endpoints**, so you can
+  use it for all your API requests.
+</Aside>
+
+All of our API client libraries will use this subdomain by default. (You can always override the `host` when configuring your client.)
+
+You can force the synchronous subdomain to return a pending response immediately by adding the `?wait=false` query parameter.
+The `wait` query parameter has no effect on the async subdomain.
+
+## Subdomains and Endpoints
+
+- Requests to `sync.api.docspring.com` are **synchronous** by default. (The API waits for the PDF to be processed before returning a response.)
+  - _Customers in our EU region should use `sync.api-eu.docspring.com`_
+- Requests to `api.docspring.com` are **asynchronous** by default. (Pending PDF is returned immediately.)
+  - _Customers in our EU region should use `api-eu.docspring.com`_
+
+## Synchronous API Endpoints
+
+- Create Submission: `POST /api/v1/templates/{template_id}/submissions`
+- Create Submission Batch: `POST /api/v1/submissions/batches`
+- Create Combined Submission: `POST /api/v1/combined_submissions`
+- Create Template: `POST /api/v1/templates`

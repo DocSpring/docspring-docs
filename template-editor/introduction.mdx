@@ -1,0 +1,78 @@
+---
+title: Template Editor Introduction
+description: Learn how to use DocSpring's template editor to upload PDFs and configure form fields
+sidebar:
+  order: 0
+  label: Introduction
+---
+
+The template editor is where you upload your PDF templates and configure form fields. This powerful tool allows you to transform static PDFs into dynamic, data-filled documents.
+
+If you need any help getting started, please [contact us](https://docspring.com/contact).
+
+## Template Editor Overview
+
+![Template Editor](/docs/images/template_editor.jpg)
+
+## Getting Started
+
+### Add a Field
+
+Add a new field by clicking and dragging on the template:
+
+<img
+  src="/docs/images/template_editor/getting_started/add_field.gif"
+  alt="Add Field"
+  style={{ width: '250px' }}
+/>
+
+You can change the type of new fields by clicking one of the options in the header:
+
+<img
+  src="/docs/images/template_editor/getting_started/new_field_type.png"
+  alt="New Field Type"
+  style={{ width: '250px' }}
+/>
+
+You can also change the type of new fields by using their [keyboard shortcuts](/docs/template-editor/keyboard-shortcuts/#change-new-field-type).
+
+### Delete a Field
+
+To delete a field, you can press `Backspace` or `Delete` while the field is selected.
+
+You can also hover over the field in the sidebar, and click the Trash icon:
+
+<img
+  src="/docs/images/template_editor/getting_started/delete_field.gif"
+  alt="Delete Field"
+  style={{ width: '250px' }}
+/>
+
+## Next Steps
+
+Once you're comfortable with the basics, explore these topics:
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components'
+
+<CardGrid>
+  <LinkCard
+    title="Field Names"
+    description="Learn about JSON Pointer syntax and special field names"
+    href="/docs/template-editor/field-names/"
+  />
+  <LinkCard
+    title="Field Data Types"
+    description="Understand the different types of data you can use"
+    href="/docs/reference/field-data-types/"
+  />
+  <LinkCard
+    title="Field Display Types"
+    description="Control how fields appear on the PDF"
+    href="/docs/reference/field-display-types/"
+  />
+  <LinkCard
+    title="Template Settings"
+    description="Configure template-wide options"
+    href="/docs/template-editor/settings/"
+  />
+</CardGrid>

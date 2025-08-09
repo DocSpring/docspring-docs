@@ -1,0 +1,134 @@
+---
+title: AWS S3 Integration
+description: Automatically upload generated PDFs to your own S3 bucket
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components'
+
+DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bucket in your own AWS account, giving you full control over your document storage.
+
+<LinkCard
+  title="Step-by-Step Implementation Guide"
+  href="/docs/guides/integrations/aws-s3-integration/"
+  description="Complete setup instructions for AWS S3 integration"
+/>
+
+## Key Features
+
+- **Automatic uploads** - PDFs are uploaded immediately after generation
+- **Flexible path templates** - Organize PDFs using custom folder structures
+- **Selective uploads** - Choose which PDFs to upload based on submission type or API token
+- **Secure authentication** - Support for both access keys and IAM roles
+- **No vendor lock-in** - Keep your own copy of all generated documents
+
+## How It Works
+
+1. **Generate PDF** - Create a submission through the API or web interface
+2. **Process** - DocSpring generates the PDF from your template
+3. **Upload** - PDF is automatically uploaded to your S3 bucket
+4. **Verify** - Check the submission's `actions` array to confirm upload
+
+<Aside type="note">
+  DocSpring continues to store your PDFs for serving download URLs and combining
+  submissions. The S3 integration provides an additional copy in your own
+  infrastructure.
+</Aside>
+
+## Configuration Options
+
+### Authentication Methods
+
+- **Access Key Authentication** - Traditional IAM user with access keys
+- **Role-based Authentication** - Secure cross-account role assumption (recommended)
+
+### Upload Filtering
+
+Control which PDFs are uploaded to your bucket:
+
+- **Submission Type**
+  - Only Live (default) - Production PDFs without watermarks
+  - Only Test - Development PDFs with watermarks
+  - Both Live and Test - All PDFs
+
+- **API Token IDs**
+  - Limit uploads to specific API tokens
+  - Useful for environment separation (dev, staging, production)
+
+### Path Templates
+
+Organize your PDFs using Liquid template variables:
+
+```liquid
+# Default templates
+submissions/{{ submission_id }}.pdf
+test_submissions/{{ submission_id }}.pdf
+combined_submissions/{{ combined_submission_id }}.pdf
+
+# Custom examples
+{{ year }}/{{ month }}/{{ template_name }}/{{ submission_id }}.pdf
+clients/{{ metadata.client_id }}/invoices/{{ submission_id }}.pdf
+```
+
+## Use Cases
+
+- **Compliance** - Keep document copies in your own infrastructure
+- **Backup** - Automatic backup of all generated documents
+- **Integration** - Trigger workflows using S3 event notifications
+- **Analytics** - Process documents with your own tools
+- **Archive** - Long-term storage with S3 lifecycle policies
+
+## FAQ
+
+### How can I configure the S3 integration to only upload certain PDFs?
+
+You can use the "Submission Type" and "API Token IDs" fields to configure which PDFs will be uploaded to your S3 bucket.
+
+For example, if you set "Submission Type" to live, then DocSpring will only upload live PDFs to S3 (without watermarks.) Test PDFs will be skipped. The other options are "test", and "all" (for both test and live PDFs.)
+
+You can also provide a comma-separated list of API tokens in the "API Token IDs" field. If you provide one or more API token IDs, then DocSpring will only upload submissions (or combined submissions) that were created using this API token. You could use feature to set up S3 buckets for different environments (e.g. dev, staging, production, qa), and use separate API tokens for each environment. This would allow you to send your generated PDFs into the correct S3 bucket for each environment while sharing the same templates in a single DocSpring account.
+
+### Which authentication method should I use?
+
+We recommend using role-based authentication as it's more secure than sharing access keys. With role-based authentication:
+
+- No long-term credentials are shared between DocSpring and your AWS account
+- You can easily revoke access by modifying the trust relationship
+- You have more granular control over permissions
+- You can use AWS CloudTrail to audit role assumption activities
+
+### Does DocSpring still keep a copy of the PDF?
+
+Yes. This AWS S3 integration is just a one-way file upload, but DocSpring continues to store your template PDFs and generated PDFs. We serve our own copy of the generated PDF when you request a download URL. We will also use our own copy of the PDF when merging them into a "combined submission".
+
+### Does DocSpring delete the PDF from my S3 bucket when a submission expires?
+
+No. DocSpring will only delete our own copy of the PDF when a submission expires. We will never delete a PDF in your custom S3 bucket.
+
+### How can I tell when the PDF has been uploaded to my custom S3 bucket?
+
+One thing to be aware of is that the submission state will change to processed as soon as our copy of the PDF is ready, but it might take a few seconds before the PDF is uploaded into your custom S3 bucket. The AWS integration upload happens after the initial processing is completed.
+
+If you need to know when the PDF is available in your own S3 bucket, you can check the `actions` array in the API response. This array will be empty before the submission is processed. As soon as the the submission is processed, it will contain an entry for the `aws_s3_upload` action. This action's `state` will be `pending` until the file has been uploaded into your S3 bucket, and then it will change to `processed`.
+
+For example, here's how you could wait for the PDF to be uploaded to your own S3 bucket (in JavaScript):
+
+```js
+const pdfHasBeenUploadedToS3Bucket = () => {
+  if (submission['actions'].length === 0) return false
+  const action = submission['actions'].find(
+    (a) => a.action_type === 'aws_s3_upload'
+  )
+  return action && action.state === 'processed'
+}
+```
+
+Another thing you could do is set up an [AWS S3 event notification](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html). You could send a webhook to your server as soon as the PDF has been uploaded to your S3 bucket. This means that you wouldn't need to do any polling.
+
+### What if my path template generates a duplicate key?
+
+If a path template generates a duplicate key, any existing files will be overwritten with the new file. To protect against this case, you should [enable "Versioning" for your S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html). This means that you will always be able to restore an original file in case it is accidentally overwritten with a duplicate key. Your path template should also use at least one variable that is guaranteed to be unique, such as `submission_id`.
+
+<Aside type="danger">
+  Don't rely on the `timestamp` variable to provide unique filenames, because
+  multiple PDFs could be processed within the same second.
+</Aside>
