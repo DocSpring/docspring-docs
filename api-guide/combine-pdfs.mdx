@@ -1,0 +1,153 @@
+---
+title: Combine PDFs
+description: Merge multiple PDFs into a single document with DocSpring
+sidebar:
+  order: 4
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+Combine multiple PDFs from different sources into a single merged document.
+
+## Endpoint
+
+```
+POST /api/v1/combined_submissions
+```
+
+## Source Types
+
+You can combine PDFs from various sources:
+
+### Submissions
+Generated PDFs from template submissions:
+```json
+{ "type": "submission", "id": "sub_1234567890abcdef01" }
+```
+
+### Combined Submissions
+Previously combined PDFs:
+```json
+{ "type": "combined_submission", "id": "com_1234567890abcdef01" }
+```
+
+### Templates
+Original template PDFs (unfilled):
+```json
+{ "type": "template", "id": "tpl_1234567890abcdef01" }
+{ "type": "template", "id": "tpl_1234567890abcdef01", "template_version": "1.2.3" }
+```
+
+### Custom Files
+Uploaded PDF files:
+```json
+{ "type": "custom_file", "id": "cfi_1234567890abcdef01" }
+```
+
+### URLs
+PDFs from external URLs:
+```json
+{ "type": "url", "url": "https://example.com/document.pdf" }
+```
+
+## Example Request
+
+```json
+{
+  "source_pdfs": [
+    { "type": "submission", "id": "sub_1234567890abcdef01" },
+    { "type": "template", "id": "tpl_1234567890abcdef01" },
+    { "type": "url", "url": "https://example.com/terms.pdf" }
+  ],
+  "metadata": {
+    "document_type": "complete_package",
+    "pdf_filename": "complete_contract_package"
+  }
+}
+```
+
+## Key Features
+
+### Template Versions
+For template sources, specify versions:
+- `"template_version": "draft"` - Use draft version
+- `"template_version": "latest"` - Use latest published version (default)
+- `"template_version": "1.2.3"` - Use specific version
+
+### Custom Filename
+Set a custom PDF filename via metadata:
+```json
+{
+  "metadata": {
+    "pdf_filename": "merged_documents_2024"
+  }
+}
+```
+
+The download URL becomes:
+`/combined_submissions/{id}/merged_documents_2024.pdf`
+
+**Filename rules:**
+- Max 128 characters
+- Allowed: `0-9 A-Z a-z - _ .`
+- Other characters replaced with `_`
+
+### Free to Use
+Combining PDFs is free, but source submission PDFs count toward your monthly usage.
+
+## Use Cases
+
+### Multi-Page Forms
+Combine multiple template submissions for complex forms:
+```json
+{
+  "source_pdfs": [
+    { "type": "submission", "id": "sub_application_form" },
+    { "type": "submission", "id": "sub_supporting_docs" },
+    { "type": "template", "id": "tpl_terms_and_conditions" }
+  ]
+}
+```
+
+### Document Packages
+Create complete document packages with cover pages, forms, and attachments:
+```json
+{
+  "source_pdfs": [
+    { "type": "template", "id": "tpl_cover_page" },
+    { "type": "submission", "id": "sub_main_form" },
+    { "type": "url", "url": "https://company.com/legal/terms.pdf" }
+  ]
+}
+```
+
+### Addendum Pages
+Handle form fields with truncated text by generating additional pages:
+```json
+{
+  "source_pdfs": [
+    { "type": "submission", "id": "sub_main_form" },
+    { "type": "submission", "id": "sub_addendum_page" }
+  ]
+}
+```
+
+<LinkCard
+  title="API Reference: Combine PDFs"
+  href="/docs/api/#tag/combined-submissions/post/combined_submissions"
+  description="View all parameters, example requests/responses, and code samples"
+/>
+
+## Related Resources
+
+<LinkCard
+  title="Generate PDFs"
+  href="/api-guide/generate-pdfs"
+  description="Create PDFs from templates before combining them"
+/>
+
+<LinkCard
+  title="Custom Files"
+  href="/docs/api/#tag/custom-files"
+  description="Upload and manage custom PDF files for combining"
+/>
