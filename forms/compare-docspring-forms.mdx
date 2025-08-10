@@ -7,25 +7,32 @@ sidebar:
 
 import { LinkCard, Aside, Code, Icon } from '@astrojs/starlight/components'
 
-DocSpring supports three different kinds of forms that can be used to fill out and generate PDFs.
+DocSpring supports three different kinds of forms that can be used to collect data and generate PDFs.
 
-- [Web Forms](/docs/forms/web-forms/)
-  - Ideal for turning complex PDFs into a simple web-based form with inputs and checkboxes.
-- [Visual Forms](/docs/forms/visual-forms/)
-  - Show a visual representation of the PDF to users and allow them to fill out the fields. Similar to filling out a PDF form in Acrobat or Preview on macOS.
-- [Data Requests](/docs/forms/data-requests/)
-  - Generate legally binding electronic signatures with UETA/ESIGN compliance. Renders a visual form inside a secure iframe and adds compliance features and audit trails.
+<LinkCard
+  title="Web Forms"
+  href="/docs/forms/web-forms/"
+  description="Ideal for turning complex PDFs into a simple web-based form with inputs and checkboxes."
+/>
 
-<Aside type="tip">
-  All forms can either be hosted on the DocSpring website or embedded on your
-  own website.
-</Aside>
+<LinkCard
+  title="Visual Forms"
+  href="/docs/forms/visual-forms/"
+  description="Show a visual representation of the PDF to users and allow them to fill out the fields. Similar to filling out a PDF form in Acrobat or Preview on macOS."
+/>
 
-### Key Differences
+<LinkCard
+  title="Data Requests"
+  href="/docs/forms/data-requests/"
+  description="Generate legally binding electronic signatures with UETA/ESIGN compliance. Renders a visual form inside a secure iframe and adds compliance features and audit trails."
+/>
+
+
+### Comparison
 
 | Feature                      | Web Forms                                                               | Visual Forms                                                            | Data Requests                                                           |
 | ---------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Available on DocSpring.com   | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
+| Available on [DocSpring.com](https://docspring.com)   | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
 | Embed on your own website    | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
 | Field validation             | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
 | Mobile support               | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
@@ -36,22 +43,3 @@ DocSpring supports three different kinds of forms that can be used to fill out a
 | User authentication tracking | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
 | Legally binding e-signatures | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="close" color="var(--sl-color-red)" size="20px" />           | <Icon name="approve-check" color="var(--sl-color-green)" size="24px" /> |
 
-## Next Steps
-
-<LinkCard
-  title="Web Forms"
-  href="/docs/forms/web-forms/"
-  description="Learn more about web forms"
-/>
-
-<LinkCard
-  title="Visual Forms"
-  href="/docs/forms/visual-forms/"
-  description="Learn more about visual forms"
-/>
-
-<LinkCard
-  title="Data Requests"
-  href="/docs/forms/data-requests/"
-  description="Learn more about data requests"
-/>
