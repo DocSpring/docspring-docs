@@ -1,0 +1,225 @@
+---
+title: Generate PDFs
+description: Generate PDFs from templates using the DocSpring API
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, Aside, LinkCard } from '@astrojs/starlight/components'
+
+The DocSpring API generates PDFs by filling templates with your data. Templates can be either:
+
+- **PDF templates** - Upload a PDF and add fillable fields in our visual editor
+- **HTML/CSS templates** - Write HTML and CSS for complete control over layout
+
+When you create a template, you define fields with names and types (text, number, date, signature, etc.).
+These fields determine the structure of the data you send to generate PDFs.
+The API validates your data against the template's field schema and fills the template to create your PDF.
+
+### API Endpoint
+
+```
+POST /api/v1/templates/{template_id}/submissions
+```
+
+### Key Parameters
+
+- `data` - Field data matching your template schema
+- `test` - Generate a free watermarked test PDF (`true`) or live PDF (`false`)
+- `metadata` - Additional data like user IDs, included in webhook requests
+- `version` - Template version to use (`draft`, `latest`, or specific version like `1.2.3`)
+- `wait` - Wait for PDF processing to complete (`true`) or return immediately (`false`). Default: `true`
+- `editable` - Generate an editable PDF with fillable form fields (`true`) or static PDF (`false`). Uses template default if not specified
+- `expires_in` - Number of seconds before the submission expires after processing
+- `data_requests` - Request additional information or signatures from recipients
+- `field_overrides` - Override field settings like `required` for specific fields
+
+<br/>
+<LinkCard
+  title="API Reference: Generate PDF"
+  href="/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions"
+  description="View all parameters, example requests/responses, and code samples"
+/>
+
+## Batch PDF Generation
+
+Generate up to 50 PDFs in a single request, each potentially using different templates and data.
+
+### API Endpoint
+
+```
+POST /api/v1/submissions/batches
+```
+
+### Example Request
+
+```json
+{
+  "submissions": [
+    {
+      "template_id": "tpl_abc123",
+      "data": { "name": "John Smith" },
+      "test": true
+    },
+    {
+      "template_id": "tpl_xyz789",
+      "data": { "name": "Jane Doe" },
+      "test": false
+    }
+  ]
+}
+```
+
+<LinkCard
+  title="API Reference: Batch Generate PDFs"
+  href="/docs/api/#tag/submission-batches/post/submissions/batches"
+  description="View all parameters, example requests/responses, and code samples"
+/>
+
+## Synchronous vs Asynchronous Processing
+
+### Synchronous (Default)
+
+By default, the API waits for the PDF to be generated before returning:
+
+```javascript
+// Wait for PDF generation (default behavior)
+const response = await client.generatePdf(templateId, {
+  data: { name: "John Smith" }
+})
+console.log(response.submission.download_url) // PDF is ready
+```
+
+### Asynchronous
+
+Set `wait=false` to return immediately and process in the background:
+
+```javascript
+// Return immediately with pending submission
+const response = await client.generatePdf(templateId, {
+  data: { name: "John Smith" },
+  wait: false
+})
+
+// Poll for completion every few seconds
+const submission = await client.getSubmission(response.submission.id)
+```
+
+<LinkCard
+  title="Synchronous API Requests"
+  href="/api-guide/synchronous-requests"
+  description="Learn more about synchronous vs asynchronous API requests"
+/>
+
+## Customization Options
+
+### PDF Title and Filename
+
+You can customize both the PDF title (shown in PDF reader applications) and the filename in the download URL via metadata:
+
+```json
+{
+  "data": { "name": "John Smith" },
+  "metadata": {
+    "pdf_title": "Employment Contract - John Smith",
+    "pdf_filename": "contract_2024_01_15"
+  }
+}
+```
+
+- `pdf_title` - Sets the title shown in PDF reader applications (defaults to template name)
+- `pdf_filename` - Sets the filename in the download URL (DocSpring adds `.pdf` automatically)
+  - Default URL: `/submissions/<submission_id>.pdf`
+  - Custom URL: `/submissions/<submission_id>/contract_2024_01_15.pdf`
+  - Max 128 characters, allowed: `0-9 A-Z a-z - _ .` (other characters replaced with `_`)
+
+### Field Overrides
+
+Override template field settings per submission:
+
+```json
+{
+  "data": { "name": "John Smith" },
+  "field_overrides": {
+    "signature": {
+      "required": false
+    }
+  }
+}
+```
+
+### Handling Truncated Text
+
+If text doesn't fit in a field and the field's "Overflow" option is set to "Truncate", DocSpring stores the truncated text in the submission response:
+
+```json
+{
+  "submission": {
+    "truncated_text": {
+      "title": ["text that could not fit in the field"]
+    }
+  }
+}
+```
+
+This is useful for forms with addendum pages - you can check `truncated_text` and generate additional pages when needed.
+
+### Special Newline Characters
+
+If your integration can't send literal newline characters (`\n`), use `%%LF%%` as a replacement:
+
+```json
+{
+  "address": "123 Main Street%%LF%%Suite 100%%LF%%New York, NY 10001"
+}
+```
+
+This renders in the PDF as:
+```
+123 Main Street
+Suite 100
+New York, NY 10001
+```
+
+## Data Requests
+
+Request additional information or electronic signatures from users before generating the PDF:
+
+```json
+{
+  "data": { "name": "John Smith" },
+  "data_requests": [
+    {
+      "name": "John Smith",
+      "email": "john@example.com",
+      "fields": ["signature", "date"]
+    }
+  ]
+}
+```
+
+<LinkCard
+  title="Embedded Data Requests Guide"
+  href="/guides/embedded-forms/embedded-data-requests"
+  description="Learn how to request signatures and information from users"
+/>
+
+## Related Resources
+
+<LinkCard
+  title="API Authentication"
+  href="/api-guide/authentication"
+  description="Set up your API credentials"
+/>
+
+<LinkCard
+  title="Install API Client"
+  href="/api-guide/install-api-client"
+  description="Get started with our client libraries"
+/>
+
+<LinkCard
+  title="Template Management"
+  href="/docs/api/#tag/templates"
+  description="Create and manage templates via API"
+/>
