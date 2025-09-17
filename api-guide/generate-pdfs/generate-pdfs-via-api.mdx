@@ -1,0 +1,105 @@
+---
+title: Generate PDFs via API
+description: Generate PDFs from templates using the DocSpring API
+sidebar:
+  order: 3
+---
+
+import { LinkCard } from '@astrojs/starlight/components'
+
+DocSpring generates PDFs by filling your templates with submission data. Templates can either be uploads that you annotate in the Template Editor or fully custom HTML/CSS layouts that you host in DocSpring.
+
+## Endpoint
+
+```
+POST /api/v1/templates/{template_id}/submissions
+```
+
+<LinkCard
+  title="API Reference: Generate PDF"
+  href="/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions"
+  description="Review every request parameter, see example payloads, and run test calls"
+/>
+
+## Request Payload Basics
+
+Every submission must include:
+
+- `data` — Field values that match your template schema.
+- `test` — Use `true` for free, watermarked PDFs while building your integration.
+- `metadata` — Optional map for values you want echoed back in webhooks.
+- `version` — Choose `draft`, `latest`, or a specific version such as `1.2.3`.
+
+Optional parameters:
+
+- `wait` — Decide between synchronous and asynchronous processing.
+- `editable` — Keep the resulting PDF fillable or flatten the form fields.
+- `expires_in` — Set a TTL for the generated PDF download link.
+- `field_overrides` — Temporarily adjust field requirements or defaults.
+- `data_requests` — Kick off a data collection or signature workflow before finalizing the PDF.
+
+## Processing Modes
+
+Submissions sent to `sync.api.docspring.com` wait for processing and return the `download_url` in the response. Switching `wait=false` or using the asynchronous domain returns immediately with a pending submission. See [Sync vs. Async Processing](/docs/api-guide/synchronous-requests/) for flow diagrams, polling tips, and webhook guidance.
+
+## Batch Generation
+
+Need to create many PDFs at once? Use the batch endpoint to submit up to 50 requests together. Each entry can target a different template, switch between test/live, and specify its own metadata.
+
+<LinkCard
+  title="Batch Generate PDFs"
+  href="/docs/api-guide/generate-pdfs/batch-generate-pdfs/"
+  description="Send up to 50 submissions in one request and mix templates, test mode, and metadata"
+/>
+
+## Helpful Extras
+
+<LinkCard
+  title="Customize Title & Filename"
+  href="/docs/api-guide/generate-pdfs/customize-pdf-title-and-filename/"
+  description="Control the PDF metadata and download URL for each submission"
+/>
+
+<LinkCard
+  title="Handle Truncated Text"
+  href="/docs/api-guide/generate-pdfs/handle-truncated-text/"
+  description="Detect overflow and generate addendum pages when field text is clipped"
+/>
+
+<LinkCard
+  title="Special Newline Characters"
+  href="/docs/api-guide/generate-pdfs/special-newline-characters/"
+  description="Work around integrations that strip literal newline characters"
+/>
+
+<LinkCard
+  title="Combine PDFs"
+  href="/docs/api-guide/combine-pdfs/"
+  description="Merge submissions, templates, and external files into one package"
+/>
+
+## Related Workflows
+
+<LinkCard
+  title="Create Data Requests"
+  href="/docs/api-guide/create-data-requests/"
+  description="Collect signatures or missing data before finalizing the PDF"
+/>
+
+<LinkCard
+  title="Install API Client"
+  href="/docs/api-guide/install-api-client/"
+  description="Set up official DocSpring SDKs with authentication helpers"
+/>
+
+<LinkCard
+  title="API Authentication"
+  href="/docs/api-guide/authentication/"
+  description="Generate API tokens and configure credentials for requests"
+/>
+
+<LinkCard
+  title="Embedded Data Requests Guide"
+  href="/docs/guides/embedded-forms/embedded-data-requests/"
+  description="Embed signing and data collection experiences in your app"
+/>

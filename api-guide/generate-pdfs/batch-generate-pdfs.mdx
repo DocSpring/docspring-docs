@@ -1,0 +1,111 @@
+---
+title: Batch Generate PDFs
+description: Create up to 50 submissions in a single API call
+sidebar:
+  order: 4
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components'
+
+Batch submission requests let you create multiple PDFs in parallel with a single call to the DocSpring API. Each item in the batch can point to a different template, supply different data, and choose between test or live mode.
+
+## Endpoint
+
+```
+POST /api/v1/submissions/batches
+```
+
+<LinkCard
+  title="API Reference: Batch Generate PDFs"
+  href="/docs/api/#tag/submission-batches/post/submissions/batches"
+  description="View all parameters, example requests/responses, and code samples"
+/>
+
+## Request Structure
+
+Provide an array of submissions. Every entry accepts the same payload as a standard submission request:
+
+```json
+{
+  "submissions": [
+    {
+      "template_id": "tpl_contract",
+      "data": { "name": "John Smith" },
+      "test": true,
+      "metadata": { "pdf_filename": "contract_draft_john_smith" }
+    },
+    {
+      "template_id": "tpl_invoice",
+      "data": { "name": "Acme Corp" },
+      "test": false,
+      "wait": false
+    }
+  ]
+}
+```
+
+<Aside type="tip">
+  Use metadata fields like <code>pdf_filename</code> or <code>pdf_title</code> on
+  individual submissions to keep generated files organized.
+</Aside>
+
+## Response Format
+
+Batch responses include a `batch` object and an array of child `submissions`:
+
+```json
+{
+  "batch": {
+    "id": "bat_123",
+    "status": "processed",
+    "created_at": "2024-02-01T12:00:00Z"
+  },
+  "submissions": [
+    {
+      "id": "sub_first",
+      "status": "processed",
+      "download_url": "https://.../sub_first.pdf"
+    },
+    {
+      "id": "sub_second",
+      "status": "pending"
+    }
+  ]
+}
+```
+
+When you set `wait=false` on any submission, the batch response may return before the PDF is ready. Poll each submission with `GET /api/v1/submissions/{id}` or listen for the `submission.completed` webhook.
+
+## Limits & Best Practices
+
+- **Up to 50 submissions** per batch request.
+- **Mix templates freely** – each item can target a different template.
+- **Test vs. live mode** – set `test` per submission.
+- **Back pressure** – prefer batch requests when generating many documents to avoid hitting rate limits with individual calls.
+- **Webhooks** – enable webhooks if you need to know when asynchronous submissions finish processing.
+
+## Related Topics
+
+<LinkCard
+  title="Generate PDFs Overview"
+  href="/docs/api-guide/generate-pdfs/generate-pdfs-via-api/"
+  description="Understand submission payloads, processing modes, and related workflows"
+/>
+
+<LinkCard
+  title="Sync vs. Async Processing"
+  href="/docs/api-guide/synchronous-requests/"
+  description="Choose the right processing strategy and learn when to poll or use webhooks"
+/>
+
+<LinkCard
+  title="Special Newline Characters"
+  href="/docs/api-guide/generate-pdfs/special-newline-characters/"
+  description="Replace literal newline characters with %%LF%% when integrations strip them"
+/>
+
+<LinkCard
+  title="Customize Title & Filename"
+  href="/docs/api-guide/generate-pdfs/customize-pdf-title-and-filename/"
+  description="Control PDF metadata so batch jobs produce well-named files"
+/>
