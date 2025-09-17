@@ -6,54 +6,66 @@ sidebar:
 ---
 
 import { Tabs, TabItem, LinkCard } from '@astrojs/starlight/components'
-import JavaScriptInstallation from '@components/sdk-installation/javascript.astro'
-import TypeScriptInstallation from '@components/sdk-installation/typescript.astro'
-import RubyInstallation from '@components/sdk-installation/ruby.astro'
-import PythonInstallation from '@components/sdk-installation/python.astro'
-import PHPInstallation from '@components/sdk-installation/php.astro'
-import JavaInstallation from '@components/sdk-installation/java.astro'
-import CSharpInstallation from '@components/sdk-installation/csharp.astro'
-import GoInstallation from '@components/sdk-installation/go.astro'
-import ElixirInstallation from '@components/sdk-installation/elixir.astro'
+import JavaScriptMarkdown from '../../sdk-installation/javascript.md'
+import TypeScriptMarkdown from '../../sdk-installation/typescript.md'
+import RubyMarkdown from '../../sdk-installation/ruby.md'
+import PythonMarkdown from '../../sdk-installation/python.md'
+import PHPMarkdown from '../../sdk-installation/php.md'
+import JavaMarkdown from '../../sdk-installation/java.md'
+import CSharpMarkdown from '../../sdk-installation/csharp.md'
+import GoMarkdown from '../../sdk-installation/go.md'
+import ElixirMarkdown from '../../sdk-installation/elixir.md'
+import SdkInstallationCardGrid from '@components/SdkInstallationCardGrid.astro'
+import { Package } from 'lucide-astro'
 import './install-api-client.css'
+import { sdkLinkCardConfigs } from '@utils/sdkInstallations'
 
 Choose your preferred programming language to get started with the DocSpring API.
 
 <Tabs syncKey="language">
   <TabItem label="JavaScript">
-    <JavaScriptInstallation />
+    <SdkInstallationCardGrid cards={sdkLinkCardConfigs.javascript} />
+    <JavaScriptMarkdown />
   </TabItem>
 
 <TabItem label="TypeScript">
-  <TypeScriptInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.typescript} />
+  <TypeScriptMarkdown />
 </TabItem>
 
 <TabItem label="Ruby">
-  <RubyInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.ruby} />
+  <RubyMarkdown />
 </TabItem>
 
 <TabItem label="Python">
-  <PythonInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.python} />
+  <PythonMarkdown />
 </TabItem>
 
 <TabItem label="PHP">
-  <PHPInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.php} />
+  <PHPMarkdown />
 </TabItem>
 
 <TabItem label="Java">
-  <JavaInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.java} />
+  <JavaMarkdown />
 </TabItem>
 
 <TabItem label="C#">
-  <CSharpInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.csharp} />
+  <CSharpMarkdown />
 </TabItem>
 
 <TabItem label="Go">
-  <GoInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.go} />
+  <GoMarkdown />
 </TabItem>
 
 <TabItem label="Elixir">
-  <ElixirInstallation />
+  <SdkInstallationCardGrid cards={sdkLinkCardConfigs.elixir} />
+  <ElixirMarkdown />
 </TabItem>
 
   <TabItem label="Other">
