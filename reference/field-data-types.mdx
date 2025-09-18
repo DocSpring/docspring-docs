@@ -5,7 +5,7 @@ sidebar:
   order: 0
 ---
 
-import { Aside, Badge } from '@astrojs/starlight/components'
+import { Aside, Badge } from "@astrojs/starlight/components";
 
 <style>{`
   .sl-markdown-content h3 {
@@ -71,14 +71,14 @@ export const DisplayTypes = ({ types }) => (
     {types.map((type) => (
       <a
         key={type}
-        href={`/docs/reference/field-display-types/#${type.toLowerCase().replace(' ', '-')}`}
+        href={`/docs/reference/field-display-types/#${type.toLowerCase().replace(" ", "-")}`}
         className="display-type-badge"
       >
         {type}
       </a>
     ))}
   </div>
-)
+);
 
 **"Data Types" are the type of data that you send in your API request.**
 
@@ -95,7 +95,7 @@ If you add some Field Options, then the value must be one of those options. A se
 <img
   src="/docs/images/template_editor/field-options.png"
   alt="Field Options"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Conditions
@@ -105,12 +105,12 @@ When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Con
 <img
   src="/docs/images/template_editor/conditions.png"
   alt="Conditions"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'Check', 'Shape', 'QR Code', 'Barcode']} />
+<DisplayTypes types={["Text", "Check", "Shape", "QR Code", "Barcode"]} />
 
 ## Number
 
@@ -128,7 +128,7 @@ In the following example, the value must be an integer. The value must be greate
 <img
   src="/docs/images/template_editor/number-options.png"
   alt="Number Options"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Formulas
@@ -139,7 +139,7 @@ View the [Formula documentation](/docs/template-editor/formulas/) for more infor
 <img
   src="/docs/images/template_editor/formulas.png"
   alt="Formulas"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Conditions
@@ -149,12 +149,12 @@ When a _Number_ field is displayed as a _Check_ or _Shape_, you can define a Con
 <img
   src="/docs/images/template_editor/number-condition-range.png"
   alt="Number Conditions"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'Check', 'Shape']} />
+<DisplayTypes types={["Text", "Check", "Shape"]} />
 
 ## Boolean
 
@@ -167,7 +167,7 @@ When a _Boolean_ field is displayed as _Text_, the text will be either "Yes" or 
 <img
   src="/docs/images/template_editor/boolean-text.png"
   alt="Boolean Text"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Check or Shape
@@ -176,7 +176,7 @@ When a _Boolean_ field is displayed as a _Check_ or _Shape_, the field will only
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'Check', 'Shape']} />
+<DisplayTypes types={["Text", "Check", "Shape"]} />
 
 ## Date
 
@@ -189,7 +189,7 @@ A _Date_ field can be formatted using a format string. DocSpring supports the [`
 <img
   src="/docs/images/template_editor/date-options.png"
   alt="Date Options"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 ### Example
@@ -203,12 +203,12 @@ Some forms may have separate fields for month, day, and year. You could configur
 <img
   src="/docs/images/template_editor/day-month-year.png"
   alt="Date Formats"
-  style={{ width: '400px' }}
+  style={{ width: "400px" }}
 />
 
 ### Display Types
 
-<DisplayTypes types={['Text']} />
+<DisplayTypes types={["Text"]} />
 
 ## Address
 
@@ -224,7 +224,7 @@ part (e.g. street, city, state, zip, country.)
 
 ### Display Types
 
-<DisplayTypes types={['Text']} />
+<DisplayTypes types={["Text"]} />
 
 ## Country
 
@@ -233,7 +233,7 @@ Otherwise, it is just a _String_ field that can accept any value.
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'Check', 'Shape']} />
+<DisplayTypes types={["Text", "Check", "Shape"]} />
 
 ## Email
 
@@ -241,7 +241,7 @@ An _Email_ value must be a valid email address.
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'QR Code', 'Barcode']} />
+<DisplayTypes types={["Text", "QR Code", "Barcode"]} />
 
 ## URL
 
@@ -249,7 +249,7 @@ A _URL_ value must be a valid URL.
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'QR Code', 'Barcode']} />
+<DisplayTypes types={["Text", "QR Code", "Barcode"]} />
 
 ## Image
 
@@ -277,7 +277,7 @@ See the [Image Display Type](/docs/reference/field-display-types/#image) section
 
 ### Display Types
 
-<DisplayTypes types={['Image']} />
+<DisplayTypes types={["Image"]} />
 
 ## Signature
 
@@ -286,7 +286,7 @@ A _Signature_ field adds a signature pad to the online form:
 <img
   src="/docs/images/template_editor/signature_field.jpg"
   alt="Signature Field"
-  style={{ width: '500px' }}
+  style={{ width: "500px" }}
 />
 
 The online form will submit the signature as a Base64 encoded image.
@@ -328,7 +328,7 @@ You can also ask the user to type their full name. Then submit a `text` object w
 
 ### Display Types
 
-<DisplayTypes types={['Image']} />
+<DisplayTypes types={["Image"]} />
 
 _(used internally)_
 
@@ -371,7 +371,7 @@ DocSpring supports the following symbologies:
 
 ### Display Types
 
-<DisplayTypes types={['Text', 'Barcode']} />
+<DisplayTypes types={["Text", "Barcode"]} />
 
 ## Combined
 
@@ -382,11 +382,11 @@ For example, you could combine `first_name` and `last_name` fields into a single
 <img
   src="/docs/images/template_editor/combined-fields.png"
   alt="Combined Field Names"
-  style={{ width: '250px' }}
+  style={{ width: "250px" }}
 />
 
 The _Separator_ value can be any string (including an empty string.)
 
 ### Display Types
 
-<DisplayTypes types={['Text']} />
+<DisplayTypes types={["Text"]} />

@@ -3,7 +3,7 @@ title: Data Requests JavaScript API
 description: JavaScript API reference for DocSpring.createDataRequest()
 ---
 
-import { Code, Aside, LinkCard } from '@astrojs/starlight/components'
+import { Code, Aside, LinkCard } from "@astrojs/starlight/components";
 
 The Data Requests JavaScript library allows you to embed signing forms on your website for collecting electronic signatures.
 
@@ -26,9 +26,9 @@ Creates an embedded signing form for collecting electronic signatures.
 ### Syntax
 
 ```javascript
-DocSpring.createVisualForm(cssSelector, optionsAndCallbacks)
+DocSpring.createVisualForm(cssSelector, optionsAndCallbacks);
 // or
-DocSpring.createVisualForm(optionsAndCallbacks)
+DocSpring.createVisualForm(optionsAndCallbacks);
 ```
 
 ### Parameters
@@ -204,7 +204,7 @@ These global functions allow you to interact with the form. Note that only one D
 Enable debug logging to troubleshoot issues:
 
 ```javascript
-DocSpring.DEBUG = true
+DocSpring.DEBUG = true;
 ```
 
 This will show extra debugging log messages in the developer console. If you are experiencing any problems with your integration, please enable logging and include the console logs in your support request.

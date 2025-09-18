@@ -3,7 +3,7 @@ title: Web Forms JavaScript API
 description: JavaScript API reference for DocSpring.createSimpleForm()
 ---
 
-import { Aside, LinkCard } from '@astrojs/starlight/components'
+import { Aside, LinkCard } from "@astrojs/starlight/components";
 
 The Web Forms JavaScript library allows you to embed web forms on your website for collecting data from your users and filling out PDF templates.
 
@@ -26,7 +26,7 @@ Creates an embedded web form (or "simple form") for a DocSpring template.
 ### Syntax
 
 ```javascript
-DocSpring.createSimpleForm(css_selector, template_id, options_and_callbacks)
+DocSpring.createSimpleForm(css_selector, template_id, options_and_callbacks);
 ```
 
 ### Parameters
@@ -77,62 +77,62 @@ Returns a form instance object with methods for programmatic control (currently 
 ### Basic Usage
 
 ```javascript
-DocSpring.createSimpleForm('.dsp-form', 'tpl_123456')
+DocSpring.createSimpleForm(".dsp-form", "tpl_123456");
 ```
 
 ### With Default Data
 
 ```javascript
-DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
   defaultData: {
-    name: 'John Smith',
-    email: 'john@example.com',
-    date: '2024-01-15',
+    name: "John Smith",
+    email: "john@example.com",
+    date: "2024-01-15",
   },
-})
+});
 ```
 
 ### With All Options
 
 ```javascript
-DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
   // Options
   defaultData: {
-    name: 'John Smith',
+    name: "John Smith",
   },
   metadata: {
-    userId: '12345',
-    source: 'website',
+    userId: "12345",
+    source: "website",
   },
   showClearButton: true,
-  clearButtonLabel: 'Reset',
-  submitButtonLabel: 'Generate My PDF',
-  submitButtonSavingLabel: 'Please wait...',
-  submitButtonProcessingLabel: 'Creating your PDF...',
-  redirectURL: 'https://example.com/success',
+  clearButtonLabel: "Reset",
+  submitButtonLabel: "Generate My PDF",
+  submitButtonSavingLabel: "Please wait...",
+  submitButtonProcessingLabel: "Creating your PDF...",
+  redirectURL: "https://example.com/success",
   waitForPDF: false,
 
   // Callbacks
   processTemplateSchema: function (jsonSchema) {
     // Hide the email field
-    delete jsonSchema.properties.email
+    delete jsonSchema.properties.email;
   },
   onClearForm: function () {
-    console.log('Form cleared')
+    console.log("Form cleared");
   },
   onSubmit: function (formData) {
-    console.log('Form submitted:', formData)
+    console.log("Form submitted:", formData);
   },
   onSave: function (submission) {
-    console.log('Submission saved:', submission.id)
+    console.log("Submission saved:", submission.id);
   },
   onProcessed: function (submission) {
-    console.log('PDF ready:', submission.download_url)
+    console.log("PDF ready:", submission.download_url);
   },
   onError: function (response) {
-    console.error('Error:', response)
+    console.error("Error:", response);
   },
-})
+});
 ```
 
 ## Submission Object

@@ -10,7 +10,7 @@ import {
   Tabs,
   TabItem,
   LinkCard,
-} from '@astrojs/starlight/components'
+} from "@astrojs/starlight/components";
 
 This guide walks you through setting up AWS S3 integration to automatically upload generated PDFs to your own S3 bucket.
 
@@ -231,11 +231,11 @@ clients/{{ metadata.client_id }}/{{ date }}_{{ submission_id }}.pdf
 Check if a PDF has been uploaded to S3:
 
 ```javascript
-if (submission['actions'].length === 0) return false
-const action = submission['actions'].find(
-  (a) => a.action_type === 'aws_s3_upload'
-)
-return action && action.state === 'processed'
+if (submission["actions"].length === 0) return false;
+const action = submission["actions"].find(
+  (a) => a.action_type === "aws_s3_upload",
+);
+return action && action.state === "processed";
 ```
 
 ### Using AWS S3 Event Notifications

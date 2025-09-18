@@ -3,7 +3,7 @@ title: AWS S3 Integration
 description: Automatically upload generated PDFs to your own S3 bucket
 ---
 
-import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components'
+import { Aside, LinkCard, CardGrid } from "@astrojs/starlight/components";
 
 DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bucket in your own AWS account, giving you full control over your document storage.
 
@@ -114,12 +114,12 @@ For example, here's how you could wait for the PDF to be uploaded to your own S3
 
 ```js
 const pdfHasBeenUploadedToS3Bucket = () => {
-  if (submission['actions'].length === 0) return false
-  const action = submission['actions'].find(
-    (a) => a.action_type === 'aws_s3_upload'
-  )
-  return action && action.state === 'processed'
-}
+  if (submission["actions"].length === 0) return false;
+  const action = submission["actions"].find(
+    (a) => a.action_type === "aws_s3_upload",
+  );
+  return action && action.state === "processed";
+};
 ```
 
 Another thing you could do is set up an [AWS S3 event notification](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html). You could send a webhook to your server as soon as the PDF has been uploaded to your S3 bucket. This means that you wouldn't need to do any polling.

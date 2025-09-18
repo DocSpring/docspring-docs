@@ -5,8 +5,8 @@ sidebar:
   order: 3
 ---
 
-import { Code, LinkCard } from '@astrojs/starlight/components'
-import openapi from '@root/openapi/v1/openapi.json'
+import { Code, LinkCard } from "@astrojs/starlight/components";
+import openapi from "@root/openapi/v1/openapi.json";
 
 This page shows the complete JSON schema for template fields, including all possible properties and their types.
 
@@ -30,8 +30,8 @@ All other properties are optional and will use the [default values](/docs/refere
 The following schema is extracted from the DocSpring OpenAPI specification. It shows all available field properties, their types, and validation rules.
 
 export const fieldSchema = openapi.paths[
-  '/templates/{template_id}/add_fields'
-].put.parameters.find((p) => p.name === 'data').schema.properties.fields.items
+  "/templates/{template_id}/add_fields"
+].put.parameters.find((p) => p.name === "data").schema.properties.fields.items;
 
 <Code
   code={JSON.stringify(fieldSchema, null, 2)}

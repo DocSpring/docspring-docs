@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-import { LinkCard } from '@astrojs/starlight/components'
+import { LinkCard } from "@astrojs/starlight/components";
 
 Combine multiple PDFs from different sources into a single merged document.
 
@@ -20,32 +20,42 @@ POST /api/v1/combined_submissions
 You can combine PDFs from various sources:
 
 ### Submissions
+
 Generated PDFs from template submissions:
+
 ```json
 { "type": "submission", "id": "sub_1234567890abcdef01" }
 ```
 
 ### Combined Submissions
+
 Previously combined PDFs:
+
 ```json
 { "type": "combined_submission", "id": "com_1234567890abcdef01" }
 ```
 
 ### Templates
+
 Original template PDFs (unfilled):
+
 ```json
 { "type": "template", "id": "tpl_1234567890abcdef01" }
 { "type": "template", "id": "tpl_1234567890abcdef01", "template_version": "1.2.3" }
 ```
 
 ### Custom Files
+
 Uploaded PDF files:
+
 ```json
 { "type": "custom_file", "id": "cfi_1234567890abcdef01" }
 ```
 
 ### URLs
+
 PDFs from external URLs:
+
 ```json
 { "type": "url", "url": "https://example.com/document.pdf" }
 ```
@@ -69,13 +79,17 @@ PDFs from external URLs:
 ## Key Features
 
 ### Template Versions
+
 For template sources, specify versions:
+
 - `"template_version": "draft"` - Use draft version
 - `"template_version": "latest"` - Use latest published version (default)
 - `"template_version": "1.2.3"` - Use specific version
 
 ### Custom Filename
+
 Set a custom PDF filename via metadata:
+
 ```json
 {
   "metadata": {
@@ -88,17 +102,21 @@ The download URL becomes:
 `/combined_submissions/{id}/merged_documents_2024.pdf`
 
 **Filename rules:**
+
 - Max 128 characters
 - Allowed: `0-9 A-Z a-z - _ .`
 - Other characters replaced with `_`
 
 ### Free to Use
+
 Combining PDFs is free, but source submission PDFs count toward your monthly usage.
 
 ## Use Cases
 
 ### Multi-Page Forms
+
 Combine multiple template submissions for complex forms:
+
 ```json
 {
   "source_pdfs": [
@@ -110,7 +128,9 @@ Combine multiple template submissions for complex forms:
 ```
 
 ### Document Packages
+
 Create complete document packages with cover pages, forms, and attachments:
+
 ```json
 {
   "source_pdfs": [
@@ -122,7 +142,9 @@ Create complete document packages with cover pages, forms, and attachments:
 ```
 
 ### Addendum Pages
+
 Handle form fields with truncated text by generating additional pages:
+
 ```json
 {
   "source_pdfs": [

@@ -5,9 +5,9 @@ sidebar:
   order: 2
 ---
 
-import { Tabs, TabItem, Code, LinkCard } from '@astrojs/starlight/components'
-import fs from 'fs'
-import path from 'path'
+import { Tabs, TabItem, Code, LinkCard } from "@astrojs/starlight/components";
+import fs from "fs";
+import path from "path";
 
 export async function getCodeSample(language, filename, extension) {
   const filePath = path.join(
