@@ -43,8 +43,7 @@ This is useful when you have added a [@@data_url QR code to the PDF](/docs/templ
 
 If you configure a Webhook URL, we'll send a POST request whenever a PDF is processed. We also send webhooks when a submission contains invalid data, or if there is a error while processing the submission.
 
-Webhooks are sent for both live and test PDFs. Make sure you ignore test PDFs in production —
-`data['submission']['test']` will be `true` for test PDFs.
+Webhooks are sent for both live and test PDFs. Make sure you ignore test PDFs in production: `data['submission']['test']` will be `true` for test PDFs.
 
 <Aside type="note">
   You can also set a "Default Webhook URL" for every [API
