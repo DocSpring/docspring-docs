@@ -332,6 +332,59 @@ You can also ask the user to type their full name. Then submit a `text` object w
 
 _(used internally)_
 
+## Initials
+
+An _Initials_ field adds an initials pad to the online form, similar to the signature field:
+
+<img
+  src="/docs/images/template_editor/signature_field.jpg"
+  alt="Initials Field"
+  style={{ width: "500px" }}
+/>
+
+The online form submits initials as a Base64 encoded image.
+
+When you are generating a PDF via an API request, the _Initials_ type supports the same payloads as the [Signature](#signature) type: provide a Base64 encoded image (`base64`), a URL where the image can be downloaded (`url`), or a text representation.
+
+<Aside>
+  When requesting initials from your users, we recommend using the
+  [signature_pad](https://github.com/szimek/signature_pad) library. You can
+  generate a PNG image with `signaturePad.toDataURL()`
+</Aside>
+
+You can also ask the user to type their initials. Submit a `text` object with the user's initials and their choice of typeface:
+
+```json
+"initials": {
+  "text": {
+    "name": "JS",
+    "typeface": "Dancing Script"
+  },
+}
+```
+
+- `name` should be the user's initials (for example, `"JS"` for John Smith).
+- `typeface` must be one of the same fonts supported for signatures:
+  - [Dancing Script](https://fonts.google.com/specimen/Dancing%20Script)
+  - [Satisfy](https://fonts.google.com/specimen/Satisfy)
+  - [Cookie](https://fonts.google.com/specimen/Cookie)
+  - [Great Vibes](https://fonts.google.com/specimen/Great%20Vibes)
+  - [Caveat](https://fonts.google.com/specimen/Caveat)
+  - [Sunshiney](https://fonts.google.com/specimen/Sunshiney)
+  - [Sedgwick Ave](https://fonts.google.com/specimen/Sedgwick%20Ave)
+  - [Sacramento](https://fonts.google.com/specimen/Sacramento)
+  - [Lovtony Script](https://www.dafont.com/lovtony.font)
+
+<Aside>
+  [Let us know](https://docspring.com/contact) if you want us to add a new font.
+</Aside>
+
+### Display Types
+
+<DisplayTypes types={["Image"]} />
+
+_(used internally)_
+
 ## Barcode
 
 A _Barcode_ data type ensures that you submit a valid barcode.

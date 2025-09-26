@@ -9,7 +9,7 @@ import { LinkCard, Aside } from "@astrojs/starlight/components";
 
 Create a Data Request to collect UETA and ESIGN compliant electronic signatures.
 
-When you make an API request to fill out a PDF, you can specify that some fields must be filled in by certain people (including signature fields). The PDF submission will be in a pending state until all of the data requests have been completed. You can then send these people a link to fill in the form, or embed this form on your own website. When everyone has filled in the form, the PDF will be generated, and we can send your server a webhook notification.
+When you make an API request to fill out a PDF, you can specify that some fields must be filled in by certain people (including signature or initials fields). The PDF submission will be in a pending state until all of the data requests have been completed. You can then send these people a link to fill in the form, or embed this form on your own website. When everyone has filled in the form, the PDF will be generated, and we can send your server a webhook notification.
 
 To collect UETA and ESIGN compliant electronic signatures, DocSpring must record an audit trail that includes user authentication. This means that you need to send us some details about how and when your users have been authenticated.
 
@@ -35,7 +35,7 @@ To ensure legal compliance, data requests must include:
 - The user's full name
 - The user's email address
 - Details about how and when the user was authenticated
-- The fields that the user must fill out (including signature fields)
+- The fields that the user must fill out (including signature or initials fields)
 - Optional metadata to save on the data request
 
 <Aside type="tip">

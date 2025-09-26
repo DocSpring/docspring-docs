@@ -127,6 +127,59 @@ Examples:
 %}
 ```
 
+### Initials
+
+You must use the `{% initials %}` Liquid tag to render initials in your HTML template.
+Initials behave exactly like signatures — they can be provided as an image or as text, and the `initials` tag handles both cases:
+
+```html
+{% initials initials_field %}
+```
+
+Image initials are rendered in an `<img>` element with an `initials-image` class:
+
+```html
+<img class="initials-image" src="data:image/png;base64,..." />
+```
+
+Text initials will import the required typeface and render the initials inside a `<span>` element with an `initials-text` class:
+
+```html
+<link
+  href="https://fonts.googleapis.com/css?family=Dancing+Script"
+  rel="stylesheet"
+/>
+...
+<span
+  class="initials-text"
+  style="color: black; font-size: 16px; font-weight: normal; display: inline-block; font-family: 'Dancing Script';"
+>
+  JS
+</span>
+```
+
+The `initials` tag accepts the same options as the `signature` tag:
+
+| Option        | Initials Type | Default Value  |
+| ------------- | ------------- | -------------- |
+| `width`       | Image         | `(from image)` |
+| `height`      | Image         | `(from image)` |
+| `font-size`   | Text          | `normal`       |
+| `font-weight` | Text          | `16px`         |
+| `color`       | Text          | `black`        |
+
+Use the `preview_type` option to control how initials appear in preview PDFs. Preview image initials are shown by default. Use `preview_type: text` to display text initials instead.
+
+Examples:
+
+```html
+{% initials initials_field, width: 100px %}
+```
+
+```html
+{% initials initials_field, preview_type: text, font-size: 18px, color: #333 %}
+```
+
 ### Images
 
 You can upload static images under the "Images" tab. Use the `template_image_url` tag to get
@@ -136,7 +189,7 @@ the image URL:
 <img src="{% template_image_url IMAGE_ID %}" />
 ```
 
-To include an image or signature field (i.e. submitted in an API request),
+To include an image, signature, or initials field (i.e. submitted in an API request),
 you can use the field value as the `src` attribute for an `img` tag.
 This will refer to an internal URL for the image:
 
