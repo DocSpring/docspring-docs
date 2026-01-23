@@ -5,6 +5,11 @@ sidebar:
   order: 3
 ---
 
+import { Image } from "astro:assets";
+import multilineNameExampleImg from "@images/template_editor/multiline-name-example.jpg";
+import multilineCheckboxImg from "@images/template_editor/multiline-checkbox.png";
+import dayMonthYearImg from "@images/template_editor/day-month-year.png";
+
 import { Aside } from "@astrojs/starlight/components";
 
 DocSpring uses the [JSON Pointer](https://tools.ietf.org/html/rfc6901) syntax for field names.
@@ -25,28 +30,20 @@ To control line spacing and indentation, you can create multiple fields with the
 
 In the following example, `extension_reason` is a single field in the API request, but the text will automatically wrap across lines 0 to 5.
 
-<img
-  src="/docs/images/template_editor/multiline-name-example.jpg"
-  alt="Multiline Field Names"
-  style={{ width: "700px" }}
-/>
+<Image src={multilineNameExampleImg} alt="Multiline field names" width={700} />
 
 <Aside>
   Note: You can also create a simple multiline field by adjusting your field
   height to fit multiple lines, and checking `Multiline` in the field options:
 </Aside>
 
-![Multiline Checkbox](/docs/images/template_editor/multiline-checkbox.png)
+<Image src={multilineCheckboxImg} alt="Multiline checkbox option" width={250} />
 
 ## Duplicate Names
 
 You can use the same field name more than once. For example, some forms have separate fields for month, day, and year. You can configure three fields that all share the name `date`, but use different format strings for each field: `%-m` for month, `%-d` for day, and `%Y` for year.
 
-<img
-  src="/docs/images/template_editor/day-month-year.png"
-  alt="Day/Month/Year example"
-  style={{ width: "500px" }}
-/>
+<Image src={dayMonthYearImg} alt="Day, month, year fields" width={500} />
 
 Now you can send a single `date` value in your API request, and we will show a date picker on the online form.
 
