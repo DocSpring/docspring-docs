@@ -1,0 +1,94 @@
+---
+title: Use Predefined Fields
+description: Configure predefined fields for embedded template editor users
+---
+
+import { Aside, Code, LinkCard } from "@astrojs/starlight/components";
+
+Predefined fields let you give embedded template editor users a controlled list of field names and data types. This is useful when your application already knows the data model that will be submitted later.
+
+## Template Configuration
+
+Set `predefined_fields` when creating or updating a template through the API:
+
+<Code
+  code={`{
+  "template": {
+    "predefined_fields": [
+      {
+        "name": "customer/name",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "customer/email",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "agreement/signed_at",
+        "type": "date",
+        "required": false
+      }
+    ]
+  }
+}`}
+  lang="json"
+  title="Template predefined fields"
+/>
+
+When predefined fields are enabled in the embedded editor, users can assign fields from the predefined list instead of typing arbitrary field names.
+
+<LinkCard
+  title="API Reference: Update a Template"
+  href="/docs/api/#tag/templates/put/templates/{template_id}"
+  description="Set predefined_fields and other template attributes via the API"
+/>
+
+## Field Names
+
+Use slash-separated names for nested JSON data:
+
+<Code
+  code={`{
+  "customer": {
+    "name": "Ada Lovelace",
+    "email": "ada@example.com"
+  },
+  "agreement": {
+    "signed_at": "2026-06-22"
+  }
+}`}
+  lang="json"
+  title="Submission data shape"
+/>
+
+For repeated fields, use array-style names such as `signers/0/name` and `signers/1/name`.
+
+<Aside type="tip">
+  The embedded editor can show friendlier one-based array labels while keeping
+  the submitted JSON paths zero-based.
+</Aside>
+
+## Embedded Editor
+
+Predefined fields are enabled by default. You can disable them for a specific embed:
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN',
+  inline: true,
+  features: {
+    showPredefinedFields: false
+  }
+})`}
+  lang="javascript"
+  title="Disable predefined fields"
+/>
+
+<LinkCard
+  title="Customize the Embedded Template Editor"
+  href="/docs/guides/embedded-template-editor/customize-embedded-template-editor/"
+  description="Learn about all embedded editor feature switches"
+/>

@@ -1,0 +1,153 @@
+---
+title: Embed the Template Editor
+description: Embed the DocSpring template editor in your own application
+---
+
+import { Aside, Code, LinkCard } from "@astrojs/starlight/components";
+import getEmbedVersion from "@utils/embed-versions";
+
+Use the embedded template editor when your users need to configure PDF templates without leaving your application.
+
+## Setup
+
+Include the template editor JavaScript library:
+
+<Code
+  code={`<script
+  type="text/javascript"
+  src="https://cdn.docspring.com/embed/template_editor.v${getEmbedVersion("template_editor")}.js"
+></script>`}
+  lang="html"
+  title="Include template_editor.js"
+/>
+
+Render the editor inline:
+
+<Code
+  code={`<div id="template-editor" style="height: 720px"></div>
+
+<script>
+  DocSpring.createTemplateEditor('#template-editor', {
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN',
+    inline: true,
+    darkMode: false,
+    doneButtonLabel: 'Done',
+    onDone: function(data) {
+      // Close your modal or advance to the next step.
+    }
+  })
+</script>`}
+
+lang="html"
+title="Inline embedded editor"
+/>
+
+Or open it as a modal:
+
+<Code
+  code={`DocSpring.createTemplateEditor({
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN'
+})`}
+  lang="javascript"
+  title="Modal embedded editor"
+/>
+
+<Aside type="note">
+  Embedded editors always edit the draft template. When the
+  `embed_edit_allow_versioning` capability is enabled on the template, the
+  versioning UI lets users publish, restore, or delete template versions. The
+  embed token cannot copy a template or delete the draft. See
+  [Security](#security).
+</Aside>
+
+## Embed Domains
+
+Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. See [Security](#security) for what the embed token can and cannot do.
+
+## Options
+
+The first argument can be a selector string (with options as the second
+argument) or a single options object. When a selector is provided the editor
+renders inline unless you pass `inline: false`; with no selector it opens as a
+modal.
+
+| Option                                       | Type    | Required | Description                                                                                                 |
+| -------------------------------------------- | ------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `templateId`                                 | string  | Yes      | Template ID, such as `tpl_123`.                                                                             |
+| `token`                                      | string  | Yes      | Template embed edit token.                                                                                  |
+| `selector`                                   | string  | No       | Target element for an inline editor. May be passed here instead of as the first argument.                   |
+| `inline`                                     | boolean | No       | Defaults to `true` when a selector is provided. Pass `false` to force modal mode even with a selector.      |
+| `darkMode`                                   | boolean | No       | Pass `true` to render the embedded editor with DocSpring's dark theme, or `false` to force the light theme. |
+| `showDoneButton`                             | boolean | No       | Show a customizable done button in the editor header. Defaults to `true`.                                   |
+| `doneButtonLabel`                            | string  | No       | Label for the done button. Defaults to `Done`.                                                              |
+| `disableDoneButtonIfPredefinedFieldsMissing` | boolean | No       | Disable the done button until every predefined field has been added. Defaults to `true`.                    |
+| `features`                                   | object  | No       | Per-embed feature overrides.                                                                                |
+| `closeModalOnClickOverlay`                   | boolean | No       | In modal mode, close the editor when the overlay behind it is clicked. Defaults to `true`.                  |
+| `iframeClass`                                | string  | No       | Additional class names for the iframe.                                                                      |
+| `iframeStyle`                                | string  | No       | Additional inline CSS for the iframe.                                                                       |
+
+## Return value
+
+`DocSpring.createTemplateEditor` returns an object you can use to control the editor:
+
+| Property | Type     | Description                                                               |
+| -------- | -------- | ------------------------------------------------------------------------- |
+| `iframe` | element  | The created `<iframe>` element.                                           |
+| `close`  | function | Closes a modal editor, removes the message listener, and fires `onClose`. |
+| `url`    | string   | The full editor URL loaded in the iframe.                                 |
+
+<Aside type="note">
+  `onDone` does not close a modal editor. Call the returned `close()` function
+  (or `DocSpring.closeTemplateEditor()`) from your `onDone` handler when you
+  want the modal to close.
+</Aside>
+
+## Events
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN',
+  inline: true,
+  onLoad: function(data) {},
+  onSave: function(data) {},
+  onVersionPublish: function(data) {},
+  onVersionRestore: function(data) {},
+  onVersionDelete: function(data) {},
+  onDocumentUpdate: function(data) {},
+  onDone: function(data) {},
+  onError: function(error) {},
+  onClose: function() {},
+  onEvent: function(eventName, data) {}
+})`}
+  lang="javascript"
+  title="Event callbacks"
+/>
+
+Each event has a named callback (`onLoad`, `onSave`, and so on). `onEvent` is a catch-all that fires for every event with the event name and its data. `onClose` fires when a modal editor is closed. Version events only fire when versioning is enabled for the embed.
+
+## Security
+
+The embed edit token is a **per-template edit credential**, not a read-only key. Anyone holding it can edit the template through the embed API, and it is not a hidden secret: it appears in the editor URL and is returned in authenticated API responses. Treat it like an API key scoped to a single template and never expose a token for a template the end user should not be able to edit.
+
+By default the token can only edit template **content** — fields, field layout, name, defaults, predefined fields, and HTML/SCSS. Three per-template capability flags (all default `false`) widen what an embed may do. They are enforced on the server, so they are the real boundary; the `features` options only control which controls are shown.
+
+| Capability                              | Default | Allows the embed to…                                                                                              |
+| --------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
+| `embed_edit_allow_settings`             | `false` | Edit template settings such as the webhook URL, redirect URL, encryption password, public access, and expiration. |
+| `embed_edit_allow_versioning`           | `false` | Publish, restore, and delete versions, and view version history.                                                  |
+| `embed_edit_allow_document_replacement` | `false` | Upload a replacement PDF document.                                                                                |
+
+Set these with the authenticated API or in the dashboard. The matching `features` switches (`showSettings`, `showVersions`, `allowPdfReplacement`) are forced off when their capability is disabled, so a host cannot re-enable a disabled capability from the browser.
+
+Regardless of any capability, the embed token **cannot** change the template's **Embed Domains**, change the capability flags, lock the template, rotate its own token, copy the template, or delete the draft / entire template family. Those actions require account authentication (the dashboard or the authenticated API).
+
+**Embed Domains** only restricts which origins may frame the editor (the iframe HTML load); it does not gate the JSON API, which is authenticated by the token. We recommend always setting **Embed Domains** in production.
+
+<LinkCard
+  title="Customize the Embedded Template Editor"
+  href="/docs/guides/embedded-template-editor/customize-embedded-template-editor/"
+  description="Control which editor features are available in an embed"
+/>

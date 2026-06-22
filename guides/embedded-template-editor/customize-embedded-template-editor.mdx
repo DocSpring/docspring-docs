@@ -1,0 +1,95 @@
+---
+title: Customize the Embedded Template Editor
+description: Enable or disable template editor features for embedded users
+---
+
+import { Aside, Code, LinkCard } from "@astrojs/starlight/components";
+
+Customize the embedded template editor by passing `features` to `DocSpring.createTemplateEditor`.
+
+## Per-Embed Overrides
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN',
+  inline: true,
+  features: {
+    showSettings: false,
+    showVersions: true,
+    showSchema: false,
+    showFormLinks: false,
+    showHelp: false,
+    showPredefinedFields: true
+  }
+})`}
+  lang="javascript"
+  title="Feature overrides"
+/>
+
+Feature options are configured per embed. They are not saved on the template.
+
+<Aside type="caution">
+  `features` only control which UI is shown — they are not a security boundary.
+  `showSettings`, `showVersions`, and `allowPdfReplacement` additionally require
+  a matching per-template capability (`embed_edit_allow_settings`,
+  `embed_edit_allow_versioning`, `embed_edit_allow_document_replacement`). When
+  a capability is disabled, its feature is forced off no matter what you pass
+  here.
+</Aside>
+
+## Available Features
+
+| Feature                      | Default | Description                                                                                                   |
+| ---------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| `showSettings`               | `true`  | Show the template settings panel. Requires the `embed_edit_allow_settings` capability.                        |
+| `showVersions`               | `true`  | Show version publishing, restore, and delete controls. Requires the `embed_edit_allow_versioning` capability. |
+| `showSchema`                 | `true`  | Show the JSON schema button.                                                                                  |
+| `showFormLinks`              | `true`  | Show links to hosted form and visual form pages.                                                              |
+| `allowPdfReplacement`        | `true`  | Allow users to upload a replacement PDF. Requires the `embed_edit_allow_document_replacement` capability.     |
+| `showHelp`                   | `true`  | Show the help link.                                                                                           |
+| `showNewFieldTypePicker`     | `true`  | Show the toolbar field type picker for adding new fields.                                                     |
+| `showPredefinedFields`       | `true`  | Show predefined field assignment controls.                                                                    |
+| `showWelcomeModal`           | `true`  | Show the first-template welcome modal.                                                                        |
+| `showTemplateDefaultOptions` | `true`  | Show template default field settings.                                                                         |
+| `showFieldDataType`          | `true`  | Show field data type controls.                                                                                |
+| `showFieldRequired`          | `true`  | Show required field controls.                                                                                 |
+| `showFieldHidden`            | `true`  | Show hidden field controls.                                                                                   |
+| `showFieldStatic`            | `true`  | Show static field controls.                                                                                   |
+| `showFieldDefaultValue`      | `true`  | Show default value controls.                                                                                  |
+| `showFieldInfo`              | `true`  | Show field title and description controls.                                                                    |
+| `showFieldRotation`          | `true`  | Show field rotation controls.                                                                                 |
+| `showFieldOpacity`           | `true`  | Show opacity controls.                                                                                        |
+| `showFieldConditions`        | `true`  | Show conditional display controls.                                                                            |
+| `showFieldQrBarcode`         | `true`  | Show QR code and barcode display options.                                                                     |
+| `showFieldDateOptions`       | `true`  | Show date and time formatting controls.                                                                       |
+| `showFieldMetadata`          | `true`  | Show field metadata controls.                                                                                 |
+| `showFieldFontAdvanced`      | `true`  | Show advanced font controls.                                                                                  |
+| `showFieldValidation`        | `true`  | Show validation controls such as length limits.                                                               |
+| `showFieldCombOptions`       | `true`  | Show comb field controls.                                                                                     |
+| `showFieldColorFromData`     | `true`  | Allow colors to come from submitted data.                                                                     |
+
+## simplifyUI Preset
+
+Use `simplifyUI` as a shortcut when you want a simpler editor experience:
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN',
+  inline: true,
+  features: {
+    simplifyUI: true
+  }
+})`}
+  lang="javascript"
+  title="Simplified preset with override"
+/>
+
+`simplifyUI` expands into individual feature switches. Any explicit feature value in the same `features` object overrides the preset.
+
+<LinkCard
+  title="Embed the Template Editor"
+  href="/docs/guides/embedded-template-editor/"
+  description="Add the embedded editor iframe to your application"
+/>
