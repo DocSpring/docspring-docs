@@ -16,6 +16,11 @@ Top-level options control the iframe, theme, and Done button. The
     templateId: 'tpl_123',
     token: 'EMBED_EDIT_TOKEN',
     inline: true,
+    externalUser: {
+      name: 'Jane Editor',
+      email: 'jane@example.com',
+      external_id: 'user_123'
+    },
     darkMode: true,
     showDoneButton: true,
     doneButtonLabel: 'Finish',
@@ -51,6 +56,7 @@ Options are configured per embed. They are not saved on the template.
 | -------------------------------------------- | ------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `inline`                                     | boolean | Depends on selector | Render the editor inline. Defaults to `true` when a selector is provided; otherwise the editor opens as a modal. |
 | `selector`                                   | string  | `undefined`         | Target element for an inline editor. You can pass this instead of passing a selector as the first argument.      |
+| `externalUser`                               | object  | `undefined`         | User details from your application. Used for template change attribution and version publisher metadata.         |
 | `darkMode`                                   | boolean | Stored/system theme | Pass `true` to force dark mode, or `false` to force light mode for the embedded editor iframe.                   |
 | `showDoneButton`                             | boolean | `true`              | Show the Done button in the editor header.                                                                       |
 | `doneButtonLabel`                            | string  | `Done`              | Text for the Done button.                                                                                        |
@@ -63,7 +69,12 @@ Options are configured per embed. They are not saved on the template.
 | `editorURL`                                  | string  | Generated URL       | Override the iframe URL. This is mainly useful for local development or custom routing.                          |
 | `features`                                   | object  | See below           | Per-embed editor UI feature overrides.                                                                           |
 
-`onDone` fires when the Done button is clicked. It does not close a modal editor automatically. Call the returned `close()` function from your `onDone` handler when you want to close the modal. See the main embed guide for the full callback list.
+When `externalUser` is omitted, changes and published versions are attributed to
+`Embedded Template User`. Use `externalUser.external_id` for your application's
+stable user ID; DocSpring keeps it separate from DocSpring user IDs in version
+responses as `published_by_external_id`.
+
+`onDone` fires when the Done button is clicked. Modal editors close automatically after `onDone` and `onEvent` run. See the main embed guide for the full callback list.
 
 ## Available Features
 

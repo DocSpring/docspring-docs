@@ -31,6 +31,11 @@ Render the editor inline:
     templateId: 'tpl_123',
     token: 'EMBED_EDIT_TOKEN',
     inline: true,
+    externalUser: {
+      name: 'Jane Editor',
+      email: 'jane@example.com',
+      external_id: 'user_123'
+    },
     darkMode: false,
     doneButtonLabel: 'Done',
     onDone: function(data) {
@@ -83,6 +88,7 @@ modal.
 | -------------------------------------------- | ------- | -------- | --------------------------------------------------------------------------------------------------------------- |
 | `templateId`                                 | string  | Yes      | Template ID, such as `tpl_123`.                                                                                 |
 | `token`                                      | string  | Yes      | Template embed edit token.                                                                                      |
+| `externalUser`                               | object  | No       | Details for the user editing the template in your app. Used for "last changed by" and version publisher labels. |
 | `selector`                                   | string  | No       | Target element for an inline editor. May be passed here instead of as the first argument.                       |
 | `inline`                                     | boolean | No       | Defaults to `true` when a selector is provided. Pass `false` to force modal mode even with a selector.          |
 | `darkMode`                                   | boolean | No       | Pass `true` to render the embedded editor with DocSpring's dark theme, or `false` to force the light theme.     |
@@ -97,6 +103,16 @@ modal.
 | `iframeStyle`                                | string  | No       | Additional inline CSS for the iframe.                                                                           |
 | `editorURL`                                  | string  | No       | Override the iframe URL. This is mainly useful for local development or custom routing.                         |
 
+`externalUser` supports these fields:
+
+| Field         | Type   | Description                                                                 |
+| ------------- | ------ | --------------------------------------------------------------------------- |
+| `name`        | string | Display name for editor attribution. Defaults to `Embedded Template User`.  |
+| `email`       | string | Email address for editor attribution metadata.                              |
+| `external_id` | string | Your application's stable user ID.                                          |
+
+If `externalUser` is omitted, embedded saves and published versions are attributed to `Embedded Template User`.
+
 ## Return value
 
 `DocSpring.createTemplateEditor` returns an object you can use to control the editor:
@@ -108,9 +124,9 @@ modal.
 | `url`    | string   | The full editor URL loaded in the iframe.                                 |
 
 <Aside type="note">
-  `onDone` does not close a modal editor. Call the returned `close()` function
-  (or `DocSpring.closeTemplateEditor()`) from your `onDone` handler when you
-  want the modal to close.
+  Modal editors close automatically after `onDone` and `onEvent` run. Use the
+  returned `close()` function (or `DocSpring.closeTemplateEditor()`) when you
+  need to close a modal from another part of your application.
 </Aside>
 
 ## Events
@@ -136,6 +152,18 @@ modal.
 />
 
 Each event has a named callback (`onLoad`, `onSave`, and so on). `onEvent` is a catch-all that fires for every event with the event name and its data. `onClose` fires when a modal editor is closed. Version events only fire when versioning is enabled for the embed.
+
+## Version Attribution
+
+Template API responses include `versions` metadata for published template versions. Publisher IDs are split by actor type:
+
+| Field                      | Description                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| `published_by_type`        | `user` for a DocSpring account user, or `external_user` for an embedded editor user.       |
+| `published_by_user_id`     | DocSpring user ID (`usr_...`) when `published_by_type` is `user`; otherwise `null` or omitted. |
+| `published_by_external_id` | Your `externalUser.external_id` when `published_by_type` is `external_user`; otherwise `null` or omitted. |
+| `published_by_name`        | Display name for the publisher.                                                           |
+| `published_by_email`       | External publisher email address when provided.                                            |
 
 ## Security
 
