@@ -120,13 +120,15 @@ If `externalUser` is omitted, embedded saves and published versions are attribut
 | Property | Type     | Description                                                               |
 | -------- | -------- | ------------------------------------------------------------------------- |
 | `iframe` | element  | The created `<iframe>` element.                                           |
-| `close`  | function | Closes a modal editor, removes the message listener, and fires `onClose`. |
+| `close`  | function | Closes the editor, removes its iframe and message listener, and fires `onClose`. |
 | `url`    | string   | The full editor URL loaded in the iframe.                                 |
 
 <Aside type="note">
-  Modal editors close automatically after `onDone` and `onEvent` run. Use the
-  returned `close()` function (or `DocSpring.closeTemplateEditor()`) when you
-  need to close a modal from another part of your application.
+  Only one embedded template editor should be active on a page. Creating a new
+  editor closes the previous editor instance first. Modal editors close
+  automatically after `onDone` and `onEvent` run. Use the returned `close()`
+  function (or `DocSpring.closeTemplateEditor()`) when you need to close an
+  editor from another part of your application.
 </Aside>
 
 ## Events

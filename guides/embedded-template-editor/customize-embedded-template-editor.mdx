@@ -80,6 +80,9 @@ progress, or while a save error is present. Modal editors close automatically
 after `onDone` and `onEvent` run. See the main embed guide for the full callback
 list.
 
+Only one embedded template editor should be active on a page. Creating a new
+editor closes the previous editor instance first.
+
 ## Available Features
 
 | Feature                      | Default | Description                                                                                                   |
