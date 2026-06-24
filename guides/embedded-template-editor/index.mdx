@@ -153,6 +153,12 @@ If `externalUser` is omitted, embedded saves and published versions are attribut
 
 Each event has a named callback (`onLoad`, `onSave`, and so on). `onEvent` is a catch-all that fires for every event with the event name and its data. `onClose` fires when a modal editor is closed. Version events only fire when versioning is enabled for the embed.
 
+The Done button only fires `onDone` when the editor has no pending changes, no
+active save request, and no save error. Host applications can use `onSave` to
+observe successful saves and `onDone` to advance or close the editor after the
+user clicks Done. If a save fails, the editor keeps Done disabled until the save
+error is resolved.
+
 ## Version Attribution
 
 Template API responses include `versions` metadata for published template versions. Publisher IDs are split by actor type:
@@ -178,6 +184,13 @@ By default the token can only edit template **content** — fields, field layout
 | `embed_edit_allow_document_replacement` | `false` | Upload a replacement PDF document.                                                                                |
 
 Set these with the authenticated API or in the dashboard. The matching `features` switches (`showSettings`, `showVersions`, `allowPdfReplacement`) are forced off when their capability is disabled, so a host cannot re-enable a disabled capability from the browser.
+
+When `embed_edit_allow_settings` is `false`, the embedded editor also receives
+sanitized settings values in its boot payload and template JSON responses.
+Sensitive settings such as webhook URLs, Slack webhook URLs, redirect URLs, and
+PDF encryption passwords are returned as `null` or safe defaults. Enable
+`embed_edit_allow_settings` only when the embedded user should both view and edit
+those settings.
 
 Regardless of any capability, the embed token **cannot** change the template's **Embed Domains**, change the capability flags, lock the template, rotate its own token, copy the template, or delete the draft / entire template family. Those actions require account authentication (the dashboard or the authenticated API).
 

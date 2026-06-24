@@ -44,6 +44,8 @@ When predefined fields are enabled in the template editor, users can assign fiel
 Use `required_in_template` when a predefined field must be added to the template
 at least once. This controls the missing/present indicator in the predefined
 field list and whether the "Done" button is enabled in embedded template editors (via the `disableDoneButtonIfPredefinedFieldsMissing` option.)
+The Done button also remains disabled while template changes are pending, while
+a save is in progress, or while a save error is present.
 
 Use `field_required` to set the template field's own required value when a user
 adds or assigns that predefined field. This controls whether submission data must

@@ -74,7 +74,11 @@ When `externalUser` is omitted, changes and published versions are attributed to
 stable user ID; DocSpring keeps it separate from DocSpring user IDs in version
 responses as `published_by_external_id`.
 
-`onDone` fires when the Done button is clicked. Modal editors close automatically after `onDone` and `onEvent` run. See the main embed guide for the full callback list.
+`onDone` fires when the Done button is clicked after the editor is saved. The
+Done button is disabled while there are pending changes, while a save is in
+progress, or while a save error is present. Modal editors close automatically
+after `onDone` and `onEvent` run. See the main embed guide for the full callback
+list.
 
 ## Available Features
 
@@ -126,6 +130,15 @@ Use `simplifyUI` as a shortcut when you want a simpler editor experience:
 />
 
 `simplifyUI` expands into individual feature switches. Any explicit feature value in the same `features` object overrides the preset.
+
+## Restricted Settings
+
+When `embed_edit_allow_settings` is disabled on the template, the embedded
+editor cannot view or edit sensitive template settings. The editor receives
+sanitized values for settings such as webhook URLs, Slack webhook URLs, redirect
+URLs, public access settings, expiration settings, and PDF encryption passwords.
+Enable `embed_edit_allow_settings` only when the embedded user should be allowed
+to see and change those settings.
 
 <LinkCard
   title="Embed the Template Editor"
