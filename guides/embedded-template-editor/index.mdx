@@ -79,21 +79,21 @@ argument) or a single options object. When a selector is provided the editor
 renders inline unless you pass `inline: false`; with no selector it opens as a
 modal.
 
-| Option                                       | Type    | Required | Description                                                                                                 |
-| -------------------------------------------- | ------- | -------- | ----------------------------------------------------------------------------------------------------------- |
-| `templateId`                                 | string  | Yes      | Template ID, such as `tpl_123`.                                                                             |
-| `token`                                      | string  | Yes      | Template embed edit token.                                                                                  |
-| `selector`                                   | string  | No       | Target element for an inline editor. May be passed here instead of as the first argument.                   |
-| `inline`                                     | boolean | No       | Defaults to `true` when a selector is provided. Pass `false` to force modal mode even with a selector.      |
-| `darkMode`                                   | boolean | No       | Pass `true` to render the embedded editor with DocSpring's dark theme, or `false` to force the light theme. |
-| `showDoneButton`                             | boolean | No       | Show a customizable done button in the editor header. Defaults to `true`.                                   |
-| `doneButtonLabel`                            | string  | No       | Label for the done button. Defaults to `Done`.                                                              |
+| Option                                       | Type    | Required | Description                                                                                                     |
+| -------------------------------------------- | ------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| `templateId`                                 | string  | Yes      | Template ID, such as `tpl_123`.                                                                                 |
+| `token`                                      | string  | Yes      | Template embed edit token.                                                                                      |
+| `selector`                                   | string  | No       | Target element for an inline editor. May be passed here instead of as the first argument.                       |
+| `inline`                                     | boolean | No       | Defaults to `true` when a selector is provided. Pass `false` to force modal mode even with a selector.          |
+| `darkMode`                                   | boolean | No       | Pass `true` to render the embedded editor with DocSpring's dark theme, or `false` to force the light theme.     |
+| `showDoneButton`                             | boolean | No       | Show a customizable done button in the editor header. Defaults to `true`.                                       |
+| `doneButtonLabel`                            | string  | No       | Label for the done button. Defaults to `Done`.                                                                  |
 | `disableDoneButtonIfPredefinedFieldsMissing` | boolean | No       | Disable the done button until every `required_in_template` predefined field has been added. Defaults to `true`. |
-| `features`                                   | object  | No       | Per-embed feature overrides.                                                                                |
-| `closeModalOnClickOverlay`                   | boolean | No       | In modal mode, close the editor when the overlay behind it is clicked. Defaults to `true`.                  |
-| `iframeClass`                                | string  | No       | Additional class names for the iframe.                                                                      |
-| `iframeStyle`                                | string  | No       | Additional inline CSS for the iframe.                                                                       |
-| `editorURL`                                  | string  | No       | Override the iframe URL. This is mainly useful for local development or custom routing.                     |
+| `features`                                   | object  | No       | Per-embed feature overrides.                                                                                    |
+| `closeModalOnClickOverlay`                   | boolean | No       | In modal mode, close the editor when the overlay behind it is clicked. Defaults to `true`.                      |
+| `iframeClass`                                | string  | No       | Additional class names for the iframe.                                                                          |
+| `iframeStyle`                                | string  | No       | Additional inline CSS for the iframe.                                                                           |
+| `editorURL`                                  | string  | No       | Override the iframe URL. This is mainly useful for local development or custom routing.                         |
 
 ## Return value
 
