@@ -168,8 +168,8 @@ Template API responses include `versions` metadata for published template versio
 | Field                      | Description                                                                                |
 | -------------------------- | ------------------------------------------------------------------------------------------ |
 | `published_by_type`        | `user` for a DocSpring account user, or `external_user` for an embedded editor user.       |
-| `published_by_user_id`     | DocSpring user ID (`usr_...`) when `published_by_type` is `user`; otherwise `null` or omitted. |
-| `published_by_external_id` | Your `externalUser.external_id` when `published_by_type` is `external_user`; otherwise `null` or omitted. |
+| `published_by_user_id`     | DocSpring user ID (`usr_...`) when `published_by_type` is `user`; omitted otherwise.       |
+| `published_by_external_id` | Your `externalUser.external_id` when `published_by_type` is `external_user`; omitted when not provided. |
 | `published_by_name`        | Display name for the publisher.                                                           |
 | `published_by_email`       | External publisher email address when provided.                                            |
 
