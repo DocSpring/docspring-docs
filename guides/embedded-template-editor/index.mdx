@@ -47,8 +47,8 @@ Or open it as a modal:
 
 <Code
   code={`DocSpring.createTemplateEditor({
-  templateId: 'tpl_123',
-  token: 'EMBED_EDIT_TOKEN'
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN'
 })`}
   lang="javascript"
   title="Modal embedded editor"
@@ -87,6 +87,7 @@ modal.
 | `closeModalOnClickOverlay`                   | boolean | No       | In modal mode, close the editor when the overlay behind it is clicked. Defaults to `true`.                  |
 | `iframeClass`                                | string  | No       | Additional class names for the iframe.                                                                      |
 | `iframeStyle`                                | string  | No       | Additional inline CSS for the iframe.                                                                       |
+| `editorURL`                                  | string  | No       | Override the iframe URL. This is mainly useful for local development or custom routing.                     |
 
 ## Return value
 
@@ -108,19 +109,19 @@ modal.
 
 <Code
   code={`DocSpring.createTemplateEditor('#template-editor', {
-  templateId: 'tpl_123',
-  token: 'EMBED_EDIT_TOKEN',
-  inline: true,
-  onLoad: function(data) {},
-  onSave: function(data) {},
-  onVersionPublish: function(data) {},
-  onVersionRestore: function(data) {},
-  onVersionDelete: function(data) {},
-  onDocumentUpdate: function(data) {},
-  onDone: function(data) {},
-  onError: function(error) {},
-  onClose: function() {},
-  onEvent: function(eventName, data) {}
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN',
+    inline: true,
+    onLoad: function(data) {},
+    onSave: function(data) {},
+    onVersionPublish: function(data) {},
+    onVersionRestore: function(data) {},
+    onVersionDelete: function(data) {},
+    onDocumentUpdate: function(data) {},
+    onDone: function(data) {},
+    onError: function(error) {},
+    onClose: function() {},
+    onEvent: function(eventName, data) {}
 })`}
   lang="javascript"
   title="Event callbacks"

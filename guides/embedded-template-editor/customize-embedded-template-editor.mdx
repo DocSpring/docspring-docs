@@ -5,29 +5,36 @@ description: Enable or disable template editor features for embedded users
 
 import { Aside, Code, LinkCard } from "@astrojs/starlight/components";
 
-Customize the embedded template editor by passing `features` to `DocSpring.createTemplateEditor`.
+Customize the embedded template editor by passing options to `DocSpring.createTemplateEditor`.
+Top-level options control the iframe, theme, and Done button. The
+`features` object controls which editor controls are shown.
 
 ## Per-Embed Overrides
 
 <Code
   code={`DocSpring.createTemplateEditor('#template-editor', {
-  templateId: 'tpl_123',
-  token: 'EMBED_EDIT_TOKEN',
-  inline: true,
-  features: {
-    showSettings: false,
-    showVersions: true,
-    showSchema: false,
-    showFormLinks: false,
-    showHelp: false,
-    showPredefinedFields: true
-  }
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN',
+    inline: true,
+    darkMode: true,
+    showDoneButton: true,
+    doneButtonLabel: 'Finish',
+    disableDoneButtonIfPredefinedFieldsMissing: true,
+    features: {
+      showSettings: false,
+      showVersions: true,
+      showSchema: false,
+      showFormLinks: false,
+      showHelp: false,
+      showInvert: true,
+      showPredefinedFields: true
+    }
 })`}
   lang="javascript"
   title="Feature overrides"
 />
 
-Feature options are configured per embed. They are not saved on the template.
+Options are configured per embed. They are not saved on the template.
 
 <Aside type="caution">
   `features` only control which UI is shown — they are not a security boundary.
@@ -37,6 +44,24 @@ Feature options are configured per embed. They are not saved on the template.
   a capability is disabled, its feature is forced off no matter what you pass
   here.
 </Aside>
+
+## Editor Options
+
+| Option                                       | Type    | Default            | Description                                                                                                 |
+| -------------------------------------------- | ------- | ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `inline`                                     | boolean | Depends on selector | Render the editor inline. Defaults to `true` when a selector is provided; otherwise the editor opens as a modal. |
+| `selector`                                   | string  | `undefined`        | Target element for an inline editor. You can pass this instead of passing a selector as the first argument. |
+| `darkMode`                                   | boolean | Stored/system theme | Pass `true` to force dark mode, or `false` to force light mode for the embedded editor iframe.             |
+| `showDoneButton`                             | boolean | `true`             | Show the Done button in the editor header.                                                                  |
+| `doneButtonLabel`                            | string  | `Done`             | Text for the Done button.                                                                                   |
+| `disableDoneButtonIfPredefinedFieldsMissing` | boolean | `true`             | Disable the Done button until every `required_in_template` predefined field has been added.                 |
+| `closeModalOnClickOverlay`                   | boolean | `true`             | In modal mode, close the editor when the user clicks the overlay behind the iframe.                         |
+| `iframeClass`                                | string  | `undefined`        | Additional class names for the iframe.                                                                      |
+| `iframeStyle`                                | string  | `undefined`        | Additional inline CSS for the iframe.                                                                       |
+| `editorURL`                                  | string  | Generated URL      | Override the iframe URL. This is mainly useful for local development or custom routing.                     |
+| `features`                                   | object  | See below          | Per-embed editor UI feature overrides.                                                                      |
+
+`onDone` fires when the Done button is clicked. It does not close a modal editor automatically. Call the returned `close()` function from your `onDone` handler when you want to close the modal. See the main embed guide for the full callback list.
 
 ## Available Features
 
@@ -48,6 +73,7 @@ Feature options are configured per embed. They are not saved on the template.
 | `showFormLinks`              | `true`  | Show links to hosted form and visual form pages.                                                              |
 | `allowPdfReplacement`        | `true`  | Allow users to upload a replacement PDF. Requires the `embed_edit_allow_document_replacement` capability.     |
 | `showHelp`                   | `true`  | Show the help link.                                                                                           |
+| `showInvert`                 | `true`  | Show the Invert button for PDF templates in dark mode. This option has no effect in light mode.               |
 | `showNewFieldTypePicker`     | `true`  | Show the toolbar field type picker for adding new fields.                                                     |
 | `showPredefinedFields`       | `true`  | Show predefined field assignment controls.                                                                    |
 | `showWelcomeModal`           | `true`  | Show the welcome modal whenever the embedded editor loads.                                                    |
@@ -75,12 +101,12 @@ Use `simplifyUI` as a shortcut when you want a simpler editor experience:
 
 <Code
   code={`DocSpring.createTemplateEditor('#template-editor', {
-  templateId: 'tpl_123',
-  token: 'EMBED_EDIT_TOKEN',
-  inline: true,
-  features: {
-    simplifyUI: true
-  }
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN',
+    inline: true,
+    features: {
+      simplifyUI: true
+    }
 })`}
   lang="javascript"
   title="Simplified preset with override"
