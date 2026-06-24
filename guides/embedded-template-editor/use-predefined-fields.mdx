@@ -18,17 +18,19 @@ Set `predefined_fields` when creating or updating a template through the API:
       {
         "name": "customer/name",
         "type": "string",
-        "required": true
+        "required_in_template": true
       },
       {
         "name": "customer/email",
         "type": "string",
-        "required": true
+        "required_in_template": true,
+        "field_required": true
       },
       {
         "name": "agreement/signed_at",
         "type": "date",
-        "required": false
+        "required_in_template": false,
+        "field_required": false
       }
     ]
   }
@@ -37,7 +39,20 @@ Set `predefined_fields` when creating or updating a template through the API:
   title="Template predefined fields"
 />
 
-When predefined fields are enabled in the embedded editor, users can assign fields from the predefined list instead of typing arbitrary field names.
+When predefined fields are enabled in the template editor, users can assign fields from the predefined list instead of typing arbitrary field names.
+
+Use `required_in_template` when a predefined field must be added to the template
+at least once. This controls the missing/present indicator in the predefined
+field list and whether the "Done" button is enabled in embedded template editors (via the `disableDoneButtonIfPredefinedFieldsMissing` option.)
+
+Use `field_required` to set the template field's own required value when a user
+adds or assigns that predefined field. This controls whether submission data must
+include a value for the field. If `field_required` is omitted, it defaults to
+`true`.
+
+If you are using the embedded template editor, you can show or hide the Required checkbox in the fields options
+by setting `showFieldRequired`. Set this to `true` if you want your users to be able to control whether fields are required or optional.
+(The default is the `field_required` that you can set for each predefined field.)
 
 <LinkCard
   title="API Reference: Update a Template"
