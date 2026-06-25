@@ -65,12 +65,38 @@ DocSpring.createVisualForm(optionsAndCallbacks);
 | `iframeClass`               | string  | `null`           | CSS class for the iframe element                                                                           |
 | `iframeStyle`               | string  | `null`           | Inline styles for the iframe element                                                                       |
 | `footerHTML`                | string  | `null`           | Custom HTML content for the footer                                                                         |
+| `dataRequestURL`            | string  | `null`           | Full authenticated data request URL. Overrides generated iframe URL and message origin                      |
+| `region`                    | string  | `US`             | Use a DocSpring region: `US`, `EU`, or `AU`                                                                |
+| `host`                      | string  | `null`           | Use one host for both app and API URLs, usually for single-domain enterprise deployments                    |
+| `appHost`                   | string  | `null`           | Override the app host used for the signing iframe, usually for split-domain enterprise deployments          |
+| `apiHost`                   | string  | `null`           | Override the API host used by the visual form inside the signing iframe                                    |
 
 <Aside type="note">
   When "Submission Privacy" is set to "Private", `waitForPDF` is always `false`
   - the form will redirect or show the thank you message immediately after
   saving.
 </Aside>
+
+### Region and Custom Host
+
+Use `region` when your account is in the EU or AU region:
+
+<Code
+  code={`DocSpring.createVisualForm({
+  dataRequestId: 'drq_123456',
+  tokenId: 'tok_123456',
+  tokenSecret: 'secret_123456',
+  region: 'EU'
+})`}
+  lang="javascript"
+  title="Regional data request"
+/>
+
+For single-domain enterprise deployments, use `host`. For split-domain
+deployments, use `appHost` and `apiHost`. Existing globals such as
+`DocSpring.appHost`, `DocSpring.host`, `DocSpring.scheme`, and `DocSpring.port`
+are still supported. If you pass `dataRequestURL`, that full URL takes
+precedence and is also used to verify messages from the iframe.
 
 ### String Options
 

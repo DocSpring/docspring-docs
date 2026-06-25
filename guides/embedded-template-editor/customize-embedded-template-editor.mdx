@@ -67,6 +67,10 @@ Options are configured per embed. They are not saved on the template.
 | `iframeClass`                                | string  | `undefined`         | Additional class names for the iframe.                                                                           |
 | `iframeStyle`                                | string  | `undefined`         | Additional inline CSS for the iframe.                                                                            |
 | `editorURL`                                  | string  | Generated URL       | Override the iframe URL. This is mainly useful for local development or custom routing.                          |
+| `region`                                     | string  | `US`                | Use a DocSpring region: `US`, `EU`, or `AU`.                                                                     |
+| `host`                                       | string  | `undefined`         | Use one host for both app and API URLs, usually for single-domain enterprise deployments.                        |
+| `appHost`                                    | string  | `undefined`         | Override the app host used for the editor iframe, usually for split-domain enterprise deployments.               |
+| `apiHost`                                    | string  | `undefined`         | Override the API host for consistency with other embedded libraries.                                             |
 | `features`                                   | object  | See below           | Per-embed editor UI feature overrides.                                                                           |
 
 When `externalUser` is omitted, changes and published versions are attributed to

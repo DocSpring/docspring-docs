@@ -76,6 +76,38 @@ DocSpring.createVisualForm(optionsAndCallbacks);
 | `termsOfServiceURL`         | string  | DocSpring ToS     | URL for terms of service                                                 |
 | `showPdfProcessingSpinner`  | boolean | `true`            | Show spinner while PDF is processing                                     |
 | `downloadButtonLabel`       | string  | `"Download PDF"`  | Label for the download button                                            |
+| `region`                    | string  | `US`              | Use a DocSpring region: `US`, `EU`, or `AU`                              |
+| `host`                      | string  | `null`            | Use one host for both app and API URLs, usually for single-domain enterprise deployments |
+| `appHost`                   | string  | `null`            | Override the app host used for template data and page images             |
+| `apiHost`                   | string  | `null`            | Override the API host used for submission and polling requests           |
+
+### Region and Custom Host
+
+Use `region` when your account is in the EU or AU region:
+
+<Code
+  code={`DocSpring.createVisualForm('.form-container', {
+  templateId: 'tpl_123456',
+  region: 'AU'
+})`}
+  lang="javascript"
+  title="Regional visual form"
+/>
+
+For single-domain enterprise deployments, use `host`:
+
+<Code
+  code={`DocSpring.createVisualForm('.form-container', {
+  templateId: 'tpl_123456',
+  host: 'https://docspring.example.com'
+})`}
+  lang="javascript"
+  title="Enterprise host"
+/>
+
+For split-domain deployments, use `appHost` and `apiHost`. Existing globals such
+as `DocSpring.appHost`, `DocSpring.host`, `DocSpring.scheme`, and
+`DocSpring.port` are still supported.
 
 ### String Options
 

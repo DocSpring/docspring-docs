@@ -102,6 +102,41 @@ modal.
 | `iframeClass`                                | string  | No       | Additional class names for the iframe.                                                                          |
 | `iframeStyle`                                | string  | No       | Additional inline CSS for the iframe.                                                                           |
 | `editorURL`                                  | string  | No       | Override the iframe URL. This is mainly useful for local development or custom routing.                         |
+| `region`                                     | string  | No       | Use a DocSpring region: `US`, `EU`, or `AU`. Defaults to `US`.                                                  |
+| `host`                                       | string  | No       | Use one host for both app and API URLs, usually for single-domain enterprise deployments.                       |
+| `appHost`                                    | string  | No       | Override the app host used for the editor iframe, usually for split-domain enterprise deployments.              |
+| `apiHost`                                    | string  | No       | Override the API host for consistency with other embedded libraries.                                            |
+
+## Region and custom host
+
+Use `region` when your account is in the EU or AU region:
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN',
+  region: 'AU'
+})`}
+  lang="javascript"
+  title="Regional embedded editor"
+/>
+
+For single-domain enterprise deployments, use `host`:
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+  templateId: 'tpl_123',
+  token: 'EMBED_EDIT_TOKEN',
+  host: 'https://docspring.example.com'
+})`}
+  lang="javascript"
+  title="Enterprise host"
+/>
+
+For split-domain deployments, use `appHost` and `apiHost`. Existing globals such
+as `DocSpring.appHost`, `DocSpring.host`, `DocSpring.scheme`, and
+`DocSpring.port` are still supported. If you pass `editorURL`, that full URL
+takes precedence and is also used to verify messages from the iframe.
 
 `externalUser` supports these fields:
 
