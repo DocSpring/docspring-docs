@@ -1,0 +1,31 @@
+---
+title: Template Editor JS Library
+description: Changelog and version history for the Template Editor JavaScript library
+sidebar:
+  order: 4
+---
+
+import { Badge, LinkCard } from "@astrojs/starlight/components";
+
+This client-side JavaScript library lets you embed the DocSpring template editor on your own website.
+
+<LinkCard
+  title="Embed the Template Editor"
+  href="/docs/guides/embedded-template-editor/"
+  description="Learn how to embed the template editor iframe"
+/>
+
+## Changelog
+
+### 0.1.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 22, 2026
+</div>
+
+- Initial release of `template_editor.js`
+- Added `DocSpring.createTemplateEditor`
+- Added inline and modal iframe support
+- Added per-embed feature overrides
+- Added event callbacks for load, save, document update, and version actions
+- Added customizable done button support with an `onDone` callback

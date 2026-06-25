@@ -1,0 +1,150 @@
+---
+title: Customize the Embedded Template Editor
+description: Enable or disable template editor features for embedded users
+---
+
+import { Aside, Code, LinkCard } from "@astrojs/starlight/components";
+
+Customize the embedded template editor by passing options to `DocSpring.createTemplateEditor`.
+Top-level options control the iframe, theme, and Done button. The
+`features` object controls which editor controls are shown.
+
+## Per-Embed Overrides
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN',
+    inline: true,
+    externalUser: {
+      name: 'Jane Editor',
+      email: 'jane@example.com',
+      external_id: 'user_123'
+    },
+    darkMode: true,
+    showDoneButton: true,
+    doneButtonLabel: 'Finish',
+    disableDoneButtonIfPredefinedFieldsMissing: true,
+    features: {
+      showSettings: false,
+      showVersions: true,
+      showSchema: false,
+      showFormLinks: false,
+      showHelp: false,
+      showInvert: true,
+      showPredefinedFields: true
+    }
+})`}
+  lang="javascript"
+  title="Feature overrides"
+/>
+
+Options are configured per embed. They are not saved on the template.
+
+<Aside type="caution">
+  `features` only control which UI is shown — they are not a security boundary.
+  `showSettings`, `showVersions`, and `allowPdfReplacement` additionally require
+  a matching per-template capability (`embed_edit_allow_settings`,
+  `embed_edit_allow_versioning`, `embed_edit_allow_document_replacement`). When
+  a capability is disabled, its feature is forced off no matter what you pass
+  here.
+</Aside>
+
+## Editor Options
+
+| Option                                       | Type    | Default             | Description                                                                                                      |
+| -------------------------------------------- | ------- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `inline`                                     | boolean | Depends on selector | Render the editor inline. Defaults to `true` when a selector is provided; otherwise the editor opens as a modal. |
+| `selector`                                   | string  | `undefined`         | Target element for an inline editor. You can pass this instead of passing a selector as the first argument.      |
+| `externalUser`                               | object  | `undefined`         | User details from your application. Used for template change attribution and version publisher metadata.         |
+| `darkMode`                                   | boolean | Stored/system theme | Pass `true` to force dark mode, or `false` to force light mode for the embedded editor iframe.                   |
+| `showDoneButton`                             | boolean | `true`              | Show the Done button in the editor header.                                                                       |
+| `doneButtonLabel`                            | string  | `Done`              | Text for the Done button.                                                                                        |
+| `disableDoneButtonIfPredefinedFieldsMissing` | boolean | `true`              | Disable the Done button until every `required_in_template` predefined field has been added.                      |
+| `closeModalOnClickOverlay`                   | boolean | `true`              | In modal mode, close the editor when the user clicks the overlay behind the iframe.                              |
+| `fullScreenModal`                            | boolean | `false`             | In modal mode, remove the default side margins and use the full viewport width.                                  |
+| `modalMaxWidth`                              | string  | `undefined`         | In modal mode, cap the iframe width with a CSS length such as `1200px` or `80vw`. Defaults to no max width.      |
+| `iframeClass`                                | string  | `undefined`         | Additional class names for the iframe.                                                                           |
+| `iframeStyle`                                | string  | `undefined`         | Additional inline CSS for the iframe.                                                                            |
+| `editorURL`                                  | string  | Generated URL       | Override the iframe URL. This is mainly useful for local development or custom routing.                          |
+| `features`                                   | object  | See below           | Per-embed editor UI feature overrides.                                                                           |
+
+When `externalUser` is omitted, changes and published versions are attributed to
+`Embedded Template User`. Use `externalUser.external_id` for your application's
+stable user ID; DocSpring keeps it separate from DocSpring user IDs in version
+responses as `published_by_external_id`.
+
+`onDone` fires when the Done button is clicked after the editor is saved. The
+Done button is disabled while there are pending changes, while a save is in
+progress, or while a save error is present. Modal editors close automatically
+after `onDone` and `onEvent` run. See the main embed guide for the full callback
+list.
+
+Only one embedded template editor should be active on a page. Creating a new
+editor closes the previous editor instance first.
+
+## Available Features
+
+| Feature                      | Default | Description                                                                                                   |
+| ---------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| `showSettings`               | `true`  | Show the template settings panel. Requires the `embed_edit_allow_settings` capability.                        |
+| `showVersions`               | `true`  | Show version publishing, restore, and delete controls. Requires the `embed_edit_allow_versioning` capability. |
+| `showSchema`                 | `true`  | Show the JSON schema button.                                                                                  |
+| `showFormLinks`              | `true`  | Show links to hosted form and visual form pages.                                                              |
+| `allowPdfReplacement`        | `true`  | Allow users to upload a replacement PDF. Requires the `embed_edit_allow_document_replacement` capability.     |
+| `showHelp`                   | `true`  | Show the help link.                                                                                           |
+| `showInvert`                 | `true`  | Show the Invert button for PDF templates in dark mode. This option has no effect in light mode.               |
+| `showNewFieldTypePicker`     | `true`  | Show the toolbar field type picker for adding new fields.                                                     |
+| `showPredefinedFields`       | `true`  | Show predefined field assignment controls.                                                                    |
+| `showWelcomeModal`           | `true`  | Show the welcome modal whenever the embedded editor loads.                                                    |
+| `showTemplateDefaultOptions` | `true`  | Show template default field settings.                                                                         |
+| `showFieldDataType`          | `true`  | Show field data type controls.                                                                                |
+| `showFieldRequired`          | `true`  | Show required field controls.                                                                                 |
+| `showFieldHidden`            | `true`  | Show hidden field controls.                                                                                   |
+| `showFieldStatic`            | `true`  | Show static field controls.                                                                                   |
+| `showFieldDefaultValue`      | `true`  | Show default value controls.                                                                                  |
+| `showFieldInfo`              | `true`  | Show field title and description controls.                                                                    |
+| `showFieldRotation`          | `true`  | Show field rotation controls.                                                                                 |
+| `showFieldOpacity`           | `true`  | Show opacity controls.                                                                                        |
+| `showFieldConditions`        | `true`  | Show conditional display controls.                                                                            |
+| `showFieldQrBarcode`         | `true`  | Show QR code and barcode display options.                                                                     |
+| `showFieldDateOptions`       | `true`  | Show date and time formatting controls.                                                                       |
+| `showFieldMetadata`          | `true`  | Show field metadata controls.                                                                                 |
+| `showFieldFontAdvanced`      | `true`  | Show advanced font controls.                                                                                  |
+| `showFieldValidation`        | `true`  | Show validation controls such as length limits.                                                               |
+| `showFieldCombOptions`       | `true`  | Show comb field controls.                                                                                     |
+| `showFieldColorFromData`     | `true`  | Allow colors to come from submitted data.                                                                     |
+
+## simplifyUI Preset
+
+Use `simplifyUI` as a shortcut when you want a simpler editor experience:
+
+<Code
+  code={`DocSpring.createTemplateEditor('#template-editor', {
+    templateId: 'tpl_123',
+    token: 'EMBED_EDIT_TOKEN',
+    inline: true,
+    features: {
+      simplifyUI: true
+    }
+})`}
+  lang="javascript"
+  title="Simplified preset with override"
+/>
+
+`simplifyUI` expands into individual feature switches. Any explicit feature value in the same `features` object overrides the preset.
+
+## Restricted Settings
+
+When `embed_edit_allow_settings` is disabled on the template, the embedded
+editor cannot view or edit sensitive template settings. The editor receives
+sanitized values for settings such as webhook URLs, Slack webhook URLs, redirect
+URLs, public access settings, expiration settings, and PDF encryption passwords.
+Enable `embed_edit_allow_settings` only when the embedded user should be allowed
+to see and change those settings.
+
+<LinkCard
+  title="Embed the Template Editor"
+  href="/docs/guides/embedded-template-editor/"
+  description="Add the embedded editor iframe to your application"
+/>
