@@ -21,6 +21,12 @@ Include the template editor JavaScript library:
   title="Include template_editor.js"
 />
 
+<Aside type="note">
+  Enterprise deployments can load this script from the local DocSpring domain
+  instead of the CDN:
+  `https://docspring.yourcompany.com/assets/embed/template_editor.js`.
+</Aside>
+
 Render the editor inline:
 
 <Code
@@ -140,11 +146,11 @@ takes precedence and is also used to verify messages from the iframe.
 
 `externalUser` supports these fields:
 
-| Field         | Type   | Description                                                                 |
-| ------------- | ------ | --------------------------------------------------------------------------- |
-| `name`        | string | Display name for editor attribution. Defaults to `Embedded Template User`.  |
-| `email`       | string | Email address for editor attribution metadata.                              |
-| `external_id` | string | Your application's stable user ID.                                          |
+| Field         | Type   | Description                                                                |
+| ------------- | ------ | -------------------------------------------------------------------------- |
+| `name`        | string | Display name for editor attribution. Defaults to `Embedded Template User`. |
+| `email`       | string | Email address for editor attribution metadata.                             |
+| `external_id` | string | Your application's stable user ID.                                         |
 
 If `externalUser` is omitted, embedded saves and published versions are attributed to `Embedded Template User`.
 
@@ -152,11 +158,11 @@ If `externalUser` is omitted, embedded saves and published versions are attribut
 
 `DocSpring.createTemplateEditor` returns an object you can use to control the editor:
 
-| Property | Type     | Description                                                               |
-| -------- | -------- | ------------------------------------------------------------------------- |
-| `iframe` | element  | The created `<iframe>` element.                                           |
+| Property | Type     | Description                                                                      |
+| -------- | -------- | -------------------------------------------------------------------------------- |
+| `iframe` | element  | The created `<iframe>` element.                                                  |
 | `close`  | function | Closes the editor, removes its iframe and message listener, and fires `onClose`. |
-| `url`    | string   | The full editor URL loaded in the iframe.                                 |
+| `url`    | string   | The full editor URL loaded in the iframe.                                        |
 
 <Aside type="note">
   Only one embedded template editor should be active on a page. Creating a new
@@ -200,13 +206,13 @@ error is resolved.
 
 Template API responses include `versions` metadata for published template versions. Publisher IDs are split by actor type:
 
-| Field                      | Description                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------ |
-| `published_by_type`        | `user` for a DocSpring account user, or `external_user` for an embedded editor user.       |
-| `published_by_user_id`     | DocSpring user ID (`usr_...`) when `published_by_type` is `user`; omitted otherwise.       |
+| Field                      | Description                                                                                             |
+| -------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `published_by_type`        | `user` for a DocSpring account user, or `external_user` for an embedded editor user.                    |
+| `published_by_user_id`     | DocSpring user ID (`usr_...`) when `published_by_type` is `user`; omitted otherwise.                    |
 | `published_by_external_id` | Your `externalUser.external_id` when `published_by_type` is `external_user`; omitted when not provided. |
-| `published_by_name`        | Display name for the publisher.                                                           |
-| `published_by_email`       | External publisher email address when provided.                                            |
+| `published_by_name`        | Display name for the publisher.                                                                         |
+| `published_by_email`       | External publisher email address when provided.                                                         |
 
 ## Security
 
