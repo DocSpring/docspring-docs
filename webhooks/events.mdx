@@ -1,0 +1,133 @@
+---
+title: Webhook Events
+description: The full list of events you can subscribe to, plus how to scope a webhook by mode, API token, template, or folder.
+sidebar:
+  label: Events
+  order: 2
+---
+
+import { Aside, Badge } from "@astrojs/starlight/components";
+
+When you create a webhook you choose which events it should receive. Each event is
+named `<resource>.<action>` — for example, `submission.processed`.
+
+Events marked <Badge text="Default" variant="tip" /> are pre-selected when you
+create a webhook in the dashboard. The rest are opt-in — select them explicitly if
+you want them.
+
+## Submissions
+
+| Event                  | Description                   |                                        |
+| ---------------------- | ----------------------------- | -------------------------------------- |
+| `submission.processed` | When PDF generation completes | <Badge text="Default" variant="tip" /> |
+| `submission.failed`    | When PDF generation fails     | <Badge text="Default" variant="tip" /> |
+| `submission.created`   | When a submission is created  |                                        |
+| `submission.updated`   | When a submission is updated  |                                        |
+| `submission.expired`   | When a submission expires     |                                        |
+| `submission.deleted`   | When a submission is deleted  |                                        |
+
+## Data Requests
+
+| Event                               | Description                            |                                        |
+| ----------------------------------- | -------------------------------------- | -------------------------------------- |
+| `submission_data_request.viewed`    | When someone views a data request form | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.completed` | When a data request is completed       | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.updated`   | When a data request is updated         |                                        |
+
+## Combined Submissions
+
+| Event                           | Description                            |                                        |
+| ------------------------------- | -------------------------------------- | -------------------------------------- |
+| `combined_submission.processed` | When combined PDF generation completes | <Badge text="Default" variant="tip" /> |
+| `combined_submission.failed`    | When combined PDF generation fails     | <Badge text="Default" variant="tip" /> |
+| `combined_submission.expired`   | When a combined submission expires     |                                        |
+
+## Submission Batches
+
+| Event                        | Description                     |                                        |
+| ---------------------------- | ------------------------------- | -------------------------------------- |
+| `submission_batch.processed` | When batch processing completes | <Badge text="Default" variant="tip" /> |
+| `submission_batch.failed`    | When batch processing fails     | <Badge text="Default" variant="tip" /> |
+
+## Templates
+
+| Event              | Description                |
+| ------------------ | -------------------------- |
+| `template.created` | When a template is created |
+| `template.updated` | When a template is updated |
+| `template.deleted` | When a template is deleted |
+
+## API Tokens
+
+| Event               | Description                  |
+| ------------------- | ---------------------------- |
+| `api_token.created` | When an API token is created |
+| `api_token.revoked` | When an API token is revoked |
+| `api_token.deleted` | When an API token is deleted |
+
+## Webhooks
+
+| Event             | Description               |
+| ----------------- | ------------------------- |
+| `webhook.created` | When a webhook is created |
+| `webhook.updated` | When a webhook is updated |
+| `webhook.deleted` | When a webhook is deleted |
+
+## Integrations, Files, Folders & Users
+
+| Event                         | Description                            |
+| ----------------------------- | -------------------------------------- |
+| `account_integration.created` | When an account integration is created |
+| `account_integration.updated` | When an account integration is updated |
+| `account_integration.deleted` | When an account integration is deleted |
+| `custom_file.created`         | When a custom file is uploaded         |
+| `folder.created`              | When a folder is created               |
+| `folder.updated`              | When a folder is updated               |
+| `folder.deleted`              | When a folder is deleted               |
+| `user.created`                | When a user is created                 |
+| `user.invited`                | When a user is invited                 |
+| `user.updated`                | When a user is updated                 |
+| `user.deleted`                | When a user is deleted                 |
+
+## Scoping which events a webhook receives
+
+Beyond choosing event types, you can narrow down when a webhook fires.
+
+### Mode (test vs. live)
+
+The **Mode** setting limits a webhook to a particular environment:
+
+- **All submissions** — fire for both test and live submissions (the default).
+- **Test only** — only fire for test submissions.
+- **Live only** — only fire for live submissions.
+
+The mode of an event is determined by the submission it relates to (test or live),
+or by whether it was generated by a test (development) API token.
+
+### API tokens, templates, and folders
+
+You can limit a webhook to specific resources by listing their IDs. In the
+dashboard, add the IDs to the **API Token IDs**, **Template IDs**, and **Folder
+IDs** fields (one ID per row). Through the API, set the `api_token_uids`,
+`template_uids`, and `folder_uids` arrays.
+
+- **API Token IDs** — only fire for events generated by one of these API tokens.
+- **Template IDs** — only fire for events related to one of these templates (their
+  submissions, data requests, and template events). Matched by ID, so it keeps
+  working across template versions.
+- **Folder IDs** — only fire for events related to templates in one of these folders.
+
+Leave all three empty to receive events for everything in the account.
+
+<Aside type="note" title="Scope lists are combined with OR">
+  The three scope lists are matched with **OR**, not AND. If you set more than
+  one list, an event is in scope when it matches **any** of them. For example, a
+  webhook with both a template ID and an API token ID fires when an event is for
+  that template **or** was generated by that token — it does not require both.
+</Aside>
+
+<Aside type="note">
+  An event is delivered to a webhook only if it matches the webhook's event type
+  **and** mode, **and** is in scope (matches one of the API token / template /
+  folder lists, or no scope lists are set).
+</Aside>

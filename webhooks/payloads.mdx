@@ -1,0 +1,142 @@
+---
+title: Webhook Payloads
+description: The structure of webhook requests, the headers DocSpring sends, and how to control what data is included.
+sidebar:
+  label: Payloads
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Each webhook delivery is an HTTP `POST` request with a JSON body. DocSpring waits
+up to **30 seconds** for your endpoint to respond, and treats any `2xx` status code
+as a successful delivery.
+
+## Request headers
+
+Every request includes these headers:
+
+| Header                  | Value                                                |
+| ----------------------- | ---------------------------------------------------- |
+| `Content-Type`          | `application/json`                                   |
+| `Accept`                | `application/json`                                   |
+| `User-Agent`            | `DocSpring/Webhooks`                                 |
+| `X-DocSpring-Signature` | The signature used to verify the request (see below) |
+
+Any custom **Headers** you configured on the webhook are added as well.
+
+Legacy **v1/v2** webhooks are sent without a signature and with a `DocSpring`
+`User-Agent` — see [Webhook versions](#webhook-versions) below.
+
+## Request body
+
+The body is a JSON object with three top-level keys:
+
+```json
+{
+  "event": "submission.processed",
+  "timestamp": "2026-06-27T03:16:07Z",
+  "data": {
+    "resource": {
+      "type": "Submission",
+      "id": 1234567
+    },
+    "id": "sub_0XYZ...",
+    "state": "processed",
+    "test": false,
+    "template_id": "tpl_0ABC...",
+    "download_url": "https://api.docspring.com/...",
+    "metadata": { "customer_id": "cus_123" },
+    "data": {
+      "name": "Jane Doe",
+      "amount": "1234.00"
+    }
+  }
+}
+```
+
+| Field       | Description                                  |
+| ----------- | -------------------------------------------- |
+| `event`     | The event type, e.g. `submission.processed`. |
+| `timestamp` | ISO 8601 time the event was sent.            |
+| `data`      | The event payload (see below).               |
+
+### The `data` object
+
+`data` contains:
+
+- `resource` — a small pointer to the resource that triggered the event, with its
+  `type` (e.g. `Submission`) and internal numeric `id`.
+- The rest of `data` is the **serialized resource** itself. For a submission this is
+  the same object the API returns — including its public `id` (the `sub_…` UID),
+  `state`, `download_url`, `metadata`, and so on. See the
+  [API Reference](/docs/api/) for the full list of fields on each resource.
+
+<Aside type="note" title="Two ids, two data keys">
+  `data.resource.id` is the internal numeric id, while `data.id` is the public
+  UID you use with the API. Similarly, for submissions the submitted **form
+  values** live under `data.data` — the outer `data` is the event envelope, and
+  the inner `data` is the submission's field data.
+</Aside>
+
+## Webhook versions
+
+Every webhook has a **version** that controls the payload format used for
+**submission events** — `submission.processed`, `submission.failed`, and the other
+`submission.*` events:
+
+| Version          | Format                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------- |
+| **v3** (current) | The event envelope shown above (`event`, `timestamp`, `data`).                                           |
+| **v2** (legacy)  | `{ "submission": { ... } }` — the serialized submission as a JSON object.                                |
+| **v1** (legacy)  | A form-encoded body with a single `submission` field holding the serialized submission as a JSON string. |
+
+New webhooks default to **v3**, which we recommend for all new integrations. The v1
+and v2 formats exist only so that endpoints created before the current webhook system
+keep receiving the exact payloads they were built for.
+
+<Aside type="note" title="Versioning only applies to submission events">
+  The version setting only changes the payload for submission events, since
+  those were the only events the legacy formats ever sent. Every other event
+  type — data requests, templates, folders, and so on — is always delivered as
+  **v3**, even on a v1 or v2 webhook.
+</Aside>
+
+**Include submission data** and **strip fields** still apply to legacy payloads; they
+filter the serialized submission before it is wrapped in the v1/v2 envelope. Legacy
+deliveries are sent with a `DocSpring` `User-Agent` and are **not signed**, matching
+the original webhook behavior.
+
+## Controlling the payload
+
+### Include submission data
+
+By default the submitted form values are included (under `data.data`). If you only
+need to know that an event happened — and want to avoid sending field data to your
+endpoint — turn **Include submission data** off. DocSpring then omits the `data.data`
+object from the payload while keeping the rest of the event.
+
+### Strip specific fields
+
+Use **strip fields** to remove individual fields from the payload — for example to
+keep sensitive values like SSNs or card numbers out of your logs.
+
+List the **form field names** you want removed. To remove a field that isn't a form
+field — such as a metadata value or a nested field — use a dot-separated path from
+the root of the event's `data` object:
+
+```text
+ssn
+card_number
+metadata.internal_note
+```
+
+The example above removes the `ssn` and `card_number` form fields and the
+`internal_note` metadata value. Entries that don't match anything are ignored.
+
+### Custom headers
+
+Add custom **Headers** to every request — for example a static bearer token or a
+routing header your endpoint expects. Note that custom headers are a convenience,
+not a security mechanism: always rely on the
+[signature](/docs/webhooks/verifying-signatures/) to authenticate requests.
