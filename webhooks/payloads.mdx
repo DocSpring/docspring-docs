@@ -121,18 +121,20 @@ object from the payload while keeping the rest of the event.
 Use **strip fields** to remove individual fields from the payload — for example to
 keep sensitive values like SSNs or card numbers out of your logs.
 
-List the **form field names** you want removed. To remove a field that isn't a form
-field — such as a metadata value or a nested field — use a dot-separated path from
-the root of the event's `data` object:
+List dot-separated paths from the root of the event's `data` object. Form field
+values live under its `data` key, so a form field is removed with `data.<field name>`.
+A bare name removes a whole top-level key, such as `metadata` or `password`:
 
 ```text
-ssn
-card_number
+data.ssn
+data.card_number
 metadata.internal_note
+password
 ```
 
-The example above removes the `ssn` and `card_number` form fields and the
-`internal_note` metadata value. Entries that don't match anything are ignored.
+The example above removes the `ssn` and `card_number` form fields, the
+`internal_note` metadata value, and the submission's `password` field. Entries that
+don't match anything are ignored.
 
 ### Custom headers
 
