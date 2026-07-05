@@ -114,7 +114,8 @@ IDs** fields (one ID per row). Through the API, set the `api_token_uids`,
 - **Template IDs** — only fire for events related to one of these templates (their
   submissions, data requests, and template events). Matched by ID, so it keeps
   working across template versions.
-- **Folder IDs** — only fire for events related to templates in one of these folders.
+- **Folder IDs** — only fire for events related to templates in one of these
+  folders **or any of their subfolders** (folder scoping is hierarchical).
 
 Leave all three empty to receive events for everything in the account.
 
