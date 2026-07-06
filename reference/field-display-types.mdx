@@ -114,3 +114,9 @@ The following field data types can be displayed as barcodes:
 _Strings_, _Emails_, and _URLs_ use the `Code 128` symbology, which supports any ASCII character.
 
 ![Barcode](@images/template_editor/barcode.png)
+
+## Editable Fields
+
+Text and Check fields have an **Editable** option in the field settings. When a field is editable, DocSpring includes an editable form field in the generated PDF instead of flattening it to static text. This lets you make some fields fillable while keeping the rest static.
+
+See [Editable PDFs](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/#editable-pdfs) for how the per-field option interacts with the submission `editable` option.
