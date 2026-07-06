@@ -48,10 +48,10 @@ By default, DocSpring "flattens" generated PDFs into static text, so the fields 
 
 There are two ways to control this:
 
-- **Per submission:** Set `editable: true` in your submission request to make every field editable, or `editable: false` to flatten every field.
-- **Per field:** Enable the "Editable" option on an individual field in the Template Editor. That field is always rendered as an editable form field, even when the submission's `editable` option is unset or set to `false`.
+- **Per submission:** Set `editable: true` in your submission request to make every field editable, or `editable: false` to flatten every field. An explicit value always takes precedence over the per-field option below.
+- **Per field:** Enable the "Editable" option on an individual field in the Template Editor. That field is rendered as an editable form field even when "Generate Editable PDFs" is off — as long as the submission does not set the `editable` option.
 
-If you leave the submission `editable` option unset, each field falls back to its own "Editable" setting.
+When the submission `editable` option is unset, each field falls back to the template's "Generate Editable PDFs" setting or its own per-field "Editable" option.
 
 ## Batch Generation
 
