@@ -85,9 +85,12 @@ them are required.
 Conditional logic is expressed in your template's JSON schema using standard
 [JSON Schema draft-07](https://json-schema.org/draft-07) keywords, so any
 JSON Schema validator — or an AI agent filling out your form — can understand
-which fields are required in each case. Each rule is emitted twice:
+which fields are required in each case. The schema output has two parts:
 
-1. **Enforcement**: an `if`/`then` conditional in the top-level `allOf`.
+1. **Enforcement**: one `if`/`then` conditional per dependent field in the
+   top-level `allOf` (fields with identical conditions share one conditional).
+   The condition combines all of the field's rules, so a field hidden by one
+   rule is never required by another.
 2. **Annotation**: an `x-field-dependencies` array on each dependent field,
    describing the rule in a machine-readable format (including a
    `requiredWhenMatched` flag).
@@ -119,7 +122,9 @@ which fields are required in each case. Each rule is emitted twice:
     {
       "if": {
         "required": ["coverage"],
-        "properties": { "coverage": { "const": "family" } }
+        "properties": {
+          "coverage": { "not": { "enum": [null, ""] }, "const": "family" }
+        }
       },
       "then": { "required": ["beneficiary"] }
     }
@@ -173,13 +178,18 @@ array. You can set both with the
 - `match`: `all` or `any`
 - `operator`: `present`, `blank`, `equals`, `not_equals`, `in`, `gt`, `gte`,
   `lt`, `lte`, or `range` (use `value` for the lower bound and `rangeMax` for
-  the upper bound)
+  the upper bound). The numeric operators (`gt`, `gte`, `lt`, `lte`, `range`)
+  are only valid when the source field is a _Number_ field, and require
+  numeric values (`range` needs at least one bound; a missing bound makes the
+  range open-ended).
 - Field names use the same `a/b/c` path syntax as
   [nested field names](/docs/template-editor/field-names/)
 
 <Aside type="caution">
-  Conditions that reference fields inside arrays are not supported. If a rule's
-  field path crosses an array, the rule is ignored.
+  Invalid rules are ignored. This includes conditions whose field paths cross
+  arrays, reference deleted fields, or use numeric operators on non-number
+  fields. When a rule is ignored, its target fields behave as if the rule did
+  not exist (including keeping their own _Required_ setting).
 </Aside>
 
 <LinkCard
