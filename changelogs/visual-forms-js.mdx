@@ -26,7 +26,22 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.7.6 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.7.7 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jul 8, 2026
+</div>
+
+- Fixed the page crashing or reloading when pinch-zooming forms on iOS
+  (mobile Safari and Chrome). The form no longer creates a GPU compositing
+  layer for every field, which was exhausting the browser's memory limit
+  during zooming.
+- Fixed date fields using a larger font size than other fields on mobile
+  devices, and vertically centered the date text in the field.
+- Fixed the required field star being positioned too far away from
+  checkboxes on mobile devices.
+
+### 2.7.6
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Jun 25, 2026
