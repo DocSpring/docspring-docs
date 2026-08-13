@@ -74,6 +74,10 @@ them are required.
   then a condition hides it, the value is excluded from the submitted data
   (and from the generated PDF). The typed value reappears if the condition
   shows the field again.
+- **Hidden fields are never rendered.** Values for condition-hidden fields
+  are also stripped on the server when a PDF is generated, so data submitted
+  via the API renders exactly like a form submission. The stored submission
+  data is not modified — only the rendered output.
 - **Conditions can be chained.** A condition's source field can itself be
   conditionally shown. A hidden source field always counts as blank.
 - **Sample data respects conditions.** Generated example data (API code
