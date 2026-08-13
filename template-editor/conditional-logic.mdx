@@ -1,0 +1,203 @@
+---
+title: Conditional Logic
+description: Show, hide, or require fields based on the value or presence of other fields
+sidebar:
+  order: 5
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+Fields can be shown, hidden, or conditionally required based on the value or
+presence of other fields. Conditional logic works in every DocSpring form:
+simple web forms, visual forms, and data requests. It is also enforced when
+you submit data via the API.
+
+<Aside type="note">
+  Conditional logic requires template JSON schema **version 4** or later. If
+  your account uses an older schema version, you can upgrade in your [account
+  settings](https://app.docspring.com/account/edit). You can revert the upgrade
+  at any time.
+</Aside>
+
+## Adding a Condition to a Field
+
+1. Select a field in the template editor.
+2. Scroll down to the **Conditional Logic** section.
+3. Click **+ Add Condition**.
+4. Choose the **Action**, the source **Field**, an **Operator**, and a value
+   (if the operator needs one).
+
+You can add multiple conditions to a rule, and choose whether **all** or
+**any** of the conditions must match.
+
+### Actions
+
+- **Show and require**: The field is only shown (and required) when the
+  conditions match. This is the most common action.
+- **Show**: The field is only shown when the conditions match. If the field's
+  own _Required_ option is checked, it is "required when visible".
+- **Require**: The field is always shown, but only required when the
+  conditions match.
+
+### Operators
+
+| Operator           | Description                                        |
+| ------------------ | -------------------------------------------------- |
+| `is present`       | The field has any non-blank value                  |
+| `is blank`         | The field is empty                                 |
+| `equals`           | The field's value matches exactly                  |
+| `does not equal`   | The field is blank, or has a different value       |
+| `is one of`        | The field's value matches one of the listed values |
+| `>`, `≥`, `<`, `≤` | Numeric comparisons (for _Number_ fields)          |
+| `is between`       | The value is within an inclusive numeric range     |
+
+## Applying a Condition to a Group of Fields
+
+Click an **object or array group** in the field list to apply one rule to
+every field in that group. This is useful for hiding a whole section — for
+example, hiding 24 "Dependent Information" fields when someone selects
+"decline coverage":
+
+- Source Field: `selected_coverage`
+- Operator: `does not equal`
+- Value: `decline`
+- Action: **Show and require**
+
+When "decline" is selected, every field in the group is hidden and none of
+them are required.
+
+## Behavior Details
+
+- **Hidden fields are never required.** A required field that is hidden by a
+  condition will not block form submission.
+- **Hidden field values are not submitted.** If someone fills in a field and
+  then a condition hides it, the value is excluded from the submitted data
+  (and from the generated PDF). The typed value reappears if the condition
+  shows the field again.
+- **Hidden fields are never rendered.** Values for condition-hidden fields
+  are also stripped on the server when a PDF is generated, so data submitted
+  via the API renders exactly like a form submission. The stored submission
+  data is not modified — only the rendered output.
+- **Conditions can be chained.** A condition's source field can itself be
+  conditionally shown. A hidden source field always counts as blank.
+- **Sample data respects conditions.** Generated example data (API code
+  examples, the template editor's random test data) leaves out fields that
+  would be hidden.
+
+## JSON Schema Output
+
+Conditional logic is expressed in your template's JSON schema using standard
+[JSON Schema draft-07](https://json-schema.org/draft-07) keywords, so any
+JSON Schema validator — or an AI agent filling out your form — can understand
+which fields are required in each case. The schema output has two parts:
+
+1. **Enforcement**: one `if`/`then` conditional per dependent field in the
+   top-level `allOf` (fields with identical conditions share one conditional).
+   The condition combines all of the field's rules, so a field hidden by one
+   rule is never required by another.
+2. **Annotation**: an `x-field-dependencies` array on each dependent field,
+   describing the rule in a machine-readable format (including a
+   `requiredWhenMatched` flag).
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "coverage": {
+      "type": "string",
+      "enum": ["employee", "family", "decline"]
+    },
+    "beneficiary": {
+      "type": ["string", "null"],
+      "x-field-dependencies": [
+        {
+          "action": "require_and_show",
+          "match": "all",
+          "conditions": [
+            { "field": "coverage", "operator": "equals", "value": "family" }
+          ],
+          "requiredWhenMatched": true
+        }
+      ]
+    }
+  },
+  "required": ["coverage"],
+  "allOf": [
+    {
+      "if": {
+        "required": ["coverage"],
+        "properties": {
+          "coverage": { "not": { "enum": [null, ""] }, "const": "family" }
+        }
+      },
+      "then": { "required": ["beneficiary"] }
+    }
+  ]
+}
+```
+
+Note that conditionally-required fields are not listed in the base `required`
+array — their requirement is expressed entirely by the `if`/`then`
+conditionals, so data that omits hidden fields validates correctly.
+
+## Configuring Conditions via the API
+
+Per-field rules are stored in the `dependencies` property of each shared
+field, and group rules are stored in the template's `field_dependencies`
+array. You can set both with the
+[Update Template](/docs/api/#tag/templates/put/templates/{template_id}) endpoint:
+
+```json
+{
+  "template": {
+    "shared_field_data": {
+      "beneficiary": {
+        "name": "beneficiary",
+        "type": "string",
+        "required": false,
+        "dependencies": {
+          "action": "require_and_show",
+          "match": "all",
+          "conditions": [
+            { "field": "coverage", "operator": "equals", "value": "family" }
+          ]
+        }
+      }
+    },
+    "field_dependencies": [
+      {
+        "action": "require_and_show",
+        "match": "all",
+        "conditions": [
+          { "field": "coverage", "operator": "not_equals", "value": "decline" }
+        ],
+        "targets": ["dependent_name", "dependent_dob"]
+      }
+    ]
+  }
+}
+```
+
+- `action`: `require_and_show`, `show`, or `require`
+- `match`: `all` or `any`
+- `operator`: `present`, `blank`, `equals`, `not_equals`, `in`, `gt`, `gte`,
+  `lt`, `lte`, or `range` (use `value` for the lower bound and `rangeMax` for
+  the upper bound). The numeric operators (`gt`, `gte`, `lt`, `lte`, `range`)
+  are only valid when the source field is a _Number_ field, and require
+  numeric values (`range` needs at least one bound; a missing bound makes the
+  range open-ended).
+- Field names use the same `a/b/c` path syntax as
+  [nested field names](/docs/template-editor/field-names/)
+
+<Aside type="caution">
+  Invalid rules are ignored. This includes conditions whose field paths cross
+  arrays, reference deleted fields, or use numeric operators on non-number
+  fields. When a rule is ignored, its target fields behave as if the rule did
+  not exist (including keeping their own _Required_ setting).
+</Aside>
+
+<LinkCard
+  title="API Reference: Update Template"
+  href="/docs/api/#tag/templates/put/templates/{template_id}"
+  description="View all parameters, example requests/responses, and code samples"
+/>

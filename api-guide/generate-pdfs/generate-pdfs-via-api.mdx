@@ -33,7 +33,7 @@ Every submission must include:
 Optional parameters:
 
 - `wait` — Decide between synchronous and asynchronous processing.
-- `editable` — Keep the resulting PDF fillable or flatten the form fields.
+- `editable` — Keep the resulting PDF fillable or flatten the form fields. See [Editable PDFs](#editable-pdfs).
 - `expires_in` — Set a TTL for the generated PDF download link.
 - `field_overrides` — Temporarily adjust field requirements or defaults.
 - `data_requests` — Kick off a data collection or signature workflow before finalizing the PDF.
@@ -41,6 +41,17 @@ Optional parameters:
 ## Processing Modes
 
 Submissions sent to `sync.api.docspring.com` wait for processing and return the `download_url` in the response. Switching `wait=false` or using the asynchronous domain returns immediately with a pending submission. See [Sync vs. Async Processing](/docs/api-guide/synchronous-requests/) for flow diagrams, polling tips, and webhook guidance.
+
+## Editable PDFs
+
+By default, DocSpring "flattens" generated PDFs into static text, so the fields cannot be changed. You can instead generate PDFs that keep editable form fields (AcroForm fields). Only Text and Check fields become form fields; other display types are always static.
+
+There are two ways to control this:
+
+- **Per submission:** Set `editable: true` in your submission request to make every field editable, or `editable: false` to flatten every field. An explicit value always takes precedence over the per-field option below.
+- **Per field:** Enable the "Editable" option on an individual field in the Template Editor. That field is rendered as an editable form field even when "Generate Editable PDFs" is off — as long as the submission does not set the `editable` option.
+
+When the submission `editable` option is unset, each field falls back to the template's "Generate Editable PDFs" setting or its own per-field "Editable" option.
 
 ## Batch Generation
 
