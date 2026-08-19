@@ -87,39 +87,51 @@ them are required.
 ## JSON Schema Output
 
 Conditional logic is expressed in your template's JSON schema using standard
-[JSON Schema draft-07](https://json-schema.org/draft-07) keywords, so any
-JSON Schema validator — or an AI agent filling out your form — can understand
-which fields are required in each case. The schema output has two parts:
+[JSON Schema draft-07](https://json-schema.org/draft-07) `if`/`then`
+conditionals, in the same shape that generic JSON Schema form renderers such as
+[react-jsonschema-form](https://rjsf-team.github.io/react-jsonschema-form/)
+understand — so you can render the schema directly with your own form library
+(and the conditional fields will be shown, hidden, and required exactly like in
+DocSpring's forms), validate data with any JSON Schema validator, or hand the
+schema to an AI agent that fills out your form.
 
-1. **Enforcement**: one `if`/`then` conditional per dependent field in the
-   top-level `allOf` (fields with identical conditions share one conditional).
-   The condition combines all of the field's rules, so a field hidden by one
-   rule is never required by another.
-2. **Annotation**: an `x-field-dependencies` array on each dependent field,
-   describing the rule in a machine-readable format (including a
-   `requiredWhenMatched` flag).
+- **Conditionally shown fields are only defined inside the conditional.** A
+  field that is shown by a condition (the _Show_ and _Show and require_ actions)
+  is not defined in the base `properties`: the base schema only contains an
+  empty placeholder (`{}`) at the field's position, and the field's full
+  definition lives in the `then` branch of its conditional in the top-level
+  `allOf`. When every field in an object group is shown by the same condition,
+  the whole group is a single placeholder, and the group's full definition
+  lives in the conditional. The placeholder keeps the field's position (so
+  form renderers keep your field order when they merge the `then` branch into
+  the schema), and keeps `additionalProperties: false` working; any stale
+  value for a hidden field is accepted (and ignored by DocSpring).
+- **Conditionally required fields are listed in the `then` branch's
+  `required` array.** Rule targets are never in the base `required` array, so
+  data that omits hidden fields validates correctly. A _Show_ field that is
+  itself marked required is "required when visible"; a _Require_ field (always
+  visible) stays in the base `properties` and its conditional only adds
+  `required`.
+- **Rules are combined per field**, so a field hidden by one rule is never
+  required by another, and a condition on a source field that is itself
+  conditionally shown only matches while that source is visible (a hidden
+  source counts as blank).
+- **Annotation**: each dependent field's definition carries an
+  `x-field-dependencies` array describing its rules in a machine-readable
+  format (including a `requiredWhenMatched` flag). The conditionals DocSpring
+  generates are marked `x-docspring-field-dependencies: true`.
 
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
   "properties": {
     "coverage": {
       "type": "string",
       "enum": ["employee", "family", "decline"]
     },
-    "beneficiary": {
-      "type": ["string", "null"],
-      "x-field-dependencies": [
-        {
-          "action": "require_and_show",
-          "match": "all",
-          "conditions": [
-            { "field": "coverage", "operator": "equals", "value": "family" }
-          ],
-          "requiredWhenMatched": true
-        }
-      ]
-    }
+    "beneficiary": {}
   },
   "required": ["coverage"],
   "allOf": [
@@ -130,15 +142,40 @@ which fields are required in each case. The schema output has two parts:
           "coverage": { "not": { "enum": [null, ""] }, "const": "family" }
         }
       },
-      "then": { "required": ["beneficiary"] }
+      "then": {
+        "properties": {
+          "beneficiary": {
+            "type": "string",
+            "title": "Beneficiary",
+            "x-field-dependencies": [
+              {
+                "action": "require_and_show",
+                "match": "all",
+                "conditions": [
+                  {
+                    "field": "coverage",
+                    "operator": "equals",
+                    "value": "family"
+                  }
+                ],
+                "requiredWhenMatched": true
+              }
+            ]
+          }
+        },
+        "required": ["beneficiary"]
+      },
+      "x-docspring-field-dependencies": true
     }
   ]
 }
 ```
 
-Note that conditionally-required fields are not listed in the base `required`
-array — their requirement is expressed entirely by the `if`/`then`
-conditionals, so data that omits hidden fields validates correctly.
+<Aside type="tip">
+  To render the schema with react-jsonschema-form, pass it to the `Form`
+  component as-is (with the ajv8 validator). The `beneficiary` field above only
+  appears — and is only required — once `coverage` is set to `family`.
+</Aside>
 
 ## Configuring Conditions via the API
 
