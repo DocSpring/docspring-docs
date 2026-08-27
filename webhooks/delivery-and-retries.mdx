@@ -1,0 +1,85 @@
+---
+title: Delivery, Retries & Failures
+description: How DocSpring delivers webhooks, retries failures with exponential backoff, and disables endpoints that fail for too long.
+sidebar:
+  label: Delivery & Retries
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Delivery
+
+Webhooks are delivered asynchronously, so they never slow down PDF generation or
+your API requests. DocSpring sends a `POST` request to your URL and waits up to
+**30 seconds** for a response.
+
+A delivery is considered **successful** when your endpoint returns any `2xx` status
+code. Any other status code, a connection error, or a timeout counts as a failure
+and triggers a retry.
+
+<Aside type="tip" title="Respond quickly">
+  Acknowledge the request right away (return `200`) and do any slow work in the
+  background. If your handler takes longer than 30 seconds, DocSpring treats the
+  delivery as failed and retries it — even if your code eventually succeeded.
+</Aside>
+
+## Retries with exponential backoff
+
+When a delivery fails, DocSpring automatically retries it with an increasing delay,
+spread over roughly three days:
+
+| Retry | Delay after previous attempt |
+| ----- | ---------------------------- |
+| 1     | 1 minute                     |
+| 2     | 5 minutes                    |
+| 3     | 15 minutes                   |
+| 4     | 30 minutes                   |
+| 5     | 1 hour                       |
+| 6     | 2 hours                      |
+| 7     | 4 hours                      |
+| 8     | 8 hours                      |
+| 9     | 12 hours                     |
+| 10+   | 24 hours                     |
+
+Retries continue until the endpoint succeeds, the webhook is disabled, or the
+schedule is exhausted (about three days).
+
+<Aside type="note" title="Retries can cause duplicates">
+  Because a request that actually succeeded on your end can still be retried
+  (for example if your `2xx` response was slow or lost), your endpoint should be
+  **idempotent** — safe to receive the same event more than once. Record which
+  events you've processed and ignore repeats.
+</Aside>
+
+## Automatic disabling
+
+If a webhook fails **continuously for three days** — with no successful delivery in
+between — DocSpring automatically disables it and stops sending events. A single
+successful delivery at any point resets the clock, so a webhook is only disabled
+when it has been broken the entire time.
+
+A disabled webhook stays in your account; you can fix the endpoint and re-enable it
+from the dashboard whenever you're ready. Re-enabling clears the failure state.
+
+## Failure notifications
+
+DocSpring emails your account's billing user as a webhook degrades, so problems
+don't go unnoticed:
+
+- **First failure** — a heads-up once an endpoint starts failing (sent at most once
+  per hour, so a flaky endpoint won't flood your inbox).
+- **After 24 hours** — a reminder if the endpoint has been failing continuously for
+  a day.
+- **Disabled** — a final notice when the webhook is automatically disabled after
+  three days of continuous failure.
+
+## Delivery logs
+
+Every delivery attempt is recorded in the **Webhook Logs**, available from the
+Webhooks page in the dashboard. Each log entry includes the event type, the request
+and response headers and bodies, the HTTP status code, the response latency, the
+attempt number, and any error message.
+
+Use the logs to confirm that events are being delivered, inspect exactly what your
+endpoint received, and debug failures.

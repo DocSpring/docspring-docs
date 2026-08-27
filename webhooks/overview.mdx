@@ -1,0 +1,87 @@
+---
+title: Webhooks Overview
+description: Receive real-time HTTP notifications from DocSpring when submissions, templates, and other resources change.
+sidebar:
+  label: Overview
+  order: 1
+---
+
+import { Aside, LinkCard, Badge } from "@astrojs/starlight/components";
+
+Webhooks let DocSpring notify your application in real time when something happens
+in your account — for example, when a PDF finishes generating, a data request is
+completed, or a submission fails. Instead of polling the API, you register an HTTPS
+endpoint and DocSpring sends it a `POST` request for each event you subscribe to.
+
+<LinkCard
+  title="Manage Webhooks"
+  href="https://app.docspring.com/webhooks"
+  description="Create and manage webhooks in the DocSpring dashboard"
+/>
+
+## How it works
+
+1. You create a webhook with a destination **URL** and a list of **events**.
+2. When a matching event occurs, DocSpring sends a signed `POST` request to your
+   URL with a JSON payload describing the event.
+3. Your endpoint responds with a `2xx` status code to acknowledge receipt.
+4. If your endpoint fails, DocSpring retries with an exponential backoff for up to
+   three days. See [Delivery, Retries & Failures](/docs/webhooks/delivery-and-retries/).
+
+## Creating a webhook
+
+In the dashboard, go to **Webhooks → Create Webhook** and fill in:
+
+- **Name** — an optional label to help you identify the webhook.
+- **Webhook URL** — the HTTPS endpoint that will receive events.
+- **Events** — the [events](/docs/webhooks/events/) that should trigger this webhook.
+  A sensible default set is pre-selected; use the **All / None** links to toggle a
+  whole group at once.
+- **Mode** — limit the webhook to test submissions, live submissions, or both.
+- **Scope** — optionally limit the webhook to specific API tokens, templates, or
+  folders by listing their IDs. Leave blank to receive events for everything. See
+  [Events](/docs/webhooks/events/).
+- **Headers** — optional custom HTTP headers to include with every request.
+- **Include submission data** — whether to include the submitted form data in the
+  payload. See [Webhook Payloads](/docs/webhooks/payloads/).
+
+You can also manage webhooks through the API. See the
+[API Reference](/docs/api/) for the `POST /api/v1/webhooks` endpoint.
+
+## The signing secret
+
+Every webhook is created with a unique **signing secret** (a 64-character hex
+string). DocSpring uses it to sign each request so you can verify the payload
+really came from DocSpring and was not tampered with.
+
+You can find the secret on the webhook's detail page in the dashboard, and it is
+also returned as the `secret` field on every webhook API response.
+
+<Aside type="caution" title="Keep your secret safe">
+  The signing secret is shown in full in the dashboard and the API, so treat it
+  like a password — anyone who has it can forge valid-looking requests. There is
+  currently no way to rotate a secret in place: if a secret is exposed, create a
+  new webhook and delete the old one.
+</Aside>
+
+Learn how to use the secret in
+[Verifying Signatures](/docs/webhooks/verifying-signatures/).
+
+## Enabling, disabling, and deleting
+
+From the dashboard you can **disable** a webhook to temporarily stop deliveries
+without deleting it, then **enable** it again later. Deleting a webhook stops all
+future deliveries permanently.
+
+DocSpring will also **automatically disable** a webhook after it has been failing
+continuously for three days. See
+[Delivery, Retries & Failures](/docs/webhooks/delivery-and-retries/).
+
+<Aside type="note" title="Upgrading from legacy template webhooks">
+  DocSpring previously supported a single **Webhook URL** per template and per
+  API token. Those legacy webhook URLs keep working, but the new webhooks system
+  is far more capable (multiple endpoints, granular events, signatures, retries,
+  and delivery logs). Enterprise customers can migrate existing template and API
+  token webhook URLs into the new system by running{" "}
+  <code>rake webhooks:migrate</code>.
+</Aside>

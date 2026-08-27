@@ -1,0 +1,202 @@
+---
+title: Verifying Signatures
+description: Verify that webhook requests genuinely came from DocSpring and were not tampered with, using the X-DocSpring-Signature header.
+sidebar:
+  label: Verifying Signatures
+  order: 4
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Your webhook endpoint is a public URL, so anyone could send it a fake request. To
+confirm a request really came from DocSpring — and that nobody altered the payload
+in transit — DocSpring signs every request with your webhook's
+[signing secret](/docs/webhooks/overview/#the-signing-secret) and includes the
+signature in the `X-DocSpring-Signature` header.
+
+<Aside type="caution">
+  Always verify the signature before acting on a webhook. Treat any request that
+  fails verification as untrusted and discard it.
+</Aside>
+
+## The signature header
+
+```http
+X-DocSpring-Signature: t=1782532874,v1=66269feb6c39613749b415977617cff9d29b39a36296fd7b6d048c68cd4ae6ea
+```
+
+The header has two comma-separated parts:
+
+- `t` — the Unix timestamp (in seconds) when the request was signed.
+- `v1` — the signature: an HMAC-SHA256 hex digest. `v1` denotes the signature
+  scheme version.
+
+## How the signature is computed
+
+DocSpring builds a **signed payload** by joining the timestamp and the raw request
+body with a literal `.`:
+
+```text
+signed_payload = "{t}.{raw_request_body}"
+```
+
+It then computes:
+
+```text
+v1 = HMAC_SHA256(key: webhook_secret, message: signed_payload)
+```
+
+Because the timestamp is part of the signed message, it can't be altered without
+invalidating the signature — which is what makes timestamp-based replay protection
+possible.
+
+## Verifying a request
+
+To verify an incoming request:
+
+1. Read the `X-DocSpring-Signature` header and parse out `t` and `v1`.
+2. Recompute `HMAC_SHA256(secret, "{t}.{raw_body}")` using the **raw request body**
+   exactly as received.
+3. Compare your computed value to `v1` using a **constant-time** comparison.
+4. Optionally reject requests whose timestamp `t` is too old to limit replay attacks.
+
+<Aside type="danger" title="Use the raw request body">
+  You must compute the HMAC over the exact bytes DocSpring sent. If you parse
+  the JSON and re-serialize it, differences in key order or whitespace will
+  change the signature and verification will always fail. Read the raw body
+  before any JSON middleware processes it.
+</Aside>
+
+## Examples
+
+Each example reads the webhook secret from an environment variable. You'll find the
+secret on the webhook's detail page in the dashboard (and on every webhook API
+response).
+
+<Tabs>
+  <TabItem label="Ruby">
+    ```ruby
+    require "openssl"
+
+    TOLERANCE_SECONDS = 300 # 5 minutes
+
+    def verify_webhook(secret, signature_header, raw_body)
+      parts = signature_header.to_s.split(",").map { |p| p.split("=", 2) }.to_h
+      timestamp = parts["t"]
+      signature = parts["v1"]
+      return false if timestamp.nil? || signature.nil?
+
+      # Reject old timestamps (replay protection)
+      return false if (Time.now.to_i - timestamp.to_i).abs > TOLERANCE_SECONDS
+
+      signed_payload = "#{timestamp}.#{raw_body}"
+      expected = OpenSSL::HMAC.hexdigest("SHA256", secret, signed_payload)
+
+      # Constant-time comparison (both are 64-char hex strings)
+      return false unless expected.bytesize == signature.bytesize
+
+      OpenSSL.fixed_length_secure_compare(expected, signature)
+    end
+
+    # Example (Rails controller):
+    #   raw_body = request.raw_post
+    #   header   = request.headers["X-DocSpring-Signature"]
+    #   verified = verify_webhook(ENV["WEBHOOK_SECRET"], header, raw_body)
+    ```
+
+  </TabItem>
+  <TabItem label="Node.js">
+    ```js
+    const crypto = require("crypto");
+
+    const TOLERANCE_SECONDS = 300; // 5 minutes
+
+    function verifyWebhook(secret, signatureHeader, rawBody) {
+      const parts = Object.fromEntries(
+        String(signatureHeader)
+          .split(",")
+          .map((p) => p.split("=", 2)),
+      );
+      const { t: timestamp, v1: signature } = parts;
+      if (!timestamp || !signature) return false;
+
+      // Reject old timestamps (replay protection)
+      if (Math.abs(Date.now() / 1000 - Number(timestamp)) > TOLERANCE_SECONDS) {
+        return false;
+      }
+
+      const signedPayload = `${timestamp}.${rawBody}`;
+      const expected = crypto
+        .createHmac("sha256", secret)
+        .update(signedPayload, "utf8")
+        .digest("hex");
+
+      const a = Buffer.from(expected);
+      const b = Buffer.from(signature);
+      return a.length === b.length && crypto.timingSafeEqual(a, b);
+    }
+
+    // Example (Express): use express.raw() so req.body is the raw Buffer:
+    //   app.post("/webhooks", express.raw({ type: "application/json" }), (req, res) => {
+    //     const ok = verifyWebhook(
+    //       process.env.WEBHOOK_SECRET,
+    //       req.get("X-DocSpring-Signature"),
+    //       req.body.toString("utf8"),
+    //     );
+    //     res.sendStatus(ok ? 200 : 400);
+    //   });
+    ```
+
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import hashlib
+    import hmac
+    import time
+
+    TOLERANCE_SECONDS = 300  # 5 minutes
+
+
+    def verify_webhook(secret: str, signature_header: str, raw_body: str) -> bool:
+        parts = dict(
+            part.split("=", 1) for part in signature_header.split(",") if "=" in part
+        )
+        timestamp = parts.get("t")
+        signature = parts.get("v1")
+        if not timestamp or not signature:
+            return False
+
+        # Reject old timestamps (replay protection)
+        if abs(time.time() - int(timestamp)) > TOLERANCE_SECONDS:
+            return False
+
+        signed_payload = f"{timestamp}.{raw_body}"
+        expected = hmac.new(
+            secret.encode("utf-8"),
+            signed_payload.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+
+        # Constant-time comparison
+        return hmac.compare_digest(expected, signature)
+
+
+    # Example (Flask): request.get_data(as_text=True) returns the raw body
+    #   raw_body = request.get_data(as_text=True)
+    #   header = request.headers.get("X-DocSpring-Signature", "")
+    #   verified = verify_webhook(os.environ["WEBHOOK_SECRET"], header, raw_body)
+    ```
+
+  </TabItem>
+</Tabs>
+
+## Replay protection
+
+Even a genuine, correctly-signed request can be captured and re-sent by an attacker.
+Checking that the timestamp `t` is recent (the examples above use a five-minute
+tolerance) limits how long a captured request stays usable. Choose a tolerance that
+accounts for clock skew between your server and DocSpring.
+
+For stronger protection against duplicate deliveries — which can also happen
+naturally during [retries](/docs/webhooks/delivery-and-retries/) — make your handler
+**idempotent**: record which events you've already processed and ignore repeats.
