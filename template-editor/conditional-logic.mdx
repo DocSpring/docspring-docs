@@ -66,6 +66,11 @@ example, hiding 24 "Dependent Information" fields when someone selects
 When "decline" is selected, every field in the group is hidden and none of
 them are required.
 
+A group rule belongs to its group and always applies to the group's current
+fields: fields you add to the group are included, fields you rename or move
+out of the group are no longer affected, and the rule is removed when the
+group no longer contains any fields.
+
 ## Behavior Details
 
 - **Hidden fields are never required.** A required field that is hidden by a
