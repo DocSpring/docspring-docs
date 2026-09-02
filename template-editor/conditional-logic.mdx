@@ -235,7 +235,8 @@ array. You can set both with the
 - `group` (optional) marks a rule as authored on a field group in the template
   editor, where it is shown and edited on that group. Group rules only apply to
   the group's fields: when the template is saved, targets outside `<group>/`
-  are removed from the rule, and the rule itself is removed once the group has
+  (or that conditional logic cannot apply to, such as static fields) are
+  removed from the rule, and the rule itself is removed once the group has
   no fields. Rules without `group` are stored as given (the fields they name
   must exist for the rule to take effect).
 
