@@ -68,11 +68,17 @@ DocSpring emails your account's billing user as a webhook degrades, so problems
 don't go unnoticed:
 
 - **First failure** — a heads-up once an endpoint starts failing (sent at most once
-  per hour, so a flaky endpoint won't flood your inbox).
+  per day, so a flaky endpoint won't flood your inbox).
 - **After 24 hours** — a reminder if the endpoint has been failing continuously for
   a day.
 - **Disabled** — a final notice when the webhook is automatically disabled after
   three days of continuous failure.
+
+An endpoint that flips between success and failure starts a new failing streak each
+time, so it can keep sending a first-failure email every day. If you know an endpoint
+is flaky, you can turn these emails off for that webhook: edit the webhook in the
+dashboard and uncheck **Send failure notification emails**. Deliveries, retries, and
+the automatic disable still work exactly the same; only the emails are suppressed.
 
 ## Delivery logs
 
