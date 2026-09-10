@@ -58,8 +58,13 @@ The body is a JSON object with three top-level keys:
 | Field       | Description                                  |
 | ----------- | -------------------------------------------- |
 | `event`     | The event type, e.g. `submission.processed`. |
-| `timestamp` | ISO 8601 time the event was sent.            |
+| `timestamp` | UTC ISO 8601 time the event was sent.        |
 | `data`      | The event payload (see below).               |
+
+Every timestamp in the body — `timestamp` and any `*_at` field on the serialized
+resource, such as `processed_at` or `updated_at` — is a UTC ISO 8601 string with
+second precision, e.g. `2026-06-27T03:16:07Z`. The same format is used for
+timestamps in API responses.
 
 ### The `data` object
 
