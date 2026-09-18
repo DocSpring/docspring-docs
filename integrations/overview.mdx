@@ -1,24 +1,81 @@
 ---
 title: Integrations Overview
-description: Configure integrations for your DocSpring account
+description: Connect DocSpring to AWS S3, Bubble, Zapier, n8n, Node-RED, and Parabola
 ---
 
-import { LinkCard, Aside } from "@astrojs/starlight/components";
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Configure integrations for your DocSpring account.
+Connect DocSpring to your apps and automation workflows to generate PDFs, collect signatures, and store completed documents.
 
-At the moment we only support an AWS S3 integration, so you can upload PDFs to your own S3 bucket. This integration applies to all templates, submissions, and combined submissions in your account.
+## Getting started
 
-<Aside type="note">
-  We will be adding more integrations in the future. We are also working on a
-  redesign and improved UI, so you will have more fine-grained control over
-  integrations.
-</Aside>
+For third-party apps, create a DocSpring API token and enter its token ID and secret in the app's connection settings. AWS S3 connections are configured in DocSpring under **Integrations → Manage S3 connections**.
 
-## Available Integrations
+<CardGrid>
+  <LinkCard
+    title="Manage integrations"
+    href="https://app.docspring.com/account_integrations"
+    description="Open the integration catalog and manage your S3 connections"
+  />
+  <LinkCard
+    title="API token setup"
+    href="/docs/api-guide/authentication/"
+    description="Create credentials for connecting an app to your DocSpring account"
+  />
+</CardGrid>
 
-<LinkCard
-  title="AWS S3 Integration"
-  href="/docs/integrations/aws-s3/"
-  description="Upload generated PDFs to your own S3 bucket"
-/>
+## Available integrations
+
+<CardGrid>
+  <LinkCard
+    title="AWS S3"
+    href="/docs/integrations/aws-s3/"
+    description="Automatically upload generated PDFs to your own Amazon S3 bucket"
+  />
+  <LinkCard
+    title="Bubble"
+    href="https://bubble.io/plugin/docspring---fill-and-generate-pdfs-1573478783306x235198545630593020"
+    description="Install the DocSpring plugin to fill PDF templates and generate documents from your Bubble app"
+  />
+  <LinkCard
+    title="Zapier (beta)"
+    href="https://zapier.com/developer/public-invite/71146/b6aae75c1a0ee6197d29f61f39c5a782/"
+    description="Accept the beta invite to generate PDFs and start signing workflows from your Zaps"
+  />
+  <LinkCard
+    title="n8n"
+    href="https://www.npmjs.com/package/@docspring/n8n-nodes-docspring"
+    description="Install the DocSpring community node to generate PDFs and automate signing in n8n"
+  />
+  <LinkCard
+    title="Node-RED"
+    href="https://flows.nodered.org/node/@docspring/node-red-docspring"
+    description="Add PDF generation and signing actions to your Node-RED flows"
+  />
+  <LinkCard
+    title="Parabola"
+    href="https://parabola.io/docs/product/integration/docspring"
+    description="Use the Send to DocSpring step to turn rows of data into filled PDFs"
+  />
+</CardGrid>
+
+## Coming soon
+
+DocSpring integrations for **Make.com** and **Pipedream** are coming soon. They are not yet available to install.
+
+## Build your own integration
+
+Use the REST API or an official client library to generate PDFs from your application. Webhooks notify your app when PDFs finish processing or signing events occur.
+
+<CardGrid>
+  <LinkCard
+    title="API client libraries"
+    href="/docs/api-guide/install-api-client/"
+    description="Use Ruby, Python, JavaScript, TypeScript, PHP, C#, Java, Go, or Elixir"
+  />
+  <LinkCard
+    title="Webhooks"
+    href="/docs/webhooks/overview/"
+    description="Receive notifications from DocSpring in your own application"
+  />
+</CardGrid>
