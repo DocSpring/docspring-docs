@@ -64,6 +64,53 @@ by setting `showFieldRequired`. Set this to `true` if you want your users to be 
 
 ## Field Names
 
+### Display names and titles
+
+Set an optional `display_name` to show a friendly name throughout the template
+editor while keeping `name` as the field's submission data key:
+
+<Code
+  code={`{
+  "name": "requiredInfo_name",
+  "display_name": "Defendant/Name",
+  "title": "Defendant Name",
+  "type": "string",
+  "required_in_template": false,
+  "field_required": false
+}`}
+  lang="json"
+  title="Predefined field with a display name"
+/>
+
+This field appears as **Name** inside a **Defendant** folder in the field
+sidebars, and as **Defendant/Name** in the name dropdown and on the editor
+canvas. Its actual name remains `requiredInfo_name`, so submission data is
+still `{"requiredInfo_name": "Jane Smith"}`. Display folders do not create
+nested submission data.
+
+The optional `title` populates the field's Title setting when the field is added
+or assigned from the predefined list. Users can edit that title afterward.
+Changing the predefined title does not overwrite titles on fields already
+placed in the template.
+
+If `display_name` is omitted or `null`, the editor uses `name`. If `title` is
+omitted or `null`, adding or assigning the predefined field does not supply
+a title. Existing configurations continue to work without these properties.
+
+Display names must be non-empty strings and must not create ambiguous choices
+for different field names. This includes collisions with fields that use their
+original names, or a legacy array dropdown label. For example,
+`Defendant/Name` and `Cosigner/Name` are allowed, but two different data keys
+cannot both be displayed as `Defendant/Name`. The API returns a validation
+error when saving conflicting predefined fields. Multiple placements of the
+same field are allowed.
+
+Array entries with explicit display names appear as separate dropdown choices.
+Without display names, the existing array name and index selection behavior is
+unchanged.
+
+### Nested data and arrays
+
 Use slash-separated names for nested JSON data:
 
 <Code
