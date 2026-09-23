@@ -114,9 +114,11 @@ equivalent. For example, `person` cannot be configured once as `Defendant/Name`
 and again as `Cosigner/Name`. Repeated entries with no presentation metadata
 or with identical metadata remain valid.
 
-Array entries with explicit display names appear as separate dropdown choices.
-Without display names, the existing array name and index selection behavior is
-unchanged.
+Array entries with explicit display names appear as separate Name dropdown
+choices. Without display names, array entries share a Name dropdown choice.
+The index selector lists only configured entries using one-based indices.
+Changing the index applies the selected entry's title (when supplied), type,
+required state, and option list, just like selecting it from the Name dropdown.
 
 ### Nested data and arrays
 
