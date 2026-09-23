@@ -97,6 +97,9 @@ If `display_name` is omitted or `null`, the editor uses `name`. If `title` is
 omitted or `null`, adding or assigning the predefined field does not supply
 a title. Existing configurations continue to work without these properties.
 
+Each predefined field must have a string `name` that is not empty or composed
+only of whitespace. Valid names are stored exactly as supplied.
+
 Display names must be non-empty strings and must not create ambiguous choices
 for different field names. This includes collisions with fields that use their
 original names, or a legacy array dropdown label. For example,
