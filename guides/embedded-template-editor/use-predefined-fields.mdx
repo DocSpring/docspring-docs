@@ -105,6 +105,12 @@ cannot both be displayed as `Defendant/Name`. The API returns a validation
 error when saving conflicting predefined fields. Multiple placements of the
 same field are allowed.
 
+If the predefined list repeats the same exact `name`, every entry must have
+identical `display_name` and `title` values. Omitted and `null` values are
+equivalent. For example, `person` cannot be configured once as `Defendant/Name`
+and again as `Cosigner/Name`. Repeated entries with no presentation metadata
+or with identical metadata remain valid.
+
 Array entries with explicit display names appear as separate dropdown choices.
 Without display names, the existing array name and index selection behavior is
 unchanged.
