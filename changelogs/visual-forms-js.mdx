@@ -26,7 +26,19 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.8.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.8.3 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 7, 2026
+</div>
+
+- The library no longer uses your page's Sentry SDK when you embed a form
+  directly on your site. If your site used an older Sentry SDK (version 7 or
+  earlier), embedding a visual form could stop your own Sentry error reporting.
+- DocSpring's own error reporting only runs on DocSpring-hosted pages, and never
+  includes the data entered into the form.
+
+### 2.8.2
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 7, 2026
