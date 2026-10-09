@@ -36,3 +36,35 @@ The `wait` query parameter has no effect on the async subdomain.
 - Create Submission Batch: `POST /api/v1/submissions/batches`
 - Create Combined Submission: `POST /api/v1/combined_submissions`
 - Create Template: `POST /api/v1/templates`
+
+## Time limit
+
+The synchronous subdomain waits **up to 95 seconds** for your PDF. Most PDFs are ready within a few seconds, so this is only an upper limit.
+
+If the PDF still isn't ready after 95 seconds, the API returns a `504` response with the error code `polling_timeout`. The response still includes the submission (or the template, combined submission or submission batch you created), and processing carries on in the background:
+
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "polling_timeout",
+    "message": "polling timeout after 1m35s"
+  },
+  "submission": {
+    "id": "sub_1234567890abcdef01",
+    "state": "pending"
+  }
+}
+```
+
+_(Other submission fields are left out here.)_
+
+Use the ID to [check the submission's status](/docs/api/#tag/pdf-submissions/get/submissions/{submission_id}) until it's processed, or use [webhooks](/docs/webhooks/overview/) to find out when it's ready.
+
+<Aside type="caution">
+  Don't retry a request that returned a `polling_timeout` error. The submission
+  (or other record) was already created, so sending the request again creates a
+  duplicate.
+</Aside>
+
+If some of your PDFs regularly take longer than 95 seconds, add `?wait=false` to those requests. You'll get the pending submission straight away, and can then check its status or use webhooks as described above.
