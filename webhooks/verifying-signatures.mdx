@@ -199,4 +199,6 @@ accounts for clock skew between your server and DocSpring.
 
 For stronger protection against duplicate deliveries — which can also happen
 naturally during [retries](/docs/webhooks/delivery-and-retries/) — make your handler
-**idempotent**: record which events you've already processed and ignore repeats.
+**idempotent**: record the [event ID](/docs/webhooks/payloads/#event-ids) (the body's
+`id`, which the signature covers) of each event you've already processed and ignore
+repeats.

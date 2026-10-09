@@ -16,30 +16,33 @@ as a successful delivery.
 
 Every request includes these headers:
 
-| Header                  | Value                                                |
-| ----------------------- | ---------------------------------------------------- |
-| `Content-Type`          | `application/json`                                   |
-| `Accept`                | `application/json`                                   |
-| `User-Agent`            | `DocSpring/Webhooks`                                 |
-| `X-DocSpring-Signature` | The signature used to verify the request (see below) |
+| Header                  | Value                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `Content-Type`          | `application/json`                                                            |
+| `Accept`                | `application/json`                                                            |
+| `User-Agent`            | `DocSpring/Webhooks`                                                          |
+| `X-DocSpring-Event-Id`  | The event ID, the same as the body's `id` (see [Event IDs](#event-ids) below) |
+| `X-DocSpring-Signature` | The signature used to verify the request (see below)                          |
 
 Any custom **Headers** you configured on the webhook are added as well.
 
-Legacy **v1/v2** webhooks are sent without a signature and with a `DocSpring`
-`User-Agent` — see [Webhook versions](#webhook-versions) below.
+Submission events on a legacy **v1/v2** webhook are sent without a signature or
+event ID and with a `DocSpring` `User-Agent` — see [Webhook versions](#webhook-versions)
+below.
 
 ## Request body
 
-The body is a JSON object with three top-level keys:
+The body is a JSON object with four top-level keys:
 
 ```json
 {
+  "id": "6f1c2e8a-3b4d-4c5e-9f60-7a8b9c0d1e2f",
   "event": "submission.processed",
   "timestamp": "2026-06-27T03:16:07Z",
   "data": {
     "resource": {
       "type": "Submission",
-      "id": 1234567
+      "id": "sub_0XYZ..."
     },
     "id": "sub_0XYZ...",
     "state": "processed",
@@ -55,11 +58,12 @@ The body is a JSON object with three top-level keys:
 }
 ```
 
-| Field       | Description                                  |
-| ----------- | -------------------------------------------- |
-| `event`     | The event type, e.g. `submission.processed`. |
-| `timestamp` | UTC ISO 8601 time the event was sent.        |
-| `data`      | The event payload (see below).               |
+| Field       | Description                                                 |
+| ----------- | ----------------------------------------------------------- |
+| `id`        | The event ID. It stays the same when a delivery is retried. |
+| `event`     | The event type, e.g. `submission.processed`.                |
+| `timestamp` | UTC ISO 8601 time the event was sent.                       |
+| `data`      | The event payload (see below).                              |
 
 Every timestamp in the body — `timestamp` and any `*_at` field on the serialized
 resource, such as `processed_at` or `updated_at` — is a UTC ISO 8601 string with
@@ -71,18 +75,34 @@ timestamps in API responses.
 `data` contains:
 
 - `resource` — a small pointer to the resource that triggered the event, with its
-  `type` (e.g. `Submission`) and internal numeric `id`.
+  `type` (e.g. `Submission`) and `id` (e.g. `sub_0XYZ...`).
 - The rest of `data` is the **serialized resource** itself. For a submission this is
-  the same object the API returns — including its public `id` (the `sub_…` UID),
-  `state`, `download_url`, `metadata`, and so on. See the
-  [API Reference](/docs/api/) for the full list of fields on each resource.
+  the same object the API returns — including its `id`, `state`, `download_url`,
+  `metadata`, and so on. See the [API Reference](/docs/api/) for the full list of
+  fields on each resource.
 
-<Aside type="note" title="Two ids, two data keys">
-  `data.resource.id` is the internal numeric id, while `data.id` is the public
-  UID you use with the API. Similarly, for submissions the submitted **form
-  values** live under `data.data` — the outer `data` is the event envelope, and
-  the inner `data` is the submission's field data.
+<Aside type="note" title="Which id is which">
+  The top-level `id` is the event ID. `data.resource.id` and `data.id` are both
+  the resource's ID, the same one you use with the API. `data.resource.id` is
+  always sent, even if you remove `id` with [strip
+  fields](#strip-specific-fields). Similarly, for submissions the submitted
+  **form values** live under `data.data`: the outer `data` is the event
+  envelope, and the inner `data` is the submission's field data.
 </Aside>
+
+### Event IDs
+
+Every v3 delivery has an event ID, sent as the body's top-level `id` and in the
+`X-DocSpring-Event-Id` header. The ID stays the same when DocSpring
+[retries](/docs/webhooks/delivery-and-retries/) a delivery, so you can use it to
+recognize an event you've already processed and ignore the repeat.
+
+Each webhook gets its own event ID. If two of your webhooks receive the same event,
+their deliveries have different IDs.
+
+Use the body's `id` for deduplication. It's covered by the
+[signature](/docs/webhooks/verifying-signatures/), so it can't be changed without
+breaking the signature. The header is a copy for convenience and isn't signed.
 
 ## Webhook versions
 
@@ -92,7 +112,7 @@ Every webhook has a **version** that controls the payload format used for
 
 | Version          | Format                                                                                                   |
 | ---------------- | -------------------------------------------------------------------------------------------------------- |
-| **v3** (current) | The event envelope shown above (`event`, `timestamp`, `data`).                                           |
+| **v3** (current) | The event envelope shown above (`id`, `event`, `timestamp`, `data`).                                     |
 | **v2** (legacy)  | `{ "submission": { ... } }` — the serialized submission as a JSON object.                                |
 | **v1** (legacy)  | A form-encoded body with a single `submission` field holding the serialized submission as a JSON string. |
 
