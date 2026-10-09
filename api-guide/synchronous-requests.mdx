@@ -59,11 +59,12 @@ If the PDF still isn't ready after 95 seconds, the API returns a `504` response 
 
 _(Other submission fields are left out here.)_
 
-Use the ID to [check the submission's status](/docs/api/#tag/pdf-submissions/get/submissions/{submission_id}) until it's processed, or use [webhooks](/docs/webhooks/overview/) to find out when it's ready.
+Use the ID to [check the submission's status](/docs/api/#tag/pdf-submissions/get/submissions/{submission_id}), or use [webhooks](/docs/webhooks/overview/) to find out when it's ready. A status check on the synchronous subdomain also waits up to 95 seconds for the PDF. Add `?wait=false` to get the current status straight away.
 
 <Aside type="caution">
-  Don't retry a request that returned a `polling_timeout` error. The submission
-  (or other record) was already created, so sending the request again creates a
+  If a request to create a submission (or another record) returns a
+  `polling_timeout` error that includes the record, don't send that request
+  again. The record was already created, so sending it again creates a
   duplicate.
 </Aside>
 
