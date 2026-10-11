@@ -48,8 +48,9 @@ schedule is exhausted (about three days).
 <Aside type="note" title="Retries can cause duplicates">
   Because a request that actually succeeded on your end can still be retried
   (for example if your `2xx` response was slow or lost), your endpoint should be
-  **idempotent** — safe to receive the same event more than once. Record which
-  events you've processed and ignore repeats.
+  **idempotent** — safe to receive the same event more than once. Record the
+  [event ID](/docs/webhooks/payloads/#event-ids) of each event you've processed
+  and ignore repeats.
 </Aside>
 
 ## Automatic disabling

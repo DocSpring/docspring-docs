@@ -74,7 +74,7 @@ Batch responses include a `batch` object and an array of child `submissions`:
 }
 ```
 
-When you set `wait=false` on any submission, the batch response may return before the PDF is ready. Poll each submission with `GET /api/v1/submissions/{id}` or listen for the `submission.completed` webhook.
+When you set `wait=false` on any submission, the batch response may return before the PDF is ready. Poll each submission with `GET /api/v1/submissions/{id}` or listen for the `submission.processed` webhook.
 
 ## Limits & Best Practices
 
