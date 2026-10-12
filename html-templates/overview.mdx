@@ -110,8 +110,8 @@ You can pass the following options to the `signature` tag, to control the width 
 | ------------- | -------------- | -------------- |
 | `width`       | Image          | `(from image)` |
 | `height`      | Image          | `(from image)` |
-| `font-size`   | Text           | `normal`       |
-| `font-weight` | Text           | `16px`         |
+| `font-size`   | Text           | `16px`         |
+| `font-weight` | Text           | `normal`       |
 | `color`       | Text           | `black`        |
 
 There is also a `preview_type` option, which allows you to control the type of signature that is shown in preview PDFs. We show a image signature by default. Use `preview_type: text` to show a text signature.
@@ -164,8 +164,8 @@ The `initials` tag accepts the same options as the `signature` tag:
 | ------------- | ------------- | -------------- |
 | `width`       | Image         | `(from image)` |
 | `height`      | Image         | `(from image)` |
-| `font-size`   | Text          | `normal`       |
-| `font-weight` | Text          | `16px`         |
+| `font-size`   | Text          | `16px`         |
+| `font-weight` | Text          | `normal`       |
 | `color`       | Text          | `black`        |
 
 Use the `preview_type` option to control how initials appear in preview PDFs. Preview image initials are shown by default. Use `preview_type: text` to display text initials instead.
@@ -291,6 +291,18 @@ You can use the `pageNumber` and `totalPages` classes to show the current page n
   The footer will appear at the bottom of each page with page numbers like "Page
   1 of 2".
 </Aside>
+
+## Limits
+
+- **Generated PDF:** up to 500 MB. Photos embedded at full camera resolution can go over this. Resize images to the
+  size they are displayed at.
+- **HTML:** up to 128 MB in total for the body, header and footer HTML, including any images embedded in it as base64.
+- **Header and footer images:** up to 25 MB each. They are embedded into the header or footer HTML.
+- **[Image field](/docs/reference/field-data-types/#image) values given as a URL:** up to 100 MB each.
+
+A document over one of these limits fails with an error that names the limit, and isn't retried. A very large
+document can also take too long to render, and often does before its PDF reaches 500 MB. A render that runs out of
+time is retried a few times before it fails.
 
 ## Generating PDFs
 

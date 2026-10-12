@@ -4,7 +4,7 @@ This repository contains the public documentation for [DocSpring](https://docspr
 
 ## 📚 About
 
-This is a mirror of DocSpring's documentation content, designed to enable community contributions through GitHub. The documentation is built using [Astro Starlight](https://starlight.astro.build/) and is published at [docspring.com/docs](https://docspring.com/docs/).
+This is a mirror of DocSpring's documentation content. It is updated automatically whenever we deploy new documentation, and we welcome contributions through GitHub. The documentation is built using [Astro Starlight](https://starlight.astro.build/) and is published at [docspring.com/docs](https://docspring.com/docs/).
 
 ## 🤝 Contributing
 
@@ -30,11 +30,11 @@ We welcome contributions to improve our documentation! Here's how you can help:
 
 ## 🔄 Sync Process
 
-This repository is manually synchronized with our main documentation source. After your PR is merged:
+We don't merge pull requests in this repository directly, because it is overwritten with our main documentation source on every documentation deploy. When we accept your PR:
 
-1. We review and test the changes
-2. Apply them to our main documentation source
-3. Deploy updates to [docspring.com/docs](https://docspring.com/docs/)
+1. We apply your changes to our main documentation source, crediting you as a co-author
+2. We close your PR with a link to the change
+3. Your changes appear on [docspring.com/docs](https://docspring.com/docs/) and in this repository after our next documentation deploy
 
 ## 📝 License
 
