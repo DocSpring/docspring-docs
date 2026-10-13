@@ -26,7 +26,28 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.8.3 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.9.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 13, 2026
+</div>
+
+- [Formulas](/docs/template-editor/formulas/) are calculated the same way as
+  in the generated PDF, so the form shows the values that will be printed.
+- A formula stays blank until one of the fields it uses has a value. Default
+  values don't count.
+- If a formula can't be calculated with the values entered (for example, when
+  it divides by zero), the form shows the problem on the field and can't be
+  submitted until the values change. A problem with a formula that the form
+  doesn't ask for is shown at the top of the form.
+- In a data request with more than one signer, formulas are calculated with
+  every signer's values.
+- Formulas can use fields in a list of objects, and a field in a list can have
+  a formula that is calculated for each row.
+- Number fields show the values passed in `defaultFormData` or already saved on
+  the submission, instead of their default value or formula.
+
+### 2.8.3
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 7, 2026

@@ -93,6 +93,9 @@ the field list) rather than renaming its fields one by one.
   data is not modified — only the rendered output.
 - **Conditions can be chained.** A condition's source field can itself be
   conditionally shown. A hidden source field always counts as blank.
+- **Conditions can use formulas.** [Formulas](/docs/template-editor/formulas/)
+  are calculated before conditions are checked, so a condition can use a
+  formula field's result. A formula field that a condition hides isn't printed.
 - **Sample data respects conditions.** Generated example data (API code
   examples, the template editor's random test data) leaves out fields that
   would be hidden.

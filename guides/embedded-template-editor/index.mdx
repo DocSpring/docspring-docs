@@ -209,6 +209,8 @@ If `externalUser` is omitted, embedded saves and published versions are attribut
 
 Each event has a named callback (`onLoad`, `onSave`, and so on). `onEvent` is a catch-all that fires for every event with the event name and its data. `onClose` fires whenever the editor is closed, including when you call `close()` or create a new editor. Version events only fire when versioning is enabled for the embed.
 
+`onError` receives an object with a `message` and the HTTP `status`. When a save is rejected because of a problem with the template, such as a [formula](/docs/template-editor/formulas/) that can't be calculated, `errors` lists each problem.
+
 The Done button only fires `onDone` when the editor has no pending changes, no
 active save request, and no save error. Host applications can use `onSave` to
 observe successful saves and `onDone` to advance or close the editor after the
