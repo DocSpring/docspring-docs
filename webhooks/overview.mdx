@@ -6,24 +6,38 @@ sidebar:
   order: 1
 ---
 
-import { Aside, LinkCard, Badge } from "@astrojs/starlight/components";
+import {
+  Aside,
+  CardGrid,
+  LinkCard,
+  Badge,
+} from "@astrojs/starlight/components";
 
 Webhooks let DocSpring notify your application in real time when something happens
 in your account — for example, when a PDF finishes generating, a data request is
 completed, or a submission fails. Instead of polling the API, you register an HTTPS
 endpoint and DocSpring sends it a `POST` request for each event you subscribe to.
 
-<LinkCard
-  title="Manage Webhooks"
-  href="https://app.docspring.com/webhooks"
-  description="Create and manage webhooks in the DocSpring dashboard"
-/>
+<CardGrid>
+  <LinkCard
+    title="Manage webhooks (US)"
+    href="https://app.docspring.com/webhooks"
+    description="Create and manage webhooks in the DocSpring dashboard"
+  />
+  <LinkCard
+    title="Manage webhooks (EU)"
+    href="https://app-eu.docspring.com/webhooks"
+    description="Create and manage webhooks for your EU account"
+  />
+</CardGrid>
 
 ## How it works
 
 1. You create a webhook with a destination **URL** and a list of **events**.
 2. When a matching event occurs, DocSpring sends a signed `POST` request to your
-   URL with a JSON payload describing the event.
+   URL with a JSON payload describing the event. (Submission events on a legacy
+   v1/v2 webhook are not signed. See
+   [Webhook versions](/docs/webhooks/payloads/#webhook-versions).)
 3. Your endpoint responds with a `2xx` status code to acknowledge receipt.
 4. If your endpoint fails, DocSpring retries with an exponential backoff for up to
    three days. See [Delivery, Retries & Failures](/docs/webhooks/delivery-and-retries/).
@@ -32,21 +46,35 @@ endpoint and DocSpring sends it a `POST` request for each event you subscribe to
 
 In the dashboard, go to **Webhooks → Create Webhook** and fill in:
 
-- **Name** — an optional label to help you identify the webhook.
-- **Webhook URL** — the HTTPS endpoint that will receive events.
-- **Events** — the [events](/docs/webhooks/events/) that should trigger this webhook.
+- **Name**: an optional label to help you identify the webhook.
+- **Webhook URL**: the HTTPS endpoint that will receive events.
+- **Mode**: limit the webhook to test submissions, live submissions, or both.
+- **Webhook Version**: the payload format for submission events. Use v3 (the
+  default); v1 and v2 are legacy formats. See
+  [Webhook versions](/docs/webhooks/payloads/#webhook-versions).
+- **Include submission data**: whether to include the submitted form data in the
+  payload. See [Webhook Payloads](/docs/webhooks/payloads/).
+- **Enabled**: uncheck to stop deliveries without deleting the webhook.
+- **Send failure notification emails**: whether DocSpring emails you when this
+  webhook is failing. See
+  [Failure notifications](/docs/webhooks/delivery-and-retries/#failure-notifications).
+- **Events**: the [events](/docs/webhooks/events/) that should trigger this webhook.
   A sensible default set is pre-selected; use the **All / None** links to toggle a
   whole group at once.
-- **Mode** — limit the webhook to test submissions, live submissions, or both.
-- **Scope** — optionally limit the webhook to specific API tokens, templates, or
+- **Scope**: optionally limit the webhook to specific API tokens, templates, or
   folders by listing their IDs. Leave blank to receive events for everything. See
   [Events](/docs/webhooks/events/).
-- **Headers** — optional custom HTTP headers to include with every request.
-- **Include submission data** — whether to include the submitted form data in the
-  payload. See [Webhook Payloads](/docs/webhooks/payloads/).
+- **Headers**: optional custom HTTP headers to include with every request.
+- **Strip Fields**: paths to remove from the payload. See
+  [Strip specific fields](/docs/webhooks/payloads/#strip-specific-fields).
 
-You can also manage webhooks through the API. See the
-[API Reference](/docs/api/) for the `POST /api/v1/webhooks` endpoint.
+You can also manage webhooks through the API:
+
+<LinkCard
+  title="API Reference: Webhooks"
+  href="/docs/api/#tag/webhooks/post/webhooks"
+  description="Create, list, update, and delete webhooks with the API"
+/>
 
 ## The signing secret
 
@@ -70,8 +98,9 @@ Learn how to use the secret in
 ## Enabling, disabling, and deleting
 
 From the dashboard you can **disable** a webhook to temporarily stop deliveries
-without deleting it, then **enable** it again later. Deleting a webhook stops all
-future deliveries permanently.
+without deleting it, then **enable** it again later. Events that occur while a
+webhook is disabled are not sent later, and retries that come due while it's
+disabled are dropped. Deleting a webhook stops all future deliveries permanently.
 
 DocSpring will also **automatically disable** a webhook after it has been failing
 continuously for three days. See

@@ -32,7 +32,7 @@ You can add multiple conditions to a rule, and choose whether **all** or
 
 ### Actions
 
-- **Show and require**: The field is only shown (and required) when the
+- **Show and Require**: The field is only shown (and required) when the
   conditions match. This is the most common action.
 - **Show**: The field is only shown when the conditions match. If the field's
   own _Required_ option is checked, it is "required when visible".
@@ -41,30 +41,36 @@ You can add multiple conditions to a rule, and choose whether **all** or
 
 ### Operators
 
-| Operator           | Description                                        |
-| ------------------ | -------------------------------------------------- |
-| `is present`       | The field has any non-blank value                  |
-| `is blank`         | The field is empty                                 |
-| `equals`           | The field's value matches exactly                  |
-| `does not equal`   | The field is blank, or has a different value       |
-| `is one of`        | The field's value matches one of the listed values |
-| `>`, `≥`, `<`, `≤` | Numeric comparisons (for _Number_ fields)          |
-| `is between`       | The value is within an inclusive numeric range     |
+| Operator                                                       | Description                                        |
+| -------------------------------------------------------------- | -------------------------------------------------- |
+| **Is Present**                                                 | The field has any non-blank value                  |
+| **Is Blank**                                                   | The field is empty                                 |
+| **Equals**                                                     | The field's value matches exactly                  |
+| **Does Not Equal**                                             | The field is blank, or has a different value       |
+| **Is One Of**                                                  | The field's value matches one of the listed values |
+| **Greater**, **Greater or Equal**, **Less**, **Less or Equal** | Numeric comparisons (for _Number_ fields)          |
+| **In Range**                                                   | The value is within an inclusive numeric range     |
+
+The numeric operators are only available when the source field is a _Number_
+field. When the source field is a _Boolean_ field, only **Equals** and **Does
+Not Equal** are available.
 
 ## Applying a Condition to a Group of Fields
 
-Click an **object or array group** in the field list to apply one rule to
+Click an **object group** in the field list to apply one rule to
 every field in that group. This is useful for hiding a whole section — for
 example, hiding 24 "Dependent Information" fields when someone selects
 "decline coverage":
 
 - Source Field: `selected_coverage`
-- Operator: `does not equal`
+- Operator: **Does Not Equal**
 - Value: `decline`
-- Action: **Show and require**
+- Action: **Show and Require**
 
 When "decline" is selected, every field in the group is hidden and none of
 them are required.
+
+Array groups do not support group conditions.
 
 A group rule belongs to its group and always applies to the group's current
 fields: fields you add to the group in the template editor are included,
@@ -103,7 +109,7 @@ DocSpring's forms), validate data with any JSON Schema validator, or hand the
 schema to an AI agent that fills out your form.
 
 - **Conditionally shown fields are only defined inside the conditional.** A
-  field that is shown by a condition (the _Show_ and _Show and require_ actions)
+  field that is shown by a condition (the _Show_ and _Show and Require_ actions)
   is not defined in the base `properties`: the base schema only contains an
   empty placeholder (`{}`) at the field's position, and the field's full
   definition lives in the `then` branch of its conditional in the top-level

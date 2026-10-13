@@ -39,38 +39,52 @@ DocSpring.createSimpleForm(css_selector, template_id, options_and_callbacks);
 
 ### Options
 
-| Option                        | Type    | Default               | Description                                                                                                                                                     |
-| ----------------------------- | ------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `defaultData`                 | object  | `{}`                  | An object containing default values for form fields. Keys should match field names in your template.                                                            |
-| `metadata`                    | object  | `{}`                  | An object containing metadata for the submission. This data is included in API responses and webhooks but not in the PDF.                                       |
-| `showClearButton`             | boolean | `true`                | Set to `false` to hide the "Clear" button                                                                                                                       |
-| `clearButtonLabel`            | string  | `"Clear"`             | Text for the clear button                                                                                                                                       |
-| `submitButtonLabel`           | string  | `"Submit Form"`       | Text for the submit button                                                                                                                                      |
-| `submitButtonSavingLabel`     | string  | `"Saving..."`         | Text shown on submit button while saving                                                                                                                        |
-| `submitButtonProcessingLabel` | string  | `"Generating PDF..."` | Text shown on submit button while waiting for PDF processing                                                                                                    |
-| `redirectURL`                 | string  | `null`                | URL to redirect to after form submission. Overrides the template's default redirect URL.                                                                        |
-| `waitForPDF`                  | boolean | `true`                | If `redirectURL` is provided, set to `false` to redirect immediately instead of waiting for PDF processing. Has no effect if "Submission Privacy" is "Private". |
+| Option                        | Type    | Default               | Description                                                                                                                                                                                                                 |
+| ----------------------------- | ------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `templateVersion`             | string  | `null`                | The template version to show and submit, e.g. `"1.2.3"`                                                                                                                                                                     |
+| `defaultData`                 | object  | `{}`                  | An object containing default values for form fields. Keys should match field names in your template. If the user has already started filling in the form in this browser, their saved values are restored instead.          |
+| `metadata`                    | object  | `{}`                  | An object containing metadata for the submission. This data is included in API responses and webhooks but not in the PDF.                                                                                                   |
+| `showButtons`                 | boolean | `true`                | Set to `false` to hide both the "Clear" and submit buttons                                                                                                                                                                  |
+| `showClearButton`             | boolean | `true`                | Set to `false` to hide the "Clear" button                                                                                                                                                                                   |
+| `showSubmitButton`            | boolean | `true`                | Set to `false` to hide the submit button                                                                                                                                                                                    |
+| `clearButtonLabel`            | string  | `"Clear"`             | Text for the clear button                                                                                                                                                                                                   |
+| `submitButtonLabel`           | string  | `"Submit Form"`       | Text for the submit button                                                                                                                                                                                                  |
+| `submitButtonSavingLabel`     | string  | `"Saving..."`         | Text shown on submit button while saving                                                                                                                                                                                    |
+| `submitButtonProcessingLabel` | string  | `"Generating PDF..."` | Text shown on submit button while waiting for PDF processing                                                                                                                                                                |
+| `redirectURL`                 | string  | `null`                | URL to redirect to after form submission. Overrides the template's default redirect URL.                                                                                                                                    |
+| `waitForPDF`                  | boolean | `true`                | Set to `false` to stop waiting for PDF processing after the form is saved. The form redirects immediately (if there is a redirect URL) and `onProcessed` is not called. Has no effect if "Submission Privacy" is "Private". |
 
 <Aside type="note">
-  When "Submission Privacy" is set to "Private", `waitForPDF` is always `false`
-  - the form will redirect or show the thank you message immediately after
-  saving.
+  When "Submission Privacy" is set to "Private", the form doesn't wait for the
+  PDF. It redirects immediately after saving, or resets the submit button if
+  there is no redirect URL. Embedded web forms don't show a confirmation
+  message, so use `onSave` to show your own.
 </Aside>
+
+### EU Region
+
+The web forms library doesn't support a `region` option. If your account is in
+the EU region, set `DocSpring.appHost` before creating the form:
+
+```javascript
+DocSpring.appHost = "app-eu.docspring.com";
+DocSpring.createSimpleForm(".dsp-form", "tpl_123456");
+```
 
 ### Callbacks
 
-| Callback                | Parameters             | Description                                                                                                                                                                         |
-| ----------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `processTemplateSchema` | `jsonSchema` (mutable) | Called before the form is rendered. Modify the template schema to customize form behavior. You can hide fields by removing them from the schema.                                    |
-| `onClearForm`           | None                   | Called after the clear button is pressed                                                                                                                                            |
-| `onSubmit`              | `formData` (object)    | Called when the submit button is pressed. Parameter contains all form field values.                                                                                                 |
-| `onSave`                | `submission` (object)  | Called when the form has been saved. Parameter contains submission attributes including `id`.                                                                                       |
-| `onProcessed`           | `submission` (object)  | Called when the PDF has been processed. Only called if "Submission Privacy" is "Public". Parameter contains submission attributes including `id`, `download_url`, and `expires_at`. |
-| `onError`               | `response` (object)    | Called if there is an error with the request. Parameter is the response from the AJAX request.                                                                                      |
+| Callback                | Parameters             | Description                                                                                                                                                                                                         |
+| ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `processTemplateSchema` | `jsonSchema` (mutable) | Called before the form is rendered. Modify the template schema to customize form behavior. You can hide fields by removing them from the schema.                                                                    |
+| `onClearForm`           | None                   | Called after the clear button is pressed                                                                                                                                                                            |
+| `onSubmit`              | `formData` (object)    | Called when the submit button is pressed. Parameter contains all form field values. Return `false` to cancel the submission.                                                                                        |
+| `onSave`                | `submission` (object)  | Called when the form has been saved. Parameter contains submission attributes including `id`.                                                                                                                       |
+| `onProcessed`           | `submission` (object)  | Called when the PDF has been processed. Only called if "Submission Privacy" is "Public" and `waitForPDF` is not `false`. Parameter contains submission attributes including `id`, `download_url`, and `expires_at`. |
+| `onError`               | `response` (object)    | Called if there is an error. See [Error Handling](#error-handling) for the parameter.                                                                                                                               |
 
 ### Return Value
 
-Returns a form instance object with methods for programmatic control (currently undocumented).
+`DocSpring.createSimpleForm()` doesn't return a value.
 
 ## Examples
 
@@ -110,7 +124,6 @@ DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
   submitButtonSavingLabel: "Please wait...",
   submitButtonProcessingLabel: "Creating your PDF...",
   redirectURL: "https://example.com/success",
-  waitForPDF: false,
 
   // Callbacks
   processTemplateSchema: function (jsonSchema) {
@@ -139,17 +152,16 @@ DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
 
 The `submission` object passed to `onSave` and `onProcessed` callbacks contains:
 
-| Property       | Type   | Available In       | Description                                             |
-| -------------- | ------ | ------------------ | ------------------------------------------------------- |
-| `id`           | string | Both               | Unique identifier for the submission                    |
-| `state`        | string | Both               | Current state: `"pending"`, `"processed"`, or `"error"` |
-| `created_at`   | string | Both               | ISO 8601 timestamp when submission was created          |
-| `download_url` | string | `onProcessed` only | URL to download the generated PDF                       |
-| `expires_at`   | string | `onProcessed` only | ISO 8601 timestamp when the download URL expires        |
+| Property       | Type   | Available In                             | Description                                      |
+| -------------- | ------ | ---------------------------------------- | ------------------------------------------------ |
+| `id`           | string | Both                                     | Unique identifier for the submission             |
+| `state`        | string | Both                                     | Current state, e.g. `"pending"` or `"processed"` |
+| `download_url` | string | Both (`null` until the PDF is processed) | URL to download the generated PDF                |
+| `expires_at`   | string | Both (`null` until the PDF is processed) | ISO 8601 timestamp when the download URL expires |
 
 ## Error Handling
 
-The `onError` callback receives a response object with:
+If the form can't be saved, the `onError` callback receives the response object from the AJAX request:
 
 | Property       | Type   | Description                               |
 | -------------- | ------ | ----------------------------------------- |
@@ -158,17 +170,25 @@ The `onError` callback receives a response object with:
 | `responseJSON` | object | Parsed JSON error response (if available) |
 | `responseText` | string | Raw response text                         |
 
+For other errors, it receives an object with an `error` code:
+
+| `error`              | Description                                                                                                                                                       |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `failed_request`     | The template could not be fetched (e.g. "Online Form Privacy" is "Private"), or a request for the PDF status failed. The AJAX response is included as `response`. |
+| `submission_timeout` | The PDF was not processed within 60 seconds                                                                                                                       |
+| `invalid_status`     | The PDF could not be generated. The submission is included as `submission`.                                                                                       |
+
 ### Common Error Scenarios
 
 ```javascript
 onError: function(response) {
-  if (response.status === 422) {
+  if (response.error) {
+    // Template request, PDF status, or PDF processing error
+    console.error(response.error, response.message);
+  } else if (response.status === 422) {
     // Validation error
     const errors = response.responseJSON.errors;
     console.error('Validation failed:', errors);
-  } else if (response.status === 401) {
-    // Authentication error
-    console.error('Template not configured for public access');
   } else {
     // Other error
     console.error('Error:', response.statusText);

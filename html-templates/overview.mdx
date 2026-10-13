@@ -88,7 +88,7 @@ Behind the scenes, image signatures will be rendered in an `<img>` element with 
 <img class="signature-image" src="data:image/png;base64,..." />
 ```
 
-Text signatures will import the required typeface, and render the `name` inside an `<span>` element with a `signature-text` class:
+Text signatures will import the required typeface, and render the `name` inside a `<span>` element with a `signature-text` class:
 
 ```html
 <link
@@ -114,7 +114,7 @@ You can pass the following options to the `signature` tag, to control the width 
 | `font-weight` | Text           | `normal`       |
 | `color`       | Text           | `black`        |
 
-There is also a `preview_type` option, which allows you to control the type of signature that is shown in preview PDFs. We show a image signature by default. Use `preview_type: text` to show a text signature.
+There is also a `preview_type` option, which allows you to control the type of signature that is shown in preview PDFs. We show an image signature by default. Use `preview_type: text` to show a text signature.
 
 Examples:
 
@@ -189,7 +189,7 @@ the image URL:
 <img src="{% template_image_url IMAGE_ID %}" />
 ```
 
-To include an image, signature, or initials field (i.e. submitted in an API request),
+To include an image or barcode field (i.e. submitted in an API request),
 you can use the field value as the `src` attribute for an `img` tag.
 This will refer to an internal URL for the image:
 
@@ -223,7 +223,7 @@ We also support an `in_time_zone` filter that allows you to convert dates and ti
 <h2>{{ "now" | in_time_zone: "America/New_York" | date: "%B %-d, %Y" }}</h2>
 ```
 
-[Here is a list of all timezones that you can use with the `in_time_zone` filter.](/docs/html-templates/liquid-timezones/)
+[Here is a list of timezones that you can use with the `in_time_zone` filter.](/docs/html-templates/liquid-timezones/)
 
 ### Metadata
 
@@ -243,6 +243,20 @@ You can use the `template` tag to access data about your template:
 <h2>{% template version %}</h2>
 <h2>{% template version_published_at %}</h2>
 ```
+
+## Page Settings
+
+Click the "Settings" button in the header to set up the pages of an HTML/CSS template:
+
+- _Page Format_: Letter (the default), Legal, Tabloid, Ledger, CR80, A0, A1, A2, A3, A4, A5, A6, or Custom.
+  Check _Landscape_ to use a landscape page (not available for Custom).
+- _Page Size_: The width and height of a Custom page (defaults to `8.5in` by `11in`).
+- _Page Margins_: The top, bottom, left, and right margins (each defaults to `1in`). Set the margins to 0 to remove
+  the white border around the page.
+- _Print Background_: Renders backgrounds that your CSS sets (unchecked by default). Backgrounds aren't drawn over the
+  page margins.
+
+Sizes and margins can use `px` (pixels), `in` (inches), `cm` (centimeters), or `mm` (millimeters).
 
 ## Page Breaks
 

@@ -5,11 +5,13 @@ sidebar:
   order: 1
 ---
 
-import { Aside } from "@astrojs/starlight/components";
-
 You can click the "Settings" button in the header to configure your template settings.
 
 Configure default values for field options in the sidebar on the right.
+
+## Locked
+
+Locked templates cannot be changed or deleted. See [Locked Templates](/docs/template-editor/locked-templates/).
 
 ## Expire Submissions
 
@@ -26,7 +28,23 @@ You can also [make an API request](/docs/api/#tag/pdf-submissions/delete/submiss
 
 By default, the data that you submit must exactly match the JSON schema. Any additional properties will cause a validation error. This guarantees that you haven't forgotten to add any fields to your template, and it also guards against accidental field deletion.
 
-When the **Allow Additional Properties in JSON Data** setting is enabled, additional properties in your data will be silently ignored. This can be useful when you you don't have full control over the JSON data (e.g. a webhook integration with a third-party service.)
+When the **Allow Additional Properties in JSON Data** setting is enabled, additional properties in your data will be silently ignored. This can be useful when you don't have full control over the JSON data (e.g. a webhook integration with a third-party service.)
+
+## Encrypt PDFs with a Password
+
+When **Encrypt PDFs with a Password** is checked, generated PDFs are encrypted with the **PDF Password**, and can only be opened by entering that password. (This is called a "user password".)
+
+## Merge Audit Trail With Data Request PDFs
+
+_PDF templates only._ When checked, audit trail pages are appended to the generated PDF when a submission has data requests. When unchecked, the audit trail PDF can be downloaded separately.
+
+## Add Submission ID Footers to Data Requests
+
+_PDF templates only._ When checked, the submission ID is added to the bottom right corner of each page when a submission has data requests.
+
+## HTML Page Settings
+
+HTML templates have **Page Format**, **Page Size**, **Page Margins**, and **Print Background** settings. See [Page Settings](/docs/html-templates/overview/#page-settings).
 
 ## Online Form Privacy
 
@@ -41,52 +59,9 @@ This is useful when you have added a [@@data_url QR code to the PDF](/docs/templ
 
 ## Webhook URL
 
-If you configure a Webhook URL, we'll send a POST request whenever a PDF is processed. We also send webhooks when a submission contains invalid data, or if there is a error while processing the submission.
+Configure webhooks on the [Webhooks page](https://app.docspring.com/webhooks). See [Webhooks Overview](/docs/webhooks/overview/).
 
-Webhooks are sent for both live and test PDFs. Make sure you ignore test PDFs in production: `data['submission']['test']` will be `true` for test PDFs.
-
-<Aside type="note">
-  You can also set a "Default Webhook URL" for every [API
-  token](https://app.docspring.com/api_tokens), which will be used when the
-  template webhook URL is blank. When you set the webhook URL for an API token,
-  a webhook request will be sent for every PDF that is generated using that API
-  token.
-</Aside>
-
-Webhook requests will include the following data:
-
-```json
-{
-  "submission": {
-    "id": "fkgYdAdaYJPPTp99",
-    "state": "processed",
-    "test": false,
-    "expired": false,
-    "expires_at": "2017-10-13T20:51:55.032Z",
-    "data": {},
-    "metadata": {},
-    "source": "api",
-    "download_url": "https://..."
-  }
-}
-```
-
-The `state` attribute will be one of the following:
-
-- `pending`: The PDF is being generated.
-- `processed`: The PDF is ready to download.
-- `invalid_data`: Your API request contained invalid data.
-- `error`: We experienced an internal server error, and will retry the job.
-- `image_download_failed`: We could not download an image from the URL you provided.
-- `image_processing_failed`: We experienced an error when trying to resize your image.
-
-Your webhook handler must return a 200 status code, otherwise we will assume that the request has failed.
-If the webhook fails, we will retry it 25 times over approximately 21 days.
-
-<Aside type="note">
-  When receiving a webhook, we recommend making an API request to fetch the
-  submission by ID. This protects against spoofed webhook requests.
-</Aside>
+Existing legacy webhook URLs on templates and API tokens (shown as **Legacy Webhook URL**) keep working until they are migrated to the new webhooks system.
 
 ## Slack Webhook URL
 
@@ -99,3 +74,18 @@ We'll redirect users to this URL whenever they fill out the online form to gener
 This applies to online forms hosted on [docspring.com](https://docspring.com),
 and [embedded forms on your own website](/docs/guides/embedded-forms/embedded-web-forms/).
 The submission ID, template ID, and template name will be appended to the URL as query params.
+
+## Template Description
+
+The template description is displayed at the top of [hosted web forms](/docs/forms/web-forms/). It is not shown on embedded forms or data requests.
+
+## Embedded Template Editor Settings
+
+- **Embed Domains**: Not shown in the embedded editor. A comma-separated list of domains where you embed the template editor or data request forms. The template editor accepts wildcards such as `*.example.com` and isn't restricted when the list is blank (see [Embed Domains](/docs/guides/embedded-template-editor/#embed-domains)). [Embedded data requests](/docs/guides/embedded-forms/embedded-data-requests/) need each host listed exactly, including any non-default port such as `localhost:3000`, and don't load when the list is blank.
+- **Embed Edit Token**: Not shown in the embedded editor. The token you use with `template_editor.js` to embed this template editor. You can show or regenerate it. See [Embed Edit Token](/docs/guides/embedded-template-editor/#embed-edit-token).
+- **Embedded Editor Permissions**: Not shown in the embedded editor. Allow embedded editor users to change template settings, to publish, restore, and delete versions, or to replace the PDF document. By default they can only edit fields and layout. See [Security](/docs/guides/embedded-template-editor/#security).
+- **Predefined Fields**: _PDF templates only._ The field names that embedded editor users can add. See [Use Predefined Fields](/docs/guides/embedded-template-editor/use-predefined-fields/).
+
+## Template PDF
+
+_PDF templates only._ Shows the template's PDF file. Drop a new PDF onto the upload area to replace it.

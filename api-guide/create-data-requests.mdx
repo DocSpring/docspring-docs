@@ -33,7 +33,7 @@ The request body must be a JSON object with the following properties:
 - `metadata` _(object, optional)_: Any additional data, such as a user id. `metadata` will be included in webhook requests.
 - `test` _(boolean, optional)_: `true` to generate a test PDF, `false` for a live PDF. Test PDFs are free, but watermarked.
 - `data_requests` _(array of objects, optional)_: Each object in the array can have the following properties:
-  - `email` _(string, required)_: The user's email address.
+  - `email` _(string, optional)_: The user's email address. We recommend including it, because it is shown in the audit trail.
   - `name` _(string, optional)_: The user's name.
   - `fields` _(array of field names, optional)_: The field names that the person must fill in.
     - If there is a single data request, then you can omit the `fields` property if you want the person to fill in all of the template's fields. If you provide a value in the submission `data`, then the user will not be asked to fill in that field.
@@ -49,6 +49,8 @@ The request body must be a JSON object with the following properties:
   - `auth_user_id_hash` _(string, optional)_: User ID, or SHA256 hash of (salt + User ID)
   - `auth_username_hash` _(string, optional)_: Username, or SHA256 hash of (salt + username)
   - `auth_phone_number_hash` _(string, optional)_: Phone number, or SHA256 hash of (salt + phone number) _(if the user used their phone for authentication)_
+
+You can also send the other parameters of a standard PDF generation request, such as `version`, `expires_in` and `password`. See [Generate PDFs via API](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/).
 
 :::note
 Please [contact us](https://docspring.com/contact/) if you need a different `auth_type` or `auth_second_factor_type`.
@@ -72,30 +74,33 @@ prove that the SHA256 hashes match the records in your database.
 
 ```json
 {
-  "id": "sub_1234567890abcdef01",
-  "state": "waiting_for_data_requests",
-  "test": true,
-  "expired": false,
-  "expires_at": "2018-10-22T19:00:09Z",
-  "metadata": {
-    "user_id": 42
-  },
-  "processed_at": null,
-  "batch_id": null,
-  "data_requests": [
-    {
-      "id": "drq_1234567890abcdef01",
-      "name": "John Smith",
-      "email": "jsmith@example.com",
-      "fields": ["name", "signature"],
-      "order": 0,
-      "state": "pending",
-      "viewed_at": null,
-      "completed_at": null
-    }
-  ],
-  "download_url": null,
-  "permanent_download_url": null
+  "status": "success",
+  "submission": {
+    "id": "sub_1234567890abcdef01",
+    "state": "waiting_for_data_requests",
+    "test": true,
+    "expired": false,
+    "expires_at": "2018-10-22T19:00:09Z",
+    "metadata": {
+      "user_id": 42
+    },
+    "processed_at": null,
+    "batch_id": null,
+    "data_requests": [
+      {
+        "id": "drq_1234567890abcdef01",
+        "name": "John Smith",
+        "email": "jsmith@example.com",
+        "fields": ["name", "signature"],
+        "order": 0,
+        "state": "pending",
+        "viewed_at": null,
+        "completed_at": null
+      }
+    ],
+    "download_url": null,
+    "permanent_download_url": null
+  }
 }
 ```
 

@@ -1,6 +1,6 @@
 ---
 title: Data Requests JavaScript API
-description: JavaScript API reference for DocSpring.createDataRequest()
+description: JavaScript API reference for DocSpring.createVisualForm() with data requests
 ---
 
 import { Code, Aside, LinkCard } from "@astrojs/starlight/components";
@@ -46,35 +46,44 @@ DocSpring.createVisualForm(optionsAndCallbacks);
 | `tokenId`       | string | Your Token ID        |
 | `tokenSecret`   | string | Your Token Secret    |
 
+You can pass `dataRequestURL` instead of these three options.
+
 ### Configuration Options
 
-| Option                      | Type    | Default          | Description                                                                                                |
-| --------------------------- | ------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `defaultFormData`           | object  | `{}`             | Default data to fill in the fields (can be modified by the user)                                           |
-| `staticFormData`            | object  | `{}`             | Static data to fill in the fields (cannot be modified by the user)                                         |
-| `redirectURL`               | string  | `null`           | Redirect to this URL after submitting the form (overrides the template's redirect URL)                     |
-| `redirectURLQueryParams`    | boolean | `true`           | Automatically add `submission_id`, `template_id`, and `template_name` query params to the redirect URL     |
-| `waitForPDF`                | boolean | `true`           | If `redirectURL` is provided, set to `false` to redirect immediately instead of waiting for PDF processing |
-| `domainVerification`        | boolean | `true`           | Set to `false` during development to disable domain verification                                           |
-| `focusFirstFieldOnLoad`     | boolean | `false`          | Automatically focus the first field after the form is loaded                                               |
-| `showSignatureModalOnFocus` | boolean | `false`          | Automatically open the signature/initials popup when a signature or initials field is focused              |
-| `closeModalOnClickOverlay`  | boolean | `true`           | Allow the user to close the form by clicking on the modal overlay                                          |
-| `showTermsOfServiceLink`    | boolean | `true`           | Show a link to DocSpring's terms of service on the "Accept Terms" screen                                   |
-| `downloadButtonLabel`       | string  | `"Download PDF"` | Change the download button label                                                                           |
-| `showPdfProcessingSpinner`  | boolean | `true`           | Show a spinner while the PDF is being processed                                                            |
-| `iframeClass`               | string  | `null`           | CSS class for the iframe element                                                                           |
-| `iframeStyle`               | string  | `null`           | Inline styles for the iframe element                                                                       |
-| `footerHTML`                | string  | `null`           | Custom HTML content for the footer                                                                         |
-| `dataRequestURL`            | string  | `null`           | Full authenticated data request URL. Overrides generated iframe URL and message origin                     |
-| `region`                    | string  | `US`             | Use a DocSpring region: `US` or `EU`                                                                       |
-| `host`                      | string  | `null`           | Use one host for both app and API URLs, usually for single-domain enterprise deployments                   |
-| `appHost`                   | string  | `null`           | Override the app host used for the signing iframe, usually for split-domain enterprise deployments         |
-| `apiHost`                   | string  | `null`           | Override the API host used by the visual form inside the signing iframe                                    |
+| Option                      | Type               | Default                        | Description                                                                                                                                                                   |
+| --------------------------- | ------------------ | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defaultFormData`           | object             | `{}`                           | Default data to fill in the fields (can be modified by the user)                                                                                                              |
+| `staticFormData`            | object             | `{}`                           | Static data to fill in the fields (cannot be modified by the user)                                                                                                            |
+| `redirectURL`               | string             | `null`                         | Redirect to this URL after submitting the form (overrides the template's redirect URL)                                                                                        |
+| `redirectURLQueryParams`    | boolean            | `true`                         | Automatically add `submission_id`, `template_id`, and `template_name` query params to the redirect URL                                                                        |
+| `domainVerification`        | boolean            | `true`                         | Set to `false` during development to disable domain verification                                                                                                              |
+| `focusFirstFieldOnLoad`     | boolean            | `false`                        | Automatically focus the first field after the form is loaded                                                                                                                  |
+| `showSignatureModalOnFocus` | boolean            | `false`                        | Automatically open the signature/initials popup when a signature or initials field is focused                                                                                 |
+| `closeModalOnClickOverlay`  | boolean            | `true`                         | Allow the user to close the form by clicking on the modal overlay                                                                                                             |
+| `closeModalOnSave`          | boolean            | `false`                        | Close the modal after the form has been saved                                                                                                                                 |
+| `closeModalOnProcessed`     | boolean            | `false`                        | Close the modal after the PDF has been processed                                                                                                                              |
+| `loadingTimeout`            | number             | `30000`                        | Milliseconds to wait for the signing form to load before calling `onError` with a `load_timeout` error                                                                        |
+| `showClearButton`           | boolean            | `true`                         | Show the "Clear Form" button                                                                                                                                                  |
+| `showTermsOfServiceLink`    | boolean            | `true`                         | Show a link to DocSpring's terms of service on the "Accept Terms" screen                                                                                                      |
+| `termsOfServiceLabel`       | string             | `"DocSpring Terms of Service"` | Label for the terms of service link                                                                                                                                           |
+| `termsOfServiceURL`         | string             | DocSpring ToS                  | URL for the terms of service link                                                                                                                                             |
+| `downloadButtonLabel`       | string             | `"Download PDF"`               | Change the download button label                                                                                                                                              |
+| `showPdfProcessingSpinner`  | boolean            | `true`                         | Show a spinner while the PDF is being processed                                                                                                                               |
+| `iframeClass`               | string             | `null`                         | CSS class for the iframe element                                                                                                                                              |
+| `iframeStyle`               | string             | `null`                         | Inline styles for the iframe element                                                                                                                                          |
+| `footerHTML`                | string or function | `null`                         | Custom HTML content for the footer. A function receives the `template` object                                                                                                 |
+| `dataRequestURL`            | string             | `null`                         | Full authenticated data request URL. Only used when `dataRequestId`, `tokenId`, and `tokenSecret` are not all provided. Its origin is used to verify messages from the iframe |
+| `region`                    | string             | `US`                           | Use a DocSpring region: `US` or `EU`                                                                                                                                          |
+| `host`                      | string             | `null`                         | Use one host for both app and API URLs, usually for single-domain enterprise deployments                                                                                      |
+| `appHost`                   | string             | `null`                         | Override the app host used for the signing iframe, usually for split-domain enterprise deployments                                                                            |
+| `apiHost`                   | string             | `null`                         | Override the API host used by the visual form inside the signing iframe                                                                                                       |
 
 <Aside type="note">
-  When "Submission Privacy" is set to "Private", `waitForPDF` is always `false`
-  - the form will redirect or show the thank you message immediately after
-  saving.
+  When "Submission Privacy" is set to "Private", the form will redirect or show
+  the thank you message immediately after saving. When it is set to "Public",
+  the form waits for the PDF to be processed first. If other data requests on
+  the submission still need to be filled in, the PDF isn't generated yet, so the
+  form shows a message saying so and doesn't redirect.
 </Aside>
 
 ### Region and Custom Host
@@ -94,9 +103,10 @@ Use `region` when your account is in the EU region:
 
 For single-domain enterprise deployments, use `host`. For split-domain
 deployments, use `appHost` and `apiHost`. Existing globals such as
-`DocSpring.appHost`, `DocSpring.host`, `DocSpring.scheme`, and `DocSpring.port`
-are still supported. If you pass `dataRequestURL`, that full URL takes
-precedence and is also used to verify messages from the iframe.
+`DocSpring.region`, `DocSpring.appHost`, `DocSpring.apiHost`, `DocSpring.host`,
+`DocSpring.scheme`, and `DocSpring.port` are still supported. If you pass
+`dataRequestURL` without `dataRequestId`, `tokenId`, and `tokenSecret`, that
+full URL is used for the iframe and to verify messages from the iframe.
 
 ### String Options
 
@@ -119,20 +129,20 @@ Customize the titles and messages shown in the header. These options can be eith
 
 ### Callbacks
 
-| Callback                  | Parameters                           | Description                                                                       |
-| ------------------------- | ------------------------------------ | --------------------------------------------------------------------------------- |
-| `onInitialize`            | -                                    | Called when the form has been initialized                                         |
-| `onLoad`                  | -                                    | Called when all form pages have been loaded                                       |
-| `onClearForm`             | -                                    | Called after the clear button is pressed and the form is cleared                  |
-| `onFieldFocus`            | `{ id, name, value }`                | Called when a field gains focus                                                   |
-| `onFieldBlur`             | `{ id, name, value }`                | Called when a field loses focus                                                   |
-| `onFieldChange`           | `{ id, name, value, previousValue }` | Called when a field value changes                                                 |
-| `onShowAcceptTerms`       | -                                    | Called when the user clicks "Continue" to show the final "Accept Terms" screen    |
-| `onSubmit`                | `formData` (object)                  | Called when the submit button is pressed                                          |
-| `onSave`                  | `submissionId`                       | Called when the form has been saved                                               |
-| `onProcessed`             | `{ submissionId, downloadUrl }`      | Called when the PDF has been processed (only if "Submission Privacy" is "Public") |
-| `onRemainingDataRequests` | `remainingDataRequestsCount`         | Called when other data requests still need to be filled in                        |
-| `onError`                 | `error`                              | Called if there is an error with the request                                      |
+| Callback                  | Parameters                           | Description                                                                                                         |
+| ------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `onInitialize`            | -                                    | Called when the form has been initialized                                                                           |
+| `onLoad`                  | -                                    | Called when all form pages have been loaded                                                                         |
+| `onClearForm`             | -                                    | Called after the clear button is pressed and the form is cleared                                                    |
+| `onFieldFocus`            | `{ id, name, value }`                | Called when a field gains focus                                                                                     |
+| `onFieldBlur`             | `{ id, name, value }`                | Called when a field loses focus                                                                                     |
+| `onFieldChange`           | `{ id, name, value, previousValue }` | Called when a field value changes                                                                                   |
+| `onShowAcceptTerms`       | -                                    | Called when the user clicks "Continue" to show the final "Accept Terms" screen                                      |
+| `onSubmit`                | `formData` (object)                  | Called when the submit button is pressed                                                                            |
+| `onSave`                  | `{ submissionId }`                   | Called when the form has been saved                                                                                 |
+| `onProcessed`             | `{ submissionId, downloadURL }`      | Called when the PDF has been processed (only if "Submission Privacy" is "Public"). Not called if the form redirects |
+| `onRemainingDataRequests` | `remainingDataRequestsCount`         | Called when other data requests still need to be filled in (only if "Submission Privacy" is "Public")               |
+| `onError`                 | `error`                              | Called if there is an error with the request                                                                        |
 
 ## Global Functions
 
@@ -145,6 +155,7 @@ These global functions allow you to interact with the form. Note that only one D
 | `DocSpring.focusNextField()`            | -                                                                | Focus the next field (same as clicking "Next" button)           |
 | `DocSpring.focusField(name_or_id)`      | `name_or_id`: Field name or numeric ID                           | Focus a specific field                                          |
 | `DocSpring.setField(name_or_id, value)` | `name_or_id`: Field name or numeric ID<br/>`value`: Value to set | Set the value for a specific field                              |
+| `DocSpring.returnToForm()`              | -                                                                | Return to the form after it has been submitted                  |
 | `DocSpring.closeModal()`                | -                                                                | Close and hide the data request modal                           |
 
 ## Examples
@@ -180,10 +191,6 @@ These global functions allow you to interact with the form. Note that only one D
       company: 'Acme Corp'
     },
 
-    // Redirect after completion
-    redirectURL: 'https://example.com/thank-you',
-    waitForPDF: false,
-
     // UI customization
     downloadButtonLabel: 'Get My Document',
     showSignatureModalOnFocus: true,
@@ -194,7 +201,7 @@ These global functions allow you to interact with the form. Note that only one D
     },
 
     onProcessed: function(data) {
-      console.log('PDF ready:', data.downloadUrl);
+      console.log('PDF ready:', data.downloadURL);
     },
 
     onError: function(error) {
@@ -202,6 +209,24 @@ These global functions allow you to interact with the form. Note that only one D
     }
 
 })`} lang="javascript" title="Data request with options" />
+
+### Custom Footer
+
+<Code code={`DocSpring.createVisualForm({
+    dataRequestId: 'drq_123456',
+    tokenId: 'tok_123456',
+    tokenSecret: 'secret_123456',
+
+    footerHTML: function(template) {
+      return '<div class="dsp-footerLeft">' +
+        '<button class="dsp-button dsp-primaryButton" onclick="customSave()">Save Draft</button>' +
+      '</div>' +
+      '<div class="dsp-footerRight">' +
+        '<button class="dsp-button" onclick="customCancel()">Cancel</button>' +
+      '</div>';
+    }
+
+})`} lang="javascript" title="Custom footer buttons" />
 
 ### Custom Messages
 

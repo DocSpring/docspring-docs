@@ -43,6 +43,11 @@ lang="html" title="Basic embedded form" />
   `https://docspring.yourcompany.com/assets/embed/simple_form.js`.
 </Aside>
 
+<Aside type="note">
+  If your account is in the EU region, set `DocSpring.appHost` before you call
+  `DocSpring.createSimpleForm()`: `DocSpring.appHost = 'app-eu.docspring.com';`
+</Aside>
+
 That's it! The form will be rendered inside the `<div class="dsp-form"></div>` element.
 
 ## Examples
@@ -133,23 +138,26 @@ You can redirect users to a thank you page or another URL after they submit the 
 The submission details will be appended to the redirect URL as query parameters:
 
 ```
-https://example.com/thank-you?submission_id=sub_123&template_id=tpl_123&template_name=My%20Template
+https://example.com/thank-you?submission_id=sub_123&template_name=My%20Template&template_version=latest&template_id=tpl_123
 ```
 
 <Aside type="note">
   The redirect behavior depends on your template's "Submission Privacy" setting:
-  - **Private**: Redirects immediately after saving - **Public**: Waits for PDF
-  processing before redirecting (unless `waitForPDF` is set to `false`)
+
+- **Private**: Redirects immediately after saving
+- **Public**: Waits for PDF processing before redirecting (unless `waitForPDF`
+  is set to `false`)
+
 </Aside>
 
 ### Custom Success Handling
 
-Instead of redirecting, you can handle successful submissions with JavaScript:
+Instead of redirecting, you can handle successful submissions with JavaScript.
+Leave the template's redirect URL setting blank: passing `redirectURL: null` does
+not override a redirect URL that is set on the template. `onProcessed` is only
+called when "Submission Privacy" is set to "Public".
 
 <Code code={`DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
-    // Don't redirect - handle success in JavaScript
-    redirectURL: null,
-
     onProcessed: function(submission) {
       // Hide the form
       document.querySelector('.dsp-form').style.display = 'none';
@@ -188,7 +196,7 @@ The embedded form comes with default styles, but you can customize the appearanc
     }
 
     /* Style submit button */
-    .dsp-form button[type="submit"] {
+    .dsp-form .alpaca-form-button-submit {
       background-color: #28a745;
       border-color: #28a745;
       font-size: 18px;
@@ -196,7 +204,7 @@ The embedded form comes with default styles, but you can customize the appearanc
     }
 
     /* Style clear button */
-    .dsp-form button[type="button"] {
+    .dsp-form .alpaca-form-button-clear {
       background-color: #6c757d;
       border-color: #6c757d;
     }

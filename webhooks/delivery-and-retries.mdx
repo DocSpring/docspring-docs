@@ -16,7 +16,9 @@ your API requests. DocSpring sends a `POST` request to your URL and waits up to
 
 A delivery is considered **successful** when your endpoint returns any `2xx` status
 code. Any other status code, a connection error, or a timeout counts as a failure
-and triggers a retry.
+and triggers a retry. Redirects are not followed, so a `3xx` response is also a
+failure: point the webhook at the final URL (for example, use `https://` if your
+server redirects `http://` requests).
 
 <Aside type="tip" title="Respond quickly">
   Acknowledge the request right away (return `200`) and do any slow work in the
@@ -40,7 +42,7 @@ spread over roughly three days:
 | 7     | 4 hours                      |
 | 8     | 8 hours                      |
 | 9     | 12 hours                     |
-| 10+   | 24 hours                     |
+| 10–11 | 24 hours                     |
 
 Retries continue until the endpoint succeeds, the webhook is disabled, or the
 schedule is exhausted (about three days).
@@ -62,17 +64,20 @@ when it has been broken the entire time.
 
 A disabled webhook stays in your account; you can fix the endpoint and re-enable it
 from the dashboard whenever you're ready. Re-enabling clears the failure state.
+Events that occur while a webhook is disabled are not sent later, and retries that
+come due while it's disabled are dropped.
 
 ## Failure notifications
 
 DocSpring emails your account's billing user as a webhook degrades, so problems
 don't go unnoticed:
 
-- **First failure** — a heads-up once an endpoint starts failing (sent at most once
-  per day, so a flaky endpoint won't flood your inbox).
-- **After 24 hours** — a reminder if the endpoint has been failing continuously for
+- **First failure**: a heads-up once an endpoint has failed twice in a row (sent at
+  most once per day, so a flaky endpoint won't flood your inbox). A single failure
+  that succeeds on retry sends no email.
+- **After 24 hours**: a reminder if the endpoint has been failing continuously for
   a day.
-- **Disabled** — a final notice when the webhook is automatically disabled after
+- **Disabled**: a final notice when the webhook is automatically disabled after
   three days of continuous failure.
 
 An endpoint that flips between success and failure starts a new failing streak each
@@ -86,7 +91,7 @@ the automatic disable still work exactly the same; only the emails are suppresse
 Every delivery attempt is recorded in the **Webhook Logs**, available from the
 Webhooks page in the dashboard. Each log entry includes the event type, the request
 and response headers and bodies, the HTTP status code, the response latency, the
-attempt number, and any error message.
+attempt number, and any error message. Logs are kept for 90 days.
 
 Use the logs to confirm that events are being delivered, inspect exactly what your
 endpoint received, and debug failures.

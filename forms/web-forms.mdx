@@ -34,7 +34,7 @@ When "Submission Privacy" is set to "Public", the user can wait until the PDF ha
 
 ## Query Params
 
-You can set some query params in the URL to provide default data, set submission metadata, or hide some fields on the form.
+You can set some query params in the URL to provide default data, set submission metadata, hide some fields on the form, or show a specific template version.
 
 ### Set Default Data
 
@@ -56,6 +56,12 @@ Use the following syntax to set default data for nested fields inside objects or
 ```
 https://app.docspring.com/templates/tpl_1234567890abcdef01/form?data[name]=John%20Smith&data[email]=test@example.com
 ```
+
+<Aside type="note">
+  The form saves the user's progress in the browser's local storage. If the user
+  has already started filling in the form, their saved values are restored
+  instead of the default data. Clicking "Clear Form" removes the saved values.
+</Aside>
 
 ### Set Submission Metadata
 
@@ -107,6 +113,18 @@ https://app.docspring.com/templates/tpl_1234567890abcdef01/form?data[person][][n
   validation error and you will not be able to generate a PDF.
 </Aside>
 
+### Template Version
+
+Pass `version` to show a specific [template version](/docs/template-editor/versions/). Submissions from the form use the same version.
+
+`?version=<version>`
+
+**Example:** Show version 1.2.3 of the template:
+
+```
+https://app.docspring.com/templates/tpl_1234567890abcdef01/form?version=1.2.3
+```
+
 ## Redirect to a URL
 
 After the user submits the form, you can redirect them to a different URL.
@@ -122,7 +140,7 @@ as the form has been saved. When "Submission Privacy" is set to **"Public"**, th
 
 You can display a custom logo at the top of hosted web forms.
 
-[Visit the Account page](https://app.docspring.com/account), click the "Choose File" button under "Logo for Web Forms", then select an image file. You should upload an SVG image, or a JPG, PNG, or WEBP image with a width of at least 400px. The max file size is 5 MB. For best results, your image should be a horizontal rectangle:
+[Visit the Account page](https://app.docspring.com/account), click the "Browse" button under "Logo for Web Forms", then select an image file. You should upload an SVG image, or a JPG, PNG, or WEBP image with a width of at least 400px. The max file size is 5 MB. For best results, your image should be a horizontal rectangle:
 
 <Image
   src={exampleLogo}

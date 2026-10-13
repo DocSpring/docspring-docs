@@ -23,7 +23,9 @@ POST /api/v1/submissions/batches
 
 ## Request Structure
 
-Provide an array of submissions. Every entry accepts the same payload as a standard submission request:
+Provide an array of `submissions`. Each entry accepts `template_id`, `template_version`, `test`, `data` and `metadata` (plus `html` and `css` for HTML templates). Batch entries don't support the other options of a single submission request, such as `data_requests`, `editable`, `expires_in` or `field_overrides`.
+
+You can also set `template_id`, `template_version` (default `latest`) and `test` at the top level of the request. They apply to every entry that doesn't set its own value. A top-level `metadata` object is saved on the batch itself.
 
 ```json
 {
@@ -37,8 +39,7 @@ Provide an array of submissions. Every entry accepts the same payload as a stand
     {
       "template_id": "tpl_invoice",
       "data": { "name": "Acme Corp" },
-      "test": false,
-      "wait": false
+      "test": false
     }
   ]
 }
@@ -51,30 +52,58 @@ Provide an array of submissions. Every entry accepts the same payload as a stand
 
 ## Response Format
 
-Batch responses include a `batch` object and an array of child `submissions`:
+By default, the API waits until every PDF in the batch has been processed. The response includes the `submission_batch` and a `submissions` array with one submission for each entry, in the same order as your request:
 
 ```json
 {
-  "batch": {
-    "id": "bat_123",
-    "status": "processed",
-    "created_at": "2024-02-01T12:00:00Z"
+  "status": "success",
+  "submission_batch": {
+    "id": "sbb_1234567890abcdef01",
+    "state": "processed",
+    "metadata": {},
+    "processed_at": "2024-02-01T12:00:05Z",
+    "total_count": 2,
+    "pending_count": 0,
+    "error_count": 0,
+    "completion_percentage": 100
   },
   "submissions": [
     {
-      "id": "sub_first",
-      "status": "processed",
-      "download_url": "https://.../sub_first.pdf"
+      "id": "sub_1234567890abcdef01",
+      "state": "processed",
+      "download_url": "https://..."
     },
     {
-      "id": "sub_second",
-      "status": "pending"
+      "id": "sub_1234567890abcdef02",
+      "state": "processed",
+      "download_url": "https://..."
     }
   ]
 }
 ```
 
-When you set `wait=false` on any submission, the batch response may return before the PDF is ready. Poll each submission with `GET /api/v1/submissions/{id}` or listen for the `submission.processed` webhook.
+_(Other submission fields are left out here.)_
+
+When you add `?wait=false` to the request URL, the API responds straight away, and each item in `submissions` wraps the submission with its own `status`:
+
+```json
+{
+  "status": "success",
+  "submission_batch": { "id": "sbb_1234567890abcdef01", "state": "pending" },
+  "submissions": [
+    {
+      "status": "success",
+      "submission": { "id": "sub_1234567890abcdef01", "state": "pending" }
+    }
+  ]
+}
+```
+
+You can then check the batch with `GET /api/v1/submissions/batches/{submission_batch_id}?include_submissions=true` until its `pending_count` is `0`, or listen for the batch webhooks. DocSpring sends `submission_batch.processed` when every PDF has been generated, or `submission_batch.failed` instead if any of them failed.
+
+If any entry fails validation, DocSpring doesn't generate any of the PDFs in the batch. The API responds straight away with HTTP status `200` and `"status": "error"`, using the same wrapped items. Valid entries have `"status": "valid_but_not_saved"`, and invalid entries have `"status": "error"` with a list of `errors`. Fix the invalid entries and send the whole batch again.
+
+Some problems are reported with a `4xx` status and a single `error` message instead, such as more than 50 entries, an unknown template ID, or an entry without a `data` object.
 
 ## Limits & Best Practices
 

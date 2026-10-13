@@ -61,6 +61,8 @@ When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Con
 
 A _Number_ field can be an integer or a float. When _Integer_ is checked, the value must be an integer. (No decimal places.)
 
+When _Currency_ is checked, online forms show a currency input. When a _Number_ field is displayed as _Text_, _Decimal Places_ sets the number of fixed decimal places used to format the number. (Set it to `0` to round to the nearest integer.)
+
 ### Validations
 
 You can define a Minimum and Maximum value. You can check the "Exclusive" checkboxes to exclude the given value from the range. For example:
@@ -106,6 +108,7 @@ When a _Boolean_ field is displayed as _Text_, the text will be either "Yes" or 
 ### Check or Shape
 
 When a _Boolean_ field is displayed as a _Check_ or _Shape_, the field will only be displayed when the value is `true`.
+When _Invert Boolean Condition_ is checked, the field will only be displayed when the value is `false` or missing.
 
 ### Display Types
 
@@ -118,6 +121,9 @@ _Date_ values must be a string formatted as: `YYYY-MM-DD`.
 When _Include Time_ is checked, the value must be a timestamp formatted as: `YYYY-MM-DDThh:mm:ss.fffZ`.
 
 A _Date_ field can be formatted using a format string. DocSpring supports the [`strftime` format directives from the Ruby programming language](https://apidock.com/ruby/DateTime/strftime).
+Japanese calendar (wareki) directives are also supported, e.g. `%Jf` (`令和5年4月1日`) and `%JF` (`令和五年四月一日`).
+
+The _Difference_ formats (_Difference: Years_, _Difference: Months_, _Difference: Weeks_, _Difference: Days_, and _Hours_, _Minutes_, or _Seconds_ when _Include Time_ is checked) show the number of whole units between the date and the time when the PDF is generated. Years and months are counted using their average lengths (365.2425 days and 30.436875 days), so a result can be one unit off close to an anniversary.
 
 <Image src={dateOptionsImg} alt="Date field options" width={250} />
 
@@ -140,11 +146,8 @@ Some forms may have separate fields for month, day, and year. You could configur
 The _Address_ type can be used to show a text input that autocompletes an address.
 Address autocompletion is powered by Google Maps.
 
-The address is currently formatted as a single string.
-We are working to improve this so that you can render the
-address parts as separate fields.
-
-If you need this ability now, you should create separate text fields for each
+The address is formatted as a single string.
+If you need to render the address parts separately, create separate text fields for each
 part (e.g. street, city, state, zip, country.)
 
 ### Display Types
@@ -181,8 +184,6 @@ A _URL_ value must be a valid URL.
 An _Image_ value can be a Base64 encoded image, or a URL where the image can be downloaded. Images downloaded from a
 URL can be up to 100 MB.
 
-_(Support for direct image uploads is coming soon.)_
-
 - Request with a Base64 encoded image:
 
 ```json
@@ -195,7 +196,7 @@ _(Support for direct image uploads is coming soon.)_
 
 ```json
 "photo": {
-  "url": "https://source.unsplash.com/random"
+  "url": "https://example.com/images/photo.jpg"
 }
 ```
 
@@ -239,7 +240,7 @@ An _Initials_ field adds an initials pad to the online form, similar to the sign
 
 <Image src={initialsFieldVisualImg} alt="Initials field modal" width={320} />
 
-The initials field input aspect ratio is 2:3 (closer to a square than a rectangle.)
+The initials field input aspect ratio is 3:2 (width:height), which is closer to a square than the signature input.
 
 ### Display Types
 
@@ -296,7 +297,10 @@ For example, you could combine `first_name` and `last_name` fields into a single
 
 <Image src={combinedFieldsImg} alt="Combined field example" width={250} />
 
-The _Separator_ value can be any string (including an empty string.)
+Choose _Use Separator_ or _Use Format String_:
+
+- _Separator_: Joins the values with any string (including an empty string.)
+- _Format String_: A string containing numbered variables that start at `$0`, in the order of the _Combined Field Names_. Example: `Full Name: $0, Address: $1`
 
 ### Display Types
 

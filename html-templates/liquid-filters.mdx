@@ -74,9 +74,6 @@ Formats a number with grouped thousands (e.g. `12,324`.)
 {{ 1000000 | delimited }}
 => "1,000,000"
 
-{{ 1000000 | delimited }}
-=> "1,000,000"
-
 {{ 1000 | delimited: " " }}
 => "1 000"
 
@@ -91,7 +88,7 @@ Formats a number with grouped thousands (e.g. `12,324`.)
 ```liquid
 {{ number | currency }}
 
-{{ number | currency: "<unit>", "<delimiter>", "<separator>", "<format>", "<negative_format>", "<precision>" }}
+{{ number | currency: "<unit>", "<delimiter>", "<separator>", "<format>", "<negative_format>", <precision> }}
 ```
 
 Formats a number as a currency, with grouped thousands and two decimal places (e.g. `$12,324.00`.)
@@ -102,8 +99,8 @@ Formats a number as a currency, with grouped thousands and two decimal places (e
 - `delimiter` - Sets the thousands delimiter (defaults to "`,`").
 - `separator` - Sets the separator between the fractional and integer digits (defaults to "`.`").
 - `format` - Sets the format for non-negative numbers (defaults to "`%u%n`"). Fields are `%u` for the currency, and `%n` for the number.
-- `negative_format` - Sets the format for negative numbers (defaults to prepending a hyphen to the formatted number given by `format`). Accepts the same fields than `format`, except `%n` is here the absolute value of the number.
-- `precision` - Sets the level of precision for decimal places (defaults to 2).
+- `negative_format` - Sets the format for negative numbers (defaults to prepending a hyphen to the formatted number given by `format`). Accepts the same fields as `format`, except `%n` is here the absolute value of the number. Pass `nil` to keep the default.
+- `precision` - Sets the level of precision for decimal places (defaults to 2). Must be a number, not a quoted string.
 
 **Examples:**
 
@@ -122,6 +119,9 @@ Formats a number as a currency, with grouped thousands and two decimal places (e
 
 {{ 1234567890.50 | currency: "R$", "", ",", "%n %u" }}
 => 1234567890,50 R$
+
+{{ 1.5 | currency: "$", ",", ".", "%u%n", nil, 3 }}
+=> $1.500
 ```
 
 ---
@@ -136,9 +136,11 @@ Formats a number as a currency, with grouped thousands and two decimal places (e
 
 Convert a date into a specific timezone. You can also pass `'now'` or `'today'` to use the current time.
 
+Include a UTC offset in timestamps you pass to `in_time_zone` (e.g. `2024-05-01T09:00:00Z`). Date-only values are read as midnight in the server's time zone and can shift to the previous day, so format them with `date` directly. An unrecognised timezone is ignored, and the time is shown in DocSpring's default timezone instead.
+
 **Parameters:**
 
-- `timezone` - [Here is the list of all available timezones.](/docs/html-templates/liquid-timezones/)
+- `timezone` - [Here is the list of available timezones.](/docs/html-templates/liquid-timezones/)
 
 **Examples:**
 

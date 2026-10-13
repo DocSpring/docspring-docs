@@ -25,22 +25,24 @@ POST /api/v1/templates/{template_id}/submissions
 
 Every submission must include:
 
-- `data` — Field values that match your template schema.
-- `test` — Use `true` for free, watermarked PDFs while building your integration.
-- `metadata` — Optional map for values you want echoed back in webhooks.
-- `version` — Choose `draft`, `latest`, or a specific version such as `1.2.3`.
+- `data`: Field values that match your template schema.
 
 Optional parameters:
 
-- `wait` — Decide between synchronous and asynchronous processing.
-- `editable` — Keep the resulting PDF fillable or flatten the form fields. See [Editable PDFs](#editable-pdfs).
-- `expires_in` — Set a TTL for the generated PDF download link.
-- `field_overrides` — Temporarily adjust field requirements or defaults.
-- `data_requests` — Kick off a data collection or signature workflow before finalizing the PDF.
+- `test`: Use `true` for free, watermarked PDFs while building your integration. Defaults to `false`.
+- `metadata`: Map of values you want echoed back in webhooks.
+- `version`: Choose `draft`, `latest` (the default), or a specific version such as `1.2.3`.
+- `editable`: Keep the resulting PDF fillable or flatten the form fields. See [Editable PDFs](#editable-pdfs).
+- `expires_in`: Number of seconds until the submission expires. DocSpring then deletes the PDF and the submission data.
+- `password`: Encrypt the generated PDF with this password.
+- `field_overrides`: Temporarily adjust field requirements or defaults.
+- `data_requests`: Kick off a data collection or signature workflow before finalizing the PDF.
+
+To choose between synchronous and asynchronous processing, use the `wait` query parameter (for example, `?wait=false`). It is not part of the JSON body. See [Processing Modes](#processing-modes).
 
 ## Processing Modes
 
-Submissions sent to `sync.api.docspring.com` wait for processing and return the `download_url` in the response. Switching `wait=false` or using the asynchronous domain returns immediately with a pending submission. See [Sync vs. Async Processing](/docs/api-guide/synchronous-requests/) for flow diagrams, polling tips, and webhook guidance.
+Submissions sent to `sync.api.docspring.com` wait for processing and return the `download_url` in the response. Switching `wait=false` or using the asynchronous domain returns immediately with a pending submission. See [Sync vs. Async Processing](/docs/api-guide/synchronous-requests/) for the time limit, status checks, and webhook guidance.
 
 ## Editable PDFs
 
@@ -48,10 +50,10 @@ By default, DocSpring "flattens" generated PDFs into static text, so the fields 
 
 There are two ways to control this:
 
-- **Per submission:** Set `editable: true` in your submission request to make every field editable, or `editable: false` to flatten every field. An explicit value always takes precedence over the per-field option below.
-- **Per field:** Enable the "Editable" option on an individual field in the Template Editor. That field is rendered as an editable form field even when "Generate Editable PDFs" is off — as long as the submission does not set the `editable` option.
+- **Per submission:** Set `editable: true` in your submission request to make every field editable, or `editable: false` to flatten every field. An explicit value always takes precedence over the per-field option and the template setting below.
+- **Per field:** Enable the "Editable" option on an individual field in the Template Editor. That field is rendered as an editable form field whenever the submission does not set the `editable` option.
 
-When the submission `editable` option is unset, each field falls back to the template's "Generate Editable PDFs" setting or its own per-field "Editable" option.
+Some templates (for example, older templates) have the "Generate Editable PDFs" template setting turned on. For these templates, every field is editable unless the submission sets `editable: false`.
 
 ## Batch Generation
 

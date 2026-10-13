@@ -9,7 +9,7 @@ DocSpring supports right-to-left languages such as Arabic and Hebrew.
 
 ## String Order
 
-When submitting data that contains Hebrew, Arabic, or other right-to-left text, please provide the strings in **logical order** (left-to-right). DocSpring will automatically detect and convert the text to **visual order** (right-to-left) when rendering it on the PDF. We will also embed a TTF font (Arial) for any fields that contain Hebrew or Arabic text.
+When submitting data that contains Hebrew, Arabic, or other right-to-left text, please provide the strings in **logical order**. DocSpring will automatically detect and convert the text to **visual order** (right-to-left) when rendering it on the PDF. We will also embed a TTF font (Arial) for any fields that contain Hebrew or Arabic text.
 
 ### What is Logical Order?
 
@@ -27,7 +27,7 @@ When sending Hebrew or Arabic text to DocSpring's API, submit it in the same cha
 
 ```json
 {
-  "fields": {
+  "data": {
     "hebrew_greeting": "שלום עולם",
     "mixed_text": "Hello שלום 123",
     "arabic_text": "مرحبا بالعالم"
@@ -78,9 +78,5 @@ DocSpring automatically strips directional control characters (`U+2066`, `U+2069
 Here is a screenshot of an example generated PDF that includes both Hebrew and English text:
 
 ![Hebrew and English text example](@images/hebrew-and-english.png)
-
-:::note
-We are planning to add support for custom fonts in the future.
-:::
 
 _Please contact [support@docspring.com](mailto:support@docspring.com) if you need a different font._

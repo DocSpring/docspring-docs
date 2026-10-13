@@ -47,14 +47,13 @@ Once you have sent the email, inform DocSpring about this event by making an API
 **Example audit trail log:**
 
 ```
-2024-01-01 12:00:00 - Sent via email to Test (test@example.com)
-2024-01-01 12:10:00 - Test (test@example.com) signed in via username/password
+2024-01-01 12:00:00 - Sent signing link to Test (test@example.com)
 2024-01-01 12:10:00 - Viewed by Test (test@example.com)
 2024-01-01 12:20:00 - Signed by Test (test@example.com)
 2024-01-01 12:20:00 - Document completed
 ```
 
-You will need to track the "sent via email" event and authentication details yourself. The "viewed" and "signed" events will be automatically recorded by DocSpring when the user interacts with the form.
+You will need to track the "sent" event and authentication details yourself. The "viewed", "signed", and "completed" events will be automatically recorded by DocSpring when the user interacts with the form.
 
 ### 3. Request an Authentication Token
 
@@ -64,7 +63,7 @@ You will need to track the "sent via email" event and authentication details you
   description="API documentation for creating authentication tokens"
 />
 
-Once the user clicks the link and is ready to sign the form, you will need to create a one-time authentication token for your data request. This authentication token can only be used once. You should request this token immediately before showing the signing form to the user.
+Once the user clicks the link and is ready to sign the form, you will need to create an authentication token for your data request. The token remains valid until the data request is completed. You should request this token immediately before showing the signing form to the user.
 
 ### 4. Update Authentication Details
 
@@ -95,6 +94,8 @@ To embed the form on your own website, copy the following code into your page:
     })
 </script>`} lang="html" title="Basic data request embed" />
 
+Use the `id` and `secret` from the token response as `tokenId` and `tokenSecret`. If your account is in the EU region, also pass `region: 'EU'`.
+
 <Aside type="note">
   Enterprise deployments can load this script from the local DocSpring domain
   instead of the CDN:
@@ -102,6 +103,8 @@ To embed the form on your own website, copy the following code into your page:
 </Aside>
 
 This code will open the form in a modal overlay. You may also pass a CSS selector as the first argument, and the iframe element will be appended to that selector. (However, mobile browsers will always use a full-screen overlay.)
+
+Add your website's domain to the template's **Embed Domains** setting. The signing form checks the domain of the page that embeds it, and does not load if that domain is not listed. (Your `onError` callback receives the error message.) You can pass `domainVerification: false` to skip this check during development, but remove it before deploying to production.
 
 <LinkCard
   title="View Complete Example"
@@ -133,9 +136,12 @@ https://example.com/?submission_id=sub_123&template_id=tpl_123&template_name=My%
 ```
 
 <Aside type="note">
-  - **Private submissions**: Redirects immediately after saving - **Public
-  submissions**: Waits for PDF processing before redirecting (unless
-  `waitForPDF` is set to `false`)
+
+- **Private submissions**: Redirects immediately after saving
+- **Public submissions**: Waits for PDF processing before redirecting. If other
+  data requests still need to be filled in, the form shows a waiting message
+  instead of redirecting
+
 </Aside>
 
 ## Next Steps

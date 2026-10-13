@@ -19,9 +19,9 @@ Here is an overview of the process:
 
 1. **Create a submission with data requests** - Include details about the people who will be filling out and signing the document
 2. **Send notification emails** - Send your users links to the signing form and record the event
-3. **Request authentication tokens** - Create one-time tokens when users are ready to sign
+3. **Request authentication tokens** - Create a token when the user is ready to sign
 4. **Update authentication details** - Ensure authentication information is current
-5. **Render the signing form** - Embed the form on your website or use hosted forms
+5. **Render the signing form** - Embed the form on your website or use the hosted signing page
 6. **Process the completed PDF** - Receive webhook notifications when all signatures are collected
 
 This process ensures that DocSpring can record a complete audit trail of events, making all electronic signatures legally binding.
@@ -30,11 +30,11 @@ This process ensures that DocSpring can record a complete audit trail of events,
 
 ### Authentication Requirements
 
-To ensure legal compliance, data requests must include:
+To ensure legal compliance, data requests should include:
 
-- The user's full name
-- The user's email address
-- Details about how and when the user was authenticated
+- The user's name and email address. Both are optional, but we recommend
+  including them because they are shown on the audit trail.
+- Details about how and when the user was authenticated (`auth_type` is required)
 - The fields that the user must fill out (including signature or initials fields)
 - Optional metadata to save on the data request
 
@@ -57,8 +57,7 @@ DocSpring automatically records a complete audit trail for each data request, in
 Example audit trail log:
 
 ```
-2024-01-01 12:00:00 - Sent via email to Test (test@example.com)
-2024-01-01 12:10:00 - Test (test@example.com) signed in via username/password
+2024-01-01 12:00:00 - Sent signing link to Test (test@example.com)
 2024-01-01 12:10:00 - Viewed by Test (test@example.com)
 2024-01-01 12:20:00 - Signed by Test (test@example.com)
 2024-01-01 12:20:00 - Document completed
@@ -66,12 +65,11 @@ Example audit trail log:
 
 ## Authentication Tokens
 
-Authentication tokens are one-time use tokens that authorize a user to access and sign a specific data request. Key characteristics:
+Authentication tokens authorize a user to access and sign a specific data request. Key characteristics:
 
-- Can only be used once
+- Remains valid until the data request is completed
 - Should be requested immediately before showing the signing form
-- Include an authenticated URL for hosted forms
-- Expire after use or timeout
+- Include an authenticated URL for the hosted signing page
 
 ## Mobile Support
 

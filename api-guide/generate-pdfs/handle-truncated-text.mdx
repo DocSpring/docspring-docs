@@ -15,13 +15,13 @@ This will be returned as a `truncated_text` object when you make a **Get Submiss
 
 <Code
   code={`{
-    "submission": {
-      // ... other submission data ...
-      "truncated_text": {
-        "title": ["text that could not fit in the field"]
-      }
-      // ... other submission data ...
+    "id": "sub_1234567890abcdef01",
+    "state": "processed",
+    // ... other submission data ...
+    "truncated_text": {
+      "title": ["text that could not fit in the field"]
     }
+    // ... other submission data ...
   }`}
   lang="json"
   title="Example submission response with truncated text"

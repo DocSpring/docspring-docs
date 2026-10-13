@@ -23,8 +23,8 @@ Or if you set the display type to "Text", the field could display the text "true
 
 ### Typeface (Font)
 
-When you choose a "monospace" typeface, we will automatically calculate the maximum number
-of characters that can fit in the field. This will be added to the API schema as a validation.
+When you choose a "monospace" typeface for a single-line field, you can check **Auto-calculate Max Length**.
+DocSpring will then calculate the maximum number of characters that can fit in the field, and add it to the API schema as a validation.
 
 ### Multiline
 
@@ -39,7 +39,7 @@ DocSpring will display the lines that divide each cell:
 
 ![Three SSN Fields with Comb options](@images/template_editor/three-ssn-fields-with-comb.png)
 
-DocSpring will display the lines that divide each cell, and these lines can be useful when you're not sure how many cells are in a field. For larger comb fields, continue incrementing the "Comb Cells" value until all of the lines match up.
+These lines can be useful when you're not sure how many cells are in a field. For larger comb fields, continue incrementing the "Comb Cells" value until all of the lines match up.
 
 <Aside type="tip">
   View the [SSN Fields](/docs/template-editor/ssn-fields/) tutorial to see how
@@ -50,12 +50,17 @@ DocSpring will display the lines that divide each cell, and these lines can be u
 ### Other Text Options
 
 - Font Size
+- Character Spacing
 - Bold
 - Uppercase
+- Strikethrough
 - Color
+- Background Color
 - Opacity
 - Horizontal Alignment: _(Left, Center, Right)_
 - Vertical Alignment: _(Bottom, Center, Top)_
+- Overflow: _(Shrink to fit, Truncate)_. See [Handle Truncated Text](/docs/api-guide/generate-pdfs/handle-truncated-text/).
+- Min Length and Max Length: Added to the API schema as validations.
 
 ## Check
 

@@ -17,6 +17,7 @@ First, ensure your PDF template is configured for visual forms:
 1. **Upload your PDF** to DocSpring
 2. **Add form fields** using the Template Editor
 3. **Configure template settings**:
+   - Set "Online Form Privacy" to "Public" (required, so that unauthenticated users can load the form)
    - Set submission privacy (Public recommended)
    - Configure redirect URL (optional)
    - Set up field defaults and validation
@@ -29,10 +30,14 @@ First, ensure your PDF template is configured for visual forms:
 
 ### 2. Include the JavaScript Library
 
-Add the visual forms library to your webpage:
+Add the visual forms stylesheet and library to your webpage:
 
 <Code
-  code={`<script
+  code={`<link
+  rel="stylesheet"
+  href="https://cdn.docspring.com/visual_form.v${getEmbedVersion("visual_form", "css")}.css"
+/>
+<script
     type="text/javascript"
     src="https://cdn.docspring.com/visual_form.v${getEmbedVersion("visual_form")}.js"
 ></script>`}
@@ -49,33 +54,25 @@ Add the visual forms library to your webpage:
 
 ### 3. Initialize the Form
 
-Create a visual form with your template ID:
+Add a container element, then create a visual form with your template ID.
+`DocSpring.createVisualForm(selector, options)` renders the form inline into the
+element that matches the selector. Visual forms do not open as a modal overlay.
 
-<Code
-  code={`<script>
-    DocSpring.createVisualForm({
-      templateId: 'YOUR_TEMPLATE_ID'
-    })
-</script>`}
-  lang="html"
-  title="Basic initialization"
-/>
-
-This opens the form as a modal overlay. For inline embedding:
-
-<Code code={`<div id="form-container"></div>
+<Code code={`<div class="dsp-form"></div>
 
   <script>
-    DocSpring.createVisualForm('#form-container', {
+    DocSpring.createVisualForm('.dsp-form', {
       templateId: 'YOUR_TEMPLATE_ID'
     })
-</script>`} lang="html" title="Inline form" />
+</script>`} lang="html" title="Basic initialization" />
+
+If your account is in the EU region, also pass `region: 'EU'`.
 
 ### 4. Pre-fill Form Data (Optional)
 
 You can pre-populate form fields with default or static data:
 
-<Code code={`DocSpring.createVisualForm({
+<Code code={`DocSpring.createVisualForm('.dsp-form', {
     templateId: 'YOUR_TEMPLATE_ID',
 
     // Default values (user can modify)
@@ -104,7 +101,7 @@ You can pre-populate form fields with default or static data:
 
 Add callbacks to respond to form events:
 
-<Code code={`DocSpring.createVisualForm({
+<Code code={`DocSpring.createVisualForm('.dsp-form', {
     templateId: 'YOUR_TEMPLATE_ID',
 
     // Form is ready
@@ -141,7 +138,7 @@ Add callbacks to respond to form events:
 
 Visual forms offer extensive customization options:
 
-<Code code={`DocSpring.createVisualForm({
+<Code code={`DocSpring.createVisualForm('.dsp-form', {
     templateId: 'YOUR_TEMPLATE_ID',
 
     // UI Options
@@ -152,17 +149,17 @@ Visual forms offer extensive customization options:
     // Skip terms of service
     skipAgreeToTermsOfService: true,
 
-    // Custom messages
-    pdfProcessingTitle: 'Creating Your Document...',
-    completedTitle: function(template) {
-      return 'Your ' + template.name + ' is Ready!';
-    },
-
-    // Redirect after completion
-    redirectURL: 'https://yoursite.com/thank-you',
-    waitForPDF: false  // Redirect immediately
+    // Redirect after the submission is saved
+    // (or after the PDF is processed, if Submission Privacy is "Public")
+    redirectURL: 'https://yoursite.com/thank-you'
 
 })`} lang="javascript" title="Customization options" />
+
+<Aside type="note">
+  Header title and message options such as `pdfProcessingTitle` and
+  `completedTitle`, and `footerHTML`, only work for data requests. Visual forms
+  ignore them.
+</Aside>
 
 ### 7. Style the Form (Optional)
 
@@ -172,17 +169,17 @@ Apply custom CSS to match your brand:
     font-family: 'Your Font', sans-serif;
   }
 
-.dsp-button.dsp-primary {
+.dsp-button.dsp-primaryButton {
 background-color: #your-brand-color;
 border-color: #your-brand-color;
 }
 
-.dsp-header {
+.dsp-headerWrapper {
 background-color: #f8f9fa;
 border-bottom: 1px solid #dee2e6;
 }
 
-.dsp-field.focused {
+.dsp-fieldContainer.dsp-fieldFocussed {
 box-shadow: 0 0 0 3px rgba(your-color, 0.1);
 }`} lang="css" title="Custom styling" />
 
@@ -190,7 +187,7 @@ box-shadow: 0 0 0 3px rgba(your-color, 0.1);
 
 Dynamically modify field properties:
 
-<Code code={`DocSpring.createVisualForm({
+<Code code={`DocSpring.createVisualForm('.dsp-form', {
     templateId: 'YOUR_TEMPLATE_ID',
 
     fieldOverrides: {
@@ -199,8 +196,7 @@ Dynamically modify field properties:
 
       // Change field styling
       signature: {
-        backgroundColor: 'FFFEF0',
-        borderColor: '2E7D32'
+        backgroundColor: 'FFFEF0'
       },
 
       // Make fields required
@@ -209,17 +205,6 @@ Dynamically modify field properties:
 
 })`} lang="javascript" title="Field overrides" />
 
-## Production Deployment
-
-### Domain Verification
-
-DocSpring verifies that forms are loaded from authorized domains.
-Add your domain in the template settings.
-
-<Aside type="caution">
-  Remember to remove `domainVerification: false` before deploying to production.
-</Aside>
-
 ## Troubleshooting
 
 ### Common Issues
@@ -227,7 +212,7 @@ Add your domain in the template settings.
 **Form doesn't load**
 
 - Check template ID is correct
-- Verify domain is authorized
+- Check that the template's "Online Form Privacy" setting is "Public"
 - Check browser console for errors
 
 **Fields don't appear**
@@ -239,19 +224,6 @@ Add your domain in the template settings.
 **PDF doesn't generate**
 
 - Check API logs for validation errors
-
-### Debug Mode
-
-Enable debugging for detailed console logs:
-
-<Code
-  code={`DocSpring.DEBUG = true;
-DocSpring.createVisualForm({
-    templateId: 'YOUR_TEMPLATE_ID'
-})`}
-  lang="javascript"
-  title="Enable debug logging"
-/>
 
 ## Next Steps
 

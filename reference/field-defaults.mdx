@@ -22,6 +22,21 @@ All other field properties will be set to the following default values:
   title="Default field values"
 />
 
+Properties that are shared by every field with the same name (such as `type`, `required`, and `default`) use the following default values.
+Note that new fields are required by default (`"required": true`).
+
+export const sharedFieldDefaults = Object.fromEntries(
+  Object.entries(fieldDefaults.shared_field).filter(
+    ([key]) => key !== "fieldCount",
+  ),
+);
+
+<Code
+  code={JSON.stringify(sharedFieldDefaults, null, 2)}
+  lang="json"
+  title="Default shared field values"
+/>
+
 <LinkCard
   title="Field Schema"
   href="/docs/reference/field-schema/"

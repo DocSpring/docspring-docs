@@ -27,11 +27,11 @@ you want them.
 
 ## Data Requests
 
-| Event                               | Description                            |                                        |
-| ----------------------------------- | -------------------------------------- | -------------------------------------- |
-| `submission_data_request.viewed`    | When someone views a data request form | <Badge text="Default" variant="tip" /> |
-| `submission_data_request.completed` | When a data request is completed       | <Badge text="Default" variant="tip" /> |
-| `submission_data_request.updated`   | When a data request is updated         |                                        |
+| Event                               | Description                         |                                        |
+| ----------------------------------- | ----------------------------------- | -------------------------------------- |
+| `submission_data_request.viewed`    | When a data request is first viewed | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.completed` | When a data request is completed    | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.updated`   | When a data request is updated      |                                        |
 
 ## Combined Submissions
 
@@ -43,10 +43,10 @@ you want them.
 
 ## Submission Batches
 
-| Event                        | Description                     |                                        |
-| ---------------------------- | ------------------------------- | -------------------------------------- |
-| `submission_batch.processed` | When batch processing completes | <Badge text="Default" variant="tip" /> |
-| `submission_batch.failed`    | When batch processing fails     | <Badge text="Default" variant="tip" /> |
+| Event                        | Description                                              |                                        |
+| ---------------------------- | -------------------------------------------------------- | -------------------------------------- |
+| `submission_batch.processed` | When every submission in a batch has processed           | <Badge text="Default" variant="tip" /> |
+| `submission_batch.failed`    | When a batch finishes and at least one submission failed | <Badge text="Default" variant="tip" /> |
 
 ## Templates
 
@@ -74,19 +74,19 @@ you want them.
 
 ## Integrations, Files, Folders & Users
 
-| Event                         | Description                            |
-| ----------------------------- | -------------------------------------- |
-| `account_integration.created` | When an account integration is created |
-| `account_integration.updated` | When an account integration is updated |
-| `account_integration.deleted` | When an account integration is deleted |
-| `custom_file.created`         | When a custom file is uploaded         |
-| `folder.created`              | When a folder is created               |
-| `folder.updated`              | When a folder is updated               |
-| `folder.deleted`              | When a folder is deleted               |
-| `user.created`                | When a user is created                 |
-| `user.invited`                | When a user is invited                 |
-| `user.updated`                | When a user is updated                 |
-| `user.deleted`                | When a user is deleted                 |
+| Event                         | Description                                             |
+| ----------------------------- | ------------------------------------------------------- |
+| `account_integration.created` | When an account integration is created                  |
+| `account_integration.updated` | When an account integration is updated                  |
+| `account_integration.deleted` | When an account integration is deleted                  |
+| `custom_file.created`         | When a custom file is uploaded                          |
+| `folder.created`              | When a folder is created                                |
+| `folder.updated`              | When a folder is updated                                |
+| `folder.deleted`              | When a folder is deleted                                |
+| `user.created`                | When a user is created without an invitation            |
+| `user.invited`                | When a user is invited (sent instead of `user.created`) |
+| `user.updated`                | When a user is updated                                  |
+| `user.deleted`                | When a user is deleted                                  |
 
 ## Scoping which events a webhook receives
 
@@ -96,12 +96,16 @@ Beyond choosing event types, you can narrow down when a webhook fires.
 
 The **Mode** setting limits a webhook to a particular environment:
 
-- **All submissions** — fire for both test and live submissions (the default).
-- **Test only** — only fire for test submissions.
-- **Live only** — only fire for live submissions.
+- **All submissions**: fire for both test and live submissions (the default).
+- **Test only**: only fire for test submissions.
+- **Live only**: only fire for live submissions.
 
 The mode of an event is determined by the submission it relates to (test or live),
 or by whether it was generated by a test (development) API token.
+
+Template, folder, user, webhook, and integration events aren't test or live, so
+they're sent to webhooks of every mode. API token events use the mode of the token
+itself.
 
 ### API tokens, templates, and folders
 
@@ -110,14 +114,21 @@ dashboard, add the IDs to the **API Token IDs**, **Template IDs**, and **Folder
 IDs** fields (one ID per row). Through the API, set the `api_token_uids`,
 `template_uids`, and `folder_uids` arrays.
 
-- **API Token IDs** — only fire for events generated by one of these API tokens.
-- **Template IDs** — only fire for events related to one of these templates (their
+- **API Token IDs**: only fire for events generated by one of these API tokens
+  (submission, data request, combined submission, submission batch, and custom file
+  events).
+- **Template IDs**: only fire for events related to one of these templates (their
   submissions, data requests, and template events). Matched by ID, so it keeps
   working across template versions.
-- **Folder IDs** — only fire for events related to templates in one of these
-  folders **or any of their subfolders** (folder scoping is hierarchical).
+- **Folder IDs**: only fire for events related to templates in one of these
+  folders **or any of their subfolders** (folder scoping is hierarchical), and for
+  folder events about those folders and their subfolders.
 
 Leave all three empty to receive events for everything in the account.
+
+A scoped webhook can only subscribe to event types that at least one of its scope
+lists applies to. The dashboard disables the other event types, and the API rejects
+them with a validation error.
 
 <Aside type="note" title="Scope lists are combined with OR">
   The three scope lists are matched with **OR**, not AND. If you set more than

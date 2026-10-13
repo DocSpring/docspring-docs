@@ -5,28 +5,7 @@ sidebar:
   order: 2
 ---
 
-import { Tabs, TabItem, Code, LinkCard } from "@astrojs/starlight/components";
-import fs from "fs";
-import path from "path";
-
-export async function getCodeSample(language, filename, extension) {
-  const filePath = path.join(
-    process.cwd(),
-    '..',
-    'api_clients',
-    'rswag_tests',
-    language,
-    'docs',
-    `${filename}.${extension}`
-  );
-
-try {
-const content = await fs.promises.readFile(filePath, 'utf-8');
-return content.trim();
-} catch (error) {
-return '// TODO: Add authentication example';
-}
-}
+import { Tabs, TabItem, LinkCard } from "@astrojs/starlight/components";
 
 DocSpring uses API tokens for authentication. You can authenticate using HTTP basic authentication.
 Use your API token ID as the username, and the API token secret as the password.
@@ -39,7 +18,7 @@ Use your API token ID as the username, and the API token secret as the password.
 
 ### Environment Variables
 
-All DocSpring API clients support authentication via environment variables. Set the following environment variables, and the client will automatically use them:
+All DocSpring API clients except Java read your credentials from environment variables. Set the following environment variables, and the client will automatically use them:
 
 - `DOCSPRING_TOKEN_ID` - Your API token ID
 - `DOCSPRING_TOKEN_SECRET` - Your API token secret
@@ -51,18 +30,51 @@ export DOCSPRING_TOKEN_ID="your_token_id"
 export DOCSPRING_TOKEN_SECRET="your_token_secret"
 ```
 
-Then initialize the client without passing credentials:
+Then initialize the client without passing credentials. The Java client doesn't read environment variables, so pass them to it yourself:
+
+<Tabs syncKey="language">
+<TabItem label="Ruby">
 
 ```ruby
-# Ruby
-client = DocSpring::Client.new  # Automatically uses ENV variables
-
-# JavaScript/TypeScript
-const client = new DocSpring.Client();  // Automatically uses process.env
-
-# Python
-client = docspring.Client()  # Automatically uses os.environ
+client = DocSpring::Client.new
 ```
+
+</TabItem>
+<TabItem label="Python">
+
+```python
+from docspring import Client
+client = Client()
+```
+
+</TabItem>
+<TabItem label="JavaScript">
+
+```javascript
+const DocSpring = require("docspring");
+const client = new DocSpring.Client();
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import * as DocSpring from "docspring-ts";
+const client = new DocSpring.Client();
+```
+
+</TabItem>
+<TabItem label="Java">
+
+```java
+com.docspring.ApiClient apiClient = com.docspring.Configuration.getDefaultApiClient();
+apiClient.setUsername(System.getenv("DOCSPRING_TOKEN_ID"));
+apiClient.setPassword(System.getenv("DOCSPRING_TOKEN_SECRET"));
+com.docspring.Client api = new com.docspring.Client(apiClient);
+```
+
+</TabItem>
+</Tabs>
 
 ### HTTP Basic Authentication
 

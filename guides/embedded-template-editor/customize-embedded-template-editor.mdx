@@ -111,6 +111,7 @@ editor closes the previous editor instance first.
 | `showFieldRotation`          | `true`  | Show field rotation controls.                                                                                 |
 | `showFieldOpacity`           | `true`  | Show opacity controls.                                                                                        |
 | `showFieldConditions`        | `true`  | Show conditional display controls.                                                                            |
+| `showFieldDependencies`      | `true`  | Show conditional logic controls that show, hide, or require a field based on other fields.                    |
 | `showFieldQrBarcode`         | `true`  | Show QR code and barcode display options.                                                                     |
 | `showFieldDateOptions`       | `true`  | Show date and time formatting controls.                                                                       |
 | `showFieldMetadata`          | `true`  | Show field metadata controls.                                                                                 |
@@ -129,7 +130,8 @@ Use `simplifyUI` as a shortcut when you want a simpler editor experience:
     token: 'EMBED_EDIT_TOKEN',
     inline: true,
     features: {
-      simplifyUI: true
+      simplifyUI: true,
+      showFieldRotation: true
     }
 })`}
   lang="javascript"
@@ -137,6 +139,15 @@ Use `simplifyUI` as a shortcut when you want a simpler editor experience:
 />
 
 `simplifyUI` expands into individual feature switches. Any explicit feature value in the same `features` object overrides the preset.
+
+The preset sets these features to `false`: `showSchema`, `showFormLinks`,
+`showHelp`, `showInvert`, `showWelcomeModal`, `showFieldHidden`,
+`showFieldStatic`, `showFieldDefaultValue`, `showFieldInfo`,
+`showFieldRotation`, `showFieldOpacity`, `showFieldConditions`,
+`showFieldDependencies`, `showFieldQrBarcode`, `showFieldDateOptions`,
+`showFieldMetadata`, `showFieldFontAdvanced`, `showFieldValidation`,
+`showFieldCombOptions`, and `showFieldColorFromData`. All other features keep
+their defaults.
 
 ## Restricted Settings
 

@@ -48,7 +48,7 @@ The body is a JSON object with four top-level keys:
     "state": "processed",
     "test": false,
     "template_id": "tpl_0ABC...",
-    "download_url": "https://api.docspring.com/...",
+    "download_url": "https://...amazonaws.com/...pdf?X-Amz-Signature=...",
     "metadata": { "customer_id": "cus_123" },
     "data": {
       "name": "Jane Doe",
@@ -78,8 +78,25 @@ timestamps in API responses.
   `type` (e.g. `Submission`) and `id` (e.g. `sub_0XYZ...`).
 - The rest of `data` is the **serialized resource** itself. For a submission this is
   the same object the API returns — including its `id`, `state`, `download_url`,
-  `metadata`, and so on. See the [API Reference](/docs/api/) for the full list of
-  fields on each resource.
+  `metadata`, and so on.
+
+The fields in `data` for each resource type (`data.resource.type`):
+
+| `data.resource.type`    | Fields                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `Submission`            | The API's submission object                                                         |
+| `CombinedSubmission`    | The API's combined submission object                                                |
+| `SubmissionBatch`       | The API's submission batch object, without its submissions                          |
+| `Template`              | The API's template object, as returned when listing templates                       |
+| `SubmissionDataRequest` | `id`, `submission_id`, `name`, `email`, `completed_at`, `fields`                    |
+| `Folder`                | `id`, `name`, `path`, `parent_folder_id`                                            |
+| `CustomFile`            | `id`, `url`                                                                         |
+| `APIToken`              | `id`, `name`, `test`, `revoked_at`, `created_at`                                    |
+| `User`                  | `id`, `name`, `email`, `created_at`, `invitation_sent_at`, `invitation_accepted_at` |
+| `AccountIntegration`    | `id`, `service`, `enabled`, `created_at`, `updated_at`                              |
+| `Webhook`               | `id`                                                                                |
+
+See the [API Reference](/docs/api/) for the fields of the objects the API returns.
 
 <Aside type="note" title="Which id is which">
   The top-level `id` is the event ID. `data.resource.id` and `data.id` are both

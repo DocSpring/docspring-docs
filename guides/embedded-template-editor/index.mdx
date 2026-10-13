@@ -79,9 +79,22 @@ Or open it as a modal:
   description="Test the embedded editor with your own template ID, embed edit token, and options"
 />
 
+## Embed Edit Token
+
+The `token` option is the template's embed edit token. The API returns it as
+`embed_edit_token` when you fetch the template, and the template editor shows it
+under **Embed Edit Token** in the template settings, where you can also
+regenerate it. See [Security](#security) for what the token can and cannot do.
+
+<LinkCard
+  title="API Reference: Get a Template"
+  href="/docs/api/#tag/templates/get/templates/{template_id}"
+  description="Fetch a template, including its embed_edit_token"
+/>
+
 ## Embed Domains
 
-Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. See [Security](#security) for what the embed token can and cannot do.
+Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Enter a comma-separated list of hostnames without `https://`, such as `example.com,app.example.com`. A wildcard such as `*.example.com` matches any subdomain, and you can include a port, such as `localhost:3000`. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. See [Security](#security) for what the embed token can and cannot do.
 
 ## Options
 
@@ -93,7 +106,7 @@ modal.
 | Option                                       | Type    | Required | Description                                                                                                     |
 | -------------------------------------------- | ------- | -------- | --------------------------------------------------------------------------------------------------------------- |
 | `templateId`                                 | string  | Yes      | Template ID, such as `tpl_123`.                                                                                 |
-| `token`                                      | string  | Yes      | Template embed edit token.                                                                                      |
+| `token`                                      | string  | Yes      | The template's embed edit token. See [Embed Edit Token](#embed-edit-token).                                     |
 | `externalUser`                               | object  | No       | Details for the user editing the template in your app. Used for "last changed by" and version publisher labels. |
 | `selector`                                   | string  | No       | Target element for an inline editor. May be passed here instead of as the first argument.                       |
 | `inline`                                     | boolean | No       | Defaults to `true` when a selector is provided. Pass `false` to force modal mode even with a selector.          |
@@ -194,7 +207,7 @@ If `externalUser` is omitted, embedded saves and published versions are attribut
   title="Event callbacks"
 />
 
-Each event has a named callback (`onLoad`, `onSave`, and so on). `onEvent` is a catch-all that fires for every event with the event name and its data. `onClose` fires when a modal editor is closed. Version events only fire when versioning is enabled for the embed.
+Each event has a named callback (`onLoad`, `onSave`, and so on). `onEvent` is a catch-all that fires for every event with the event name and its data. `onClose` fires whenever the editor is closed, including when you call `close()` or create a new editor. Version events only fire when versioning is enabled for the embed.
 
 The Done button only fires `onDone` when the editor has no pending changes, no
 active save request, and no save error. Host applications can use `onSave` to
@@ -243,4 +256,10 @@ Regardless of any capability, the embed token **cannot** change the template's *
   title="Customize the Embedded Template Editor"
   href="/docs/guides/embedded-template-editor/customize-embedded-template-editor/"
   description="Control which editor features are available in an embed"
+/>
+
+<LinkCard
+  title="Template Editor Changelog"
+  href="/docs/changelogs/template-editor-js/"
+  description="Changelog entries for the Template Editor JavaScript library"
 />

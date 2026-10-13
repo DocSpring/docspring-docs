@@ -41,8 +41,12 @@ Set `predefined_fields` when creating or updating a template through the API:
 
 When predefined fields are enabled in the template editor, users can assign fields from the predefined list instead of typing arbitrary field names.
 
+`type` sets the field's data type, such as `string`, `number`, `boolean`,
+`date`, `email`, `image`, or `signature`. For `string` fields, you can also set
+`optionList` to a comma-separated list of allowed values, such as `"Yes,No"`.
+
 Use `required_in_template` when a predefined field must be added to the template
-at least once. This controls the missing/present indicator in the predefined
+at least once (the default is `false`). This controls the missing/present indicator in the predefined
 field list and whether the "Done" button is enabled in embedded template editors (via the `disableDoneButtonIfPredefinedFieldsMissing` option.)
 The Done button also remains disabled while template changes are pending, while
 a save is in progress, or while a save error is present.
@@ -52,9 +56,10 @@ adds or assigns that predefined field. This controls whether submission data mus
 include a value for the field. If `field_required` is omitted, it defaults to
 `true`.
 
-If you are using the embedded template editor, you can show or hide the Required checkbox in the fields options
-by setting `showFieldRequired`. Set this to `true` if you want your users to be able to control whether fields are required or optional.
-(The default is the `field_required` that you can set for each predefined field.)
+If you are using the embedded template editor, the `showFieldRequired` feature
+controls whether users see the Required checkbox in the field options. It
+defaults to `true`. Set it to `false` to hide the checkbox, so that fields keep
+the `field_required` value from their predefined field.
 
 <LinkCard
   title="API Reference: Update a Template"

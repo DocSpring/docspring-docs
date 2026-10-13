@@ -12,7 +12,9 @@ Your webhook endpoint is a public URL, so anyone could send it a fake request. T
 confirm a request really came from DocSpring — and that nobody altered the payload
 in transit — DocSpring signs every request with your webhook's
 [signing secret](/docs/webhooks/overview/#the-signing-secret) and includes the
-signature in the `X-DocSpring-Signature` header.
+signature in the `X-DocSpring-Signature` header. (Submission events on a legacy
+v1/v2 webhook are not signed. See
+[Webhook versions](/docs/webhooks/payloads/#webhook-versions).)
 
 <Aside type="caution">
   Always verify the signature before acting on a webhook. Treat any request that

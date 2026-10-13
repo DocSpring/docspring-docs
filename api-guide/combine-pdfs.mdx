@@ -27,6 +27,8 @@ Generated PDFs from template submissions:
 { "type": "submission", "id": "sub_1234567890abcdef01" }
 ```
 
+The submission must already be processed and not expired. If you generate it with `?wait=false`, wait until it has been processed before you combine it.
+
 ### Combined Submissions
 
 Previously combined PDFs:
@@ -34,6 +36,8 @@ Previously combined PDFs:
 ```json
 { "type": "combined_submission", "id": "com_1234567890abcdef01" }
 ```
+
+The combined submission must already be processed and not expired.
 
 ### Templates
 
@@ -106,6 +110,11 @@ The download URL becomes:
 - Max 128 characters
 - Allowed: `0-9 A-Z a-z - _ .`
 - Other characters replaced with `_`
+
+### Expiration and Password
+
+- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF.
+- `password`: Encrypt the merged PDF with this password.
 
 ### Free to Use
 

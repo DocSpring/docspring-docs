@@ -5,7 +5,6 @@ description: Step-by-step guide to set up AWS S3 integration with DocSpring
 
 import {
   Aside,
-  Code,
   Steps,
   Tabs,
   TabItem,
@@ -25,45 +24,46 @@ DocSpring supports two methods of authentication for AWS S3:
     ### Create an IAM Role in Your AWS Account
 
     <Steps>
-    1. Visit the [IAM service](https://console.aws.amazon.com/iam/home)
-    2. Click **Roles** → **Create role**
-    3. Select **Another AWS account** as the trusted entity type
-    4. Enter the DocSpring AWS account ID: `691950705664`
-    5. Click **Next**
-    6. Create a custom policy with the following permissions:
+    1. In the [IAM console](https://console.aws.amazon.com/iam/home), create a role. For the trusted entity, choose another AWS account and enter the DocSpring AWS account ID: `691950705664`. Leave **Require external ID** unchecked, because DocSpring doesn't send an external ID when it assumes the role.
+    2. Give the role a permissions policy that only allows `s3:PutObject` on your bucket:
     </Steps>
 
-    <Code code={`{
-
-"Version": "2012-10-17",
-"Statement": [
-{
-"Effect": "Allow",
-"Action": ["s3:PutObject"],
-"Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
-}
-]
-}`} lang="json" title="IAM Role Permissions" />
+    ```json title="IAM Role Permissions"
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": ["s3:PutObject"],
+          "Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
+        }
+      ]
+    }
+    ```
 
     <Steps>
-    7. Attach the policy to your role
-    8. Name your role (must include `docspring` in the name)
-    9. After creating the role, edit the trust relationship:
+    3. Name your role (must include `docspring` in lowercase)
+    4. After creating the role, edit its trust relationship (trust policy) so that only DocSpring's S3 upload user can assume it:
     </Steps>
 
-    <Code code={`{
+    ```json title="Trust Relationship"
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": "arn:aws:iam::691950705664:user/service/docspring-s3-cross-account"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    }
+    ```
 
-"Version": "2012-10-17",
-"Statement": [
-{
-"Effect": "Allow",
-"Principal": {
-"AWS": "arn:aws:iam::691950705664:user/service/docspring-s3-cross-account"
-},
-"Action": "sts:AssumeRole"
-}
-]
-}`} lang="json" title="Trust Relationship" />
+    <Steps>
+    5. Copy the role's ARN. You'll enter it in DocSpring as the **AWS Role ARN**.
+    </Steps>
 
     <Aside type="caution">
       The role name must include `docspring`. This is a security measure that prevents you from accidentally allowing us to assume any other roles in your account.
@@ -77,59 +77,54 @@ DocSpring supports two methods of authentication for AWS S3:
     ### Create an S3 Bucket
 
     <Steps>
-    1. [Sign into your AWS account](https://console.aws.amazon.com)
-    2. Visit the [S3 service](https://s3.console.aws.amazon.com/s3/home)
-    3. Click **Create bucket**
-    4. Choose a bucket name and select the correct AWS region
-    5. Click **Next**, then configure your bucket options and permission
-    6. Click **Create bucket**
+    1. In the [S3 console](https://s3.console.aws.amazon.com/s3/home), create a bucket
+    2. Choose a bucket name and select the correct AWS region
     </Steps>
 
     ### Create An IAM Policy With Limited Permissions
 
     <Steps>
-    1. Visit the [IAM service](https://console.aws.amazon.com/iam/home)
-    2. Click **Policies**
-    3. Click **Create policy**
-    4. Under **Service**, choose **S3**
-    5. Under **Actions**, expand the **Write** section
-       - Select the `PutObject` checkbox. _(DocSpring does not need any other permissions)_
-    6. Under **Resources**, choose **Specific**. Then click **Add ARN**.
-       - Paste your bucket name into **Bucket name**
-       - Check the **Any** checkbox for **Object name**
-       - Click **Add**
-    7. Click **Review policy**
-    8. Set a name for the new policy, e.g. "DocSpringS3Uploads"
-    9. Set a description, e.g. "Allows the DocSpring service to upload PDFs to our S3 bucket"
-    10. Click **Create policy**
+    1. In the [IAM console](https://console.aws.amazon.com/iam/home), create a policy that only allows `s3:PutObject` on your bucket. You can paste this JSON into the policy editor:
+    </Steps>
+
+    ```json title="IAM Policy"
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": ["s3:PutObject"],
+          "Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
+        }
+      ]
+    }
+    ```
+
+    <Steps>
+    2. Name the policy, e.g. "DocSpringS3Uploads", and add a description, e.g. "Allows the DocSpring service to upload PDFs to our S3 bucket"
     </Steps>
 
     ### Create An IAM User With Limited Permissions
 
     <Steps>
-    1. Visit the [IAM service](https://console.aws.amazon.com/iam/home)
-    2. Click **Users**
-    3. Click **Add user**
-    4. Configure the username, e.g. "docspring-s3-uploads"
-    5. Under **Access type**, select **Programmatic access**
-    6. Click **Next: Permissions**
-    7. Click the **Attach existing policies directly** option.
-    8. Find the policy you just created (use the Search box)
-    9. Select this policy by clicking the checkbox
-    10. Click **Next: Tags**
-    11. Skip the Tags section. Click **Next: Review**
-    12. Click **Create user**
-    13. Click **Show** under the **Secret access key**.
-    14. Copy the Access key ID and Secret access key, and save these for later.
+    1. In the [IAM console](https://console.aws.amazon.com/iam/home), create a user, e.g. "docspring-s3-uploads". The user doesn't need console access.
+    2. Attach the policy you just created directly to the user
+    3. Create an access key for the user (in the user's security credentials)
+    4. Copy the Access key ID and Secret access key, and save these for later. AWS only shows the secret access key once.
     </Steps>
 
   </TabItem>
 </Tabs>
 
+<Aside type="note">
+  DocSpring only needs `s3:PutObject`. If your bucket encrypts objects with an
+  AWS KMS key (SSE-KMS), also allow `kms:GenerateDataKey` on that key.
+</Aside>
+
 ## Configure DocSpring Integration
 
-1. Go to your [DocSpring integrations page](https://app.docspring.com/integrations)
-2. Click **Add Integration** → **AWS S3**
+1. In DocSpring, go to **Integrations → Manage S3 connections** ([US](https://app.docspring.com/account_integrations/aws_s3), [EU](https://app-eu.docspring.com/account_integrations/aws_s3))
+2. Click **Create S3 Integration** (or **Create a new S3 integration** if you don't have one yet)
 3. Fill in the configuration:
 
 ### Required Fields
@@ -153,7 +148,10 @@ For role-based authentication:
   - Only Live _(default)_
   - Only Test
   - Both Live and Test
-- **API Token IDs**: Comma-separated list to limit uploads to specific API tokens
+
+  Combined PDFs are uploaded with every setting.
+
+- **API Token IDs**: Comma-separated list to limit uploads to specific API tokens. Submissions created without an API token (for example from the dashboard or a web form) are still uploaded.
 
 ## Path Templates
 
@@ -172,15 +170,15 @@ Customize where PDFs are stored in your bucket using [Liquid](https://shopify.gi
 - `day` - Day, not zero-padded (e.g., `9`)
 - `metadata.<key>` - Any metadata values
 
-For combined submissions:
+For combined submissions, `template_id`, `template_name`, and `submission_id` aren't available. Use this instead:
 
 - `combined_submission_id` - Combined submission ID (e.g., `com_Zbetd3ayK4EK3J4Hf4`)
 
 ### Default Templates
 
 ```liquid
-submission_path_template: "submissions/{{ submission_id }}.pdf"
-test_submission_path_template: "test_submissions/{{ submission_id }}.pdf"
+submission_path_template: "live/templates/{{ template_id }}/{{ submission_id }}.pdf"
+test_submission_path_template: "test/templates/{{ template_id }}/{{ submission_id }}.pdf"
 combined_submission_path_template: "combined_submissions/{{ combined_submission_id }}.pdf"
 ```
 
@@ -199,14 +197,16 @@ clients/{{ metadata.client_id }}/{{ date }}_{{ submission_id }}.pdf
 ```
 
 <Aside type="caution">
-  Valid S3 object key characters are: `0-9`, `a-z`, `A-Z`, `!-\_.\'()`. Invalid
-  characters are replaced with underscores. ([See AWS
-  docs](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html#object-key-guidelines-safe-characters))
+  In `template_name` and metadata values, characters that S3 object keys
+  shouldn't contain (such as double quotes and non-ASCII letters) are replaced
+  with underscores. Spaces, `/`, and most punctuation are kept, so a `/` in a
+  template name or metadata value creates a subfolder. ([See the AWS object key
+  guidelines](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html#object-key-guidelines-safe-characters))
 </Aside>
 
 ## Verify Your Integration
 
-1. Create a test submission through the API or web interface
+1. Create a live submission through the API or web interface (or set **Submission Type** to include test submissions first)
 2. Check your S3 bucket for the uploaded PDF
 3. Check the submission's `actions` array in the API response:
 
@@ -215,10 +215,13 @@ clients/{{ metadata.client_id }}/{{ date }}_{{ submission_id }}.pdf
 {
   "actions": [{
     "action_type": "aws_s3_upload",
-    "state": "processed",  // "pending" before upload completes
+    "state": "processed",  // "pending" before upload completes, "error" if it failed
+    "error_message": null,
     "result_data": {
-      "bucket": "your-bucket",
-      "key": "submissions/sub_123.pdf"
+      "s3_region": "us-east-1",
+      "s3_bucket": "your-bucket",
+      "s3_key": "live/templates/tpl_123/sub_123.pdf",
+      "s3_url": "https://your-bucket.s3.amazonaws.com/live/templates/tpl_123/sub_123.pdf"
     }
   }]
 }
@@ -231,12 +234,16 @@ clients/{{ metadata.client_id }}/{{ date }}_{{ submission_id }}.pdf
 Check if a PDF has been uploaded to S3:
 
 ```javascript
-if (submission["actions"].length === 0) return false;
-const action = submission["actions"].find(
-  (a) => a.action_type === "aws_s3_upload",
-);
-return action && action.state === "processed";
+const pdfHasBeenUploadedToS3Bucket = (submission) => {
+  if (submission["actions"].length === 0) return false;
+  const action = submission["actions"].find(
+    (a) => a.action_type === "aws_s3_upload",
+  );
+  return action && action.state === "processed";
+};
 ```
+
+If the upload fails, the action's `state` is `error` and its `error_message` explains why. Failed uploads are retried automatically.
 
 ### Using AWS S3 Event Notifications
 
@@ -271,7 +278,7 @@ Set up [S3 event notifications](https://docs.aws.amazon.com/AmazonS3/latest/dev/
 
 ### Path Template Errors
 
-- Check that all variables in your templates are valid
+- Unknown or misspelled variables render as empty text instead of causing an error. Check the `s3_key` in the action's `result_data` to see the key that was used
 - Ensure the template syntax is correct (use double curly braces)
 
 ### Region Mismatch
