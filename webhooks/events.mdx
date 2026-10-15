@@ -17,13 +17,14 @@ you want them.
 
 ## Submissions
 
-| Event                  | Description                   |                                        |
-| ---------------------- | ----------------------------- | -------------------------------------- |
-| `submission.processed` | When PDF generation completes | <Badge text="Default" variant="tip" /> |
-| `submission.failed`    | When PDF generation fails     | <Badge text="Default" variant="tip" /> |
-| `submission.created`   | When a submission is created  |                                        |
-| `submission.updated`   | When a submission is updated  |                                        |
-| `submission.expired`   | When a submission expires     |                                        |
+| Event                  | Description                                                  |                                        |
+| ---------------------- | ------------------------------------------------------------ | -------------------------------------- |
+| `submission.processed` | When PDF generation completes                                | <Badge text="Default" variant="tip" /> |
+| `submission.failed`    | When PDF generation fails                                    | <Badge text="Default" variant="tip" /> |
+| `submission.declined`  | When a signer declines to sign, which cancels the submission | <Badge text="Default" variant="tip" /> |
+| `submission.created`   | When a submission is created                                 |                                        |
+| `submission.updated`   | When a submission is updated                                 |                                        |
+| `submission.expired`   | When a submission expires                                    |                                        |
 
 ## Data Requests
 
@@ -31,6 +32,7 @@ you want them.
 | ----------------------------------- | ----------------------------------- | -------------------------------------- |
 | `submission_data_request.viewed`    | When a data request is first viewed | <Badge text="Default" variant="tip" /> |
 | `submission_data_request.completed` | When a data request is completed    | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.declined`  | When a signer declines to sign      | <Badge text="Default" variant="tip" /> |
 | `submission_data_request.updated`   | When a data request is updated      |                                        |
 
 ## Combined Submissions

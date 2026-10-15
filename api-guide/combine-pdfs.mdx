@@ -56,6 +56,8 @@ Uploaded PDF files:
 { "type": "custom_file", "id": "cfi_1234567890abcdef01" }
 ```
 
+Set `delete_custom_files` to `true` to delete these custom files once the merged PDF is ready. They're kept if the merge fails, so you can retry. Other merges can't use them after they're deleted. This needs a live API token.
+
 ### URLs
 
 PDFs from external URLs, up to 500 MB each:

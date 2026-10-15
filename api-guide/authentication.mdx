@@ -18,7 +18,7 @@ Use your API token ID as the username, and the API token secret as the password.
 
 ### Environment Variables
 
-All DocSpring API clients except Java read your credentials from environment variables. Set the following environment variables, and the client will automatically use them:
+All DocSpring API clients read your credentials from environment variables. Set the following environment variables, and the client will automatically use them:
 
 - `DOCSPRING_TOKEN_ID` - Your API token ID
 - `DOCSPRING_TOKEN_SECRET` - Your API token secret
@@ -30,7 +30,14 @@ export DOCSPRING_TOKEN_ID="your_token_id"
 export DOCSPRING_TOKEN_SECRET="your_token_secret"
 ```
 
-Then initialize the client without passing credentials. The Java client doesn't read environment variables, so pass them to it yourself:
+The clients send requests to our US region by default. They also read the region or host:
+
+```bash
+export DOCSPRING_REGION="EU" # US or EU (defaults to US)
+export DOCSPRING_HOST="docspring.yourcompany.com" # For on-premise deployments
+```
+
+Then initialize the client without passing credentials:
 
 <Tabs syncKey="language">
 <TabItem label="Ruby">
@@ -64,13 +71,39 @@ const client = new DocSpring.Client();
 ```
 
 </TabItem>
+<TabItem label="PHP">
+
+```php
+$config = DocSpring\Configuration::getDefaultConfiguration();
+$api = new DocSpring\Api\Client(null, $config);
+```
+
+</TabItem>
 <TabItem label="Java">
 
 ```java
-com.docspring.ApiClient apiClient = com.docspring.Configuration.getDefaultApiClient();
-apiClient.setUsername(System.getenv("DOCSPRING_TOKEN_ID"));
-apiClient.setPassword(System.getenv("DOCSPRING_TOKEN_SECRET"));
-com.docspring.Client api = new com.docspring.Client(apiClient);
+com.docspring.Client api = new com.docspring.Client();
+```
+
+</TabItem>
+<TabItem label="C#">
+
+```csharp
+var api = DocSpring.Client.Client.EnvClientFactory.NewClient();
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```go
+apiClient := client.NewClient("", "")
+```
+
+</TabItem>
+<TabItem label="Elixir">
+
+```elixir
+conn = Docspring.Connection.new()
 ```
 
 </TabItem>

@@ -117,6 +117,15 @@ Add your website's domain to the template's **Embed Domains** setting. The signi
   example above.
 </Aside>
 
+<Aside type="note">
+  With Data Requests JS 2.4.0 or above, the signing form includes a **Decline**
+  button in the header, so a signer can decline at any time. If a signer
+  declines, the whole submission is cancelled and no PDF is generated. Hide the
+  button with `showDecline: false`, rename it with the `declineButtonLabel`
+  option, and handle the event with the `onDecline` callback. See [Declining to
+  Sign](/docs/forms/data-requests/#declining-to-sign).
+</Aside>
+
 ## Web Forms + Data Requests
 
 <LinkCard

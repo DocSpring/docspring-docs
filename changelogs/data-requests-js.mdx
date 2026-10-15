@@ -18,7 +18,26 @@ to collect legally binding electronic signatures and generate signed PDFs.
 
 ## Changelog
 
-### 2.3.7 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.4.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 13, 2026
+</div>
+
+- Added a **Decline** button to the form header, so a signer can decline to sign
+  instead of signing. Declining cancels the whole submission: no PDF is
+  generated, and DocSpring sends the `submission_data_request.declined` and
+  `submission.declined` webhook events. See [Declining to
+  Sign](/docs/forms/data-requests/#declining-to-sign).
+  - `showDecline: false` hides the button.
+  - `declineButtonLabel` changes its label (for example, `"Cancel - Do Not Sign"`).
+  - `onDecline` is called when the signer declines.
+- If you read submissions or data requests with a DocSpring API client, upgrade
+  it before you upgrade to this version. These versions support the new
+  `declined` state: Ruby 3.3.0, Python 3.1.0, PHP 3.1.0, Java 3.1.0 and C# 3.3.0.
+  Older versions of these clients raise an error when they read it.
+
+### 2.3.7
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Aug 28, 2026

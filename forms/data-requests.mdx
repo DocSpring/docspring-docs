@@ -26,6 +26,20 @@ Here is an overview of the process:
 
 This process ensures that DocSpring can record a complete audit trail of events, making all electronic signatures legally binding.
 
+## Declining to Sign
+
+A signer can choose not to sign by clicking the **Decline** button in the form header. The button is shown on the signing page that a data request's `data_request_url` opens, and when you embed the signing form with [Data Requests JS](/docs/forms/js-libraries/data-requests-js/) version 2.4.0 or above. Older versions of Data Requests JS don't show it. In an embedded form, you can hide the button with the `showDecline: false` option, or rename it with the `declineButtonLabel` option (for example, `"Cancel - Do Not Sign"`).
+
+Declining can't be undone:
+
+- The data request moves to the `declined` state, and a `decline_request` event is recorded with the signer's IP address and browser.
+- The **entire submission is cancelled**. It moves to the `declined` state and **no PDF is generated**, even if other signers have already signed.
+- DocSpring sends the `submission_data_request.declined` and `submission.declined` [webhook events](/docs/webhooks/events/).
+
+Once a submission has been declined, its remaining data requests can no longer be opened or signed.
+
+If you read submissions or data requests with a DocSpring [API client](/docs/api-guide/install-api-client/), upgrade it to the latest version. Older versions of the Ruby, Python, PHP, Java and C# clients raise an error when they read the `declined` state.
+
 ## Data Request Components
 
 ### Authentication Requirements

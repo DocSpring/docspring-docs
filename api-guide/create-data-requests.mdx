@@ -9,7 +9,7 @@ import { LinkCard } from "@astrojs/starlight/components";
 
 This feature allows you to request information or signatures from one or more people. When you have a pending data request, you can then redirect your user to a form hosted on docspring.com, embed this form on your website, or send them a link via email.
 
-Once all of the data requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server.
+Once all of the data requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server. If a signer [declines to sign](/docs/forms/data-requests/#declining-to-sign), the submission is cancelled instead and no PDF is generated.
 
 :::tip
 See the [Data Requests](/docs/forms/data-requests/) documentation for more information about how data requests work.
@@ -95,7 +95,8 @@ prove that the SHA256 hashes match the records in your database.
         "order": 0,
         "state": "pending",
         "viewed_at": null,
-        "completed_at": null
+        "completed_at": null,
+        "declined_at": null
       }
     ],
     "download_url": null,
