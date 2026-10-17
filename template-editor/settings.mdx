@@ -65,8 +65,12 @@ Existing legacy webhook URLs on templates and API tokens (shown as **Legacy Webh
 
 ## Slack Webhook URL
 
-[Configure an Incoming WebHook in Slack](https://my.slack.com/services/new/incoming-webhook/),
-and paste the URL into this field. We'll send a message whenever a PDF is generated.
+Posts a message to a Slack channel whenever this template generates a PDF. Each message links to the PDF and to its
+submission. Test PDFs and combined PDFs don't post a message.
+
+To get a URL, create a Slack app with an incoming webhook for the channel
+([Slack's guide](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks)), then paste the webhook URL
+into this field. Messages show your Slack app's name and icon.
 
 ## Redirect URL
 
