@@ -18,7 +18,43 @@ to collect legally binding electronic signatures and generate signed PDFs.
 
 ## Changelog
 
-### 2.4.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.5.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 18, 2026
+</div>
+
+- Fixed the `load_timeout` error (`onError` and the error report) for forms
+  that had loaded. It happened when a page opened more than one form, closed
+  the modal before the form loaded, or removed an inline form before it
+  loaded. Removing a form while it loads no longer reports a `message_timeout`
+  error either.
+- Forms opened with `dataRequestURL` now add the library's version to the URL,
+  as forms opened with `dataRequestId`, `tokenId` and `tokenSecret` do.
+- Fixed pages with more than one form: each form now only handles its own
+  messages, so replies no longer go to the wrong form, and `message_timeout`
+  errors are no longer reported for messages the form did receive.
+- `closeModalOnClickOverlay: false` now applies to its form even when the page
+  opened another form before it.
+- `DocSpring.closeModal()` closes every modal form, and `clearForm`,
+  `submitForm`, `focusField`, `focusNextField`, `setField` and `returnToForm`
+  act on the most recently opened form that is still open.
+- `DocSpring.closeModal()` no longer stops an inline form's callbacks. Before,
+  it removed the most recently opened form's message listener even when that
+  form was inline, so an inline form with `closeModalOnSave: true` never called
+  `onProcessed` or redirected.
+- `onProcessed` is now called when the form redirects to a redirect URL. The
+  redirect follows one second later, so the callback has time to finish, even
+  if `closeModalOnProcessed` closes the modal. Older versions redirect without
+  calling `onProcessed`.
+- On templates with "Public" submission privacy, a signer who isn't the last to
+  sign is now redirected to the redirect URL, one second after
+  `onRemainingDataRequests` is called. Before, the form stopped at a message
+  saying it was waiting for the other signers. If the page closes the form
+  before then (for example to show the next signer's form), the form doesn't
+  redirect. This applies to every 2.x version of Data Requests JS.
+
+### 2.4.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 13, 2026

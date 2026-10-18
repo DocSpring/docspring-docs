@@ -18,7 +18,20 @@ Share this page with your users and they can fill out the form to generate a PDF
 
 ## Changelog
 
-### 2.6.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.6.3 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 18, 2026
+</div>
+
+- When the form redirects after the PDF is processed, it now waits one second
+  after calling `onProcessed`, so the callback has time to finish (for example,
+  an async request) before the page changes. The Submit button stays disabled
+  until the redirect.
+- Fixed the `submission_timeout` error message, which said "60000 seconds"
+  instead of "60 seconds".
+
+### 2.6.2
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 7, 2026

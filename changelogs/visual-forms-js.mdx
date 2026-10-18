@@ -26,7 +26,20 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.11.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.12.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 18, 2026
+</div>
+
+- `onProcessed` is now called when the form redirects to a redirect URL. The
+  redirect follows one second later, so the callback has time to finish.
+- The [string options](/docs/forms/js-libraries/visual-forms-js/#string-options)
+  for the header titles and messages (such as `pdfProcessingTitle` and
+  `completedTitle`) and `footerHTML` now work in embedded visual forms. Before,
+  only data requests used them.
+
+### 2.11.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 18, 2026

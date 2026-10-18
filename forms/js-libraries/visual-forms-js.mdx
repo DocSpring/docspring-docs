@@ -115,11 +115,9 @@ as `DocSpring.region`, `DocSpring.appHost`, `DocSpring.apiHost`, `DocSpring.host
 
 Customize the titles and messages shown in the form. These options can be either a plain string or a function that returns a string.
 
-<Aside type="caution">
-  These options are only used by [Data
-  Requests](/docs/forms/js-libraries/data-requests-js/), where the signing form
-  runs inside an iframe. An embedded visual form ignores them, so it shows the
-  default titles and messages and no custom footer.
+<Aside type="note">
+  An embedded visual form uses these options from version 2.12.0. Older versions
+  ignore them, and show the default titles and messages and no footer.
 </Aside>
 
 | Option                          | Function Arguments                                         | Description                                |
@@ -135,20 +133,20 @@ Customize the titles and messages shown in the form. These options can be either
 
 ### Callbacks
 
-| Callback                     | Parameters                           | Description                                                        |
-| ---------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
-| `onInitialize`               | -                                    | Called when the form has been initialized                          |
-| `onLoad`                     | -                                    | Called when all form pages have been loaded                        |
-| `onClearForm`                | -                                    | Called when the form is cleared                                    |
-| `onFieldFocus`               | `{ id, name, value }`                | Called when a field gains focus                                    |
-| `onFieldBlur`                | `{ id, name, value }`                | Called when a field loses focus                                    |
-| `onFieldChange`              | `{ id, name, value, previousValue }` | Called when a field value changes                                  |
-| `onShowAcceptTerms`          | -                                    | Called when showing the "accept terms" screen                      |
-| `onSubmit`                   | `formData` (object)                  | Called when the form is submitted                                  |
-| `onSave`                     | `submissionId` (string)              | Called when the submission is saved                                |
-| `onProcessed`                | `{ submissionId, downloadURL }`      | Called when the PDF is processed. Not called if the form redirects |
-| `onError`                    | `error`                              | Called if an error occurs                                          |
-| `onPreviewModeButtonClicked` | -                                    | Called when preview mode button is clicked                         |
+| Callback                     | Parameters                           | Description                                                                                                                                                                |
+| ---------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onInitialize`               | -                                    | Called when the form has been initialized                                                                                                                                  |
+| `onLoad`                     | -                                    | Called when all form pages have been loaded                                                                                                                                |
+| `onClearForm`                | -                                    | Called when the form is cleared                                                                                                                                            |
+| `onFieldFocus`               | `{ id, name, value }`                | Called when a field gains focus                                                                                                                                            |
+| `onFieldBlur`                | `{ id, name, value }`                | Called when a field loses focus                                                                                                                                            |
+| `onFieldChange`              | `{ id, name, value, previousValue }` | Called when a field value changes                                                                                                                                          |
+| `onShowAcceptTerms`          | -                                    | Called when showing the "accept terms" screen                                                                                                                              |
+| `onSubmit`                   | `formData` (object)                  | Called when the form is submitted                                                                                                                                          |
+| `onSave`                     | `submissionId` (string)              | Called when the submission is saved                                                                                                                                        |
+| `onProcessed`                | `{ submissionId, downloadURL }`      | Called when the PDF is processed. If the form redirects, the redirect follows one second later (from version 2.12.0; older versions don't call it when the form redirects) |
+| `onError`                    | `error`                              | Called if an error occurs                                                                                                                                                  |
+| `onPreviewModeButtonClicked` | -                                    | Called when preview mode button is clicked                                                                                                                                 |
 
 ## Global Functions
 
@@ -223,7 +221,9 @@ These global functions allow you to interact with the form. Note that only one D
 })`} lang="javascript" title="Advanced configuration" />
 
 If the form has a redirect URL (from the `redirectURL` option or the template's
-settings), it redirects instead, and `onProcessed` is not called.
+settings), it calls `onProcessed` first and redirects one second later, so the
+callback has time to finish. (Before version 2.12.0, the form redirected without
+calling `onProcessed`.)
 
 ### Field Overrides
 

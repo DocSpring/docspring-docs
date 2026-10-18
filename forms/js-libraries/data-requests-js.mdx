@@ -85,7 +85,8 @@ You can pass `dataRequestURL` instead of these three options.
   the thank you message immediately after saving. When it is set to "Public",
   the form waits for the PDF to be processed first. If other data requests on
   the submission still need to be filled in, the PDF isn't generated yet, so the
-  form shows a message saying so and doesn't redirect.
+  form redirects one second after calling `onRemainingDataRequests`, or shows a
+  message saying so if there's no redirect URL.
 </Aside>
 
 ### Region and Custom Host
@@ -131,25 +132,25 @@ Customize the titles and messages shown in the header. These options can be eith
 
 ### Callbacks
 
-| Callback                  | Parameters                           | Description                                                                                                         |
-| ------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `onInitialize`            | -                                    | Called when the form has been initialized                                                                           |
-| `onLoad`                  | -                                    | Called when all form pages have been loaded                                                                         |
-| `onClearForm`             | -                                    | Called after the clear button is pressed and the form is cleared                                                    |
-| `onFieldFocus`            | `{ id, name, value }`                | Called when a field gains focus                                                                                     |
-| `onFieldBlur`             | `{ id, name, value }`                | Called when a field loses focus                                                                                     |
-| `onFieldChange`           | `{ id, name, value, previousValue }` | Called when a field value changes                                                                                   |
-| `onShowAcceptTerms`       | -                                    | Called when the user clicks "Continue" to show the final "Accept Terms" screen                                      |
-| `onDecline`               | -                                    | Called when the user declines to sign. The data request and its submission are cancelled, and no PDF is generated   |
-| `onSubmit`                | `formData` (object)                  | Called when the submit button is pressed                                                                            |
-| `onSave`                  | `{ submissionId }`                   | Called when the form has been saved                                                                                 |
-| `onProcessed`             | `{ submissionId, downloadURL }`      | Called when the PDF has been processed (only if "Submission Privacy" is "Public"). Not called if the form redirects |
-| `onRemainingDataRequests` | `remainingDataRequestsCount`         | Called when other data requests still need to be filled in (only if "Submission Privacy" is "Public")               |
-| `onError`                 | `error`                              | Called if there is an error with the request                                                                        |
+| Callback                  | Parameters                           | Description                                                                                                                                                                                                                                                                  |
+| ------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onInitialize`            | -                                    | Called when the form has been initialized                                                                                                                                                                                                                                    |
+| `onLoad`                  | -                                    | Called when all form pages have been loaded                                                                                                                                                                                                                                  |
+| `onClearForm`             | -                                    | Called after the clear button is pressed and the form is cleared                                                                                                                                                                                                             |
+| `onFieldFocus`            | `{ id, name, value }`                | Called when a field gains focus                                                                                                                                                                                                                                              |
+| `onFieldBlur`             | `{ id, name, value }`                | Called when a field loses focus                                                                                                                                                                                                                                              |
+| `onFieldChange`           | `{ id, name, value, previousValue }` | Called when a field value changes                                                                                                                                                                                                                                            |
+| `onShowAcceptTerms`       | -                                    | Called when the user clicks "Continue" to show the final "Accept Terms" screen                                                                                                                                                                                               |
+| `onDecline`               | -                                    | Called when the user declines to sign. The data request and its submission are cancelled, and no PDF is generated                                                                                                                                                            |
+| `onSubmit`                | `formData` (object)                  | Called when the submit button is pressed                                                                                                                                                                                                                                     |
+| `onSave`                  | `{ submissionId }`                   | Called when the form has been saved                                                                                                                                                                                                                                          |
+| `onProcessed`             | `{ submissionId, downloadURL }`      | Called when the PDF has been processed (only if "Submission Privacy" is "Public"). If the form redirects, the redirect follows one second later, even if `closeModalOnProcessed` closes the modal (from version 2.5.0; older versions don't call it when the form redirects) |
+| `onRemainingDataRequests` | `remainingDataRequestsCount`         | Called when other data requests still need to be filled in (only if "Submission Privacy" is "Public"). If the form redirects, the redirect follows one second later, unless the page closes the form first (for example to show the next signer's form)                      |
+| `onError`                 | `error`                              | Called if there is an error with the request                                                                                                                                                                                                                                 |
 
 ## Global Functions
 
-These global functions allow you to interact with the form. Note that only one DocSpring form can be displayed on a page.
+These global functions allow you to interact with the form. If a page opens more than one form, they act on the most recently opened form that is still open (from version 2.5.0).
 
 | Function                                | Parameters                                                       | Description                                                     |
 | --------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------- |
@@ -159,7 +160,7 @@ These global functions allow you to interact with the form. Note that only one D
 | `DocSpring.focusField(name_or_id)`      | `name_or_id`: Field name or numeric ID                           | Focus a specific field                                          |
 | `DocSpring.setField(name_or_id, value)` | `name_or_id`: Field name or numeric ID<br/>`value`: Value to set | Set the value for a specific field                              |
 | `DocSpring.returnToForm()`              | -                                                                | Return to the form after it has been submitted                  |
-| `DocSpring.closeModal()`                | -                                                                | Close and hide the data request modal                           |
+| `DocSpring.closeModal()`                | -                                                                | Close every data request form shown in a modal                  |
 
 ## Examples
 

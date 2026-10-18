@@ -148,8 +148,8 @@ https://example.com/?submission_id=sub_123&template_id=tpl_123&template_name=My%
 
 - **Private submissions**: Redirects immediately after saving
 - **Public submissions**: Waits for PDF processing before redirecting. If other
-  data requests still need to be filled in, the form shows a waiting message
-  instead of redirecting
+  data requests still need to be filled in, the PDF isn't generated yet, so the
+  form redirects one second after calling `onRemainingDataRequests`
 
 </Aside>
 
