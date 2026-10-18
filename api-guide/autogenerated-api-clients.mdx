@@ -29,6 +29,15 @@ Follow [the installation instructions](https://github.com/OpenAPITools/openapi-g
   lang="bash"
 />
 
+<Aside type="caution">
+  We add new fields and enum values to API responses without releasing a new API
+  version (see [API changes](/docs/api-guide/openapi-schema/#api-changes)). Our
+  schema lists each enum's current values, and some generated clients reject a
+  value they don't know: by default, OpenAPI Generator's C#, Java, PHP, Python
+  and Ruby clients do. Make sure your client accepts unknown enum values, or use
+  one of our [official API clients](/docs/api-guide/install-api-client/).
+</Aside>
+
 ## Supported Languages
 
 OpenAPI Generator supports the following languages:
