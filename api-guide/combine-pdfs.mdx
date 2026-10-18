@@ -118,9 +118,26 @@ The download URL becomes:
 - `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF.
 - `password`: Encrypt the merged PDF with this password.
 
-### Free to Use
+### Credit Usage
 
-Combining PDFs is free, but source submission PDFs count toward your monthly usage.
+Combining PDFs costs **4 credits for each source document**, plus 4 credits
+for each unit of the combined PDF (one unit per 10 pages, for small files and
+light processing). Generating the source PDFs is charged separately. For example,
+combining two existing one-page PDFs costs 12 credits: 8 for the two source PDFs
+plus 4 for the 2-page combined PDF.
+
+Combined PDFs have no test mode. Combining consumes credits even when you use a
+test API token or combine watermarked test PDFs. An insufficient balance can
+pause the combined job and return `402 Payment Required`.
+
+Accounts on a plan purchased before prepaid credits were introduced can still
+combine PDFs without using credits.
+
+<LinkCard
+  title="How Credits Work"
+  href="/docs/billing/how-credits-work/"
+  description="Credit calculations, examples, and what happens when your balance runs out"
+/>
 
 ## Use Cases
 

@@ -1,0 +1,188 @@
+---
+title: How Credits Work
+description: How DocSpring calculates credit costs for generated documents, and what happens when you run out.
+sidebar:
+  order: 2
+---
+
+Credits are consumed when DocSpring processes **live**
+submissions or combines PDFs. Watermarked test submissions and preview PDFs
+are free. Combined PDFs have no test mode: combining consumes credits even with
+a test API token or watermarked source PDFs.
+
+## What a job costs
+
+Each PDF is measured in **units**. One unit covers up to:
+
+| Dimension         | One unit   |
+| ----------------- | ---------- |
+| Pages             | 10 pages   |
+| Template PDF size | 10 MiB     |
+| Measured CPU time | 20 seconds |
+| Output PDF size   | 50 MiB     |
+
+A PDF's size is the **highest** of these, rounded up (not the sum), and at
+least 1 unit, so most PDFs are 1 unit. Size is measured in MiB (1,048,576
+bytes). Template size applies to PDF-template submissions. Processing time and
+template size count where they're measured; memory isn't charged.
+
+Each kind of PDF costs a number of credits per unit:
+
+| PDF                                              | Credits per unit |
+| ------------------------------------------------ | ---------------- |
+| Filled PDF form (a submission to a PDF template) | 20               |
+| PDF from an HTML template                        | 4                |
+| Combined PDF                                     | 4                |
+
+Two charges are added on top:
+
+- **Source PDFs** ([combined PDFs](/docs/api-guide/combine-pdfs/)): 4 credits
+  for each source document. Generating the source PDFs is charged separately.
+- **Signers** (e-signatures): 60 credits for each data request whose signer
+  is asked to sign or initial, whatever the size of the PDF. A data request asks
+  for a signature when its `fields` include a signature or initials field, or,
+  without a `fields` list, when the template has a signature or initials field
+  that your API request didn't fill in. Data requests that only collect values
+  such as text, numbers and dates add nothing. The charge is made with the final
+  live PDF; creating requests, recording events, issuing access tokens, and
+  generating previews have no separate charge.
+
+Retained PDFs have a separate [storage charge](#stored-pdfs) after their first
+30 days.
+
+### Examples
+
+| Job                                     | Credits |
+| --------------------------------------- | ------- |
+| A filled PDF form of up to 10 pages     | 20      |
+| A 45-page filled PDF form               | 100     |
+| A 3-page PDF from an HTML template      | 4       |
+| A 3-page filled PDF form with 2 signers | 140     |
+| Combining 12 one-page PDFs              | 56      |
+
+Combining 12 one-page PDFs costs 48 credits for the source PDFs plus 8 credits
+for the 12-page combined PDF (2 units). What a credit costs depends on your plan
+or credit pack: the [pricing page](https://docspring.com/pricing/#pdf-prices)
+shows the price of each kind of PDF on every plan and pack.
+
+## Stored PDFs
+
+Each completed PDF includes **30 days of storage**, starting when it becomes
+available. After that, storage costs the greater of:
+
+- **1 credit per 50 MiB-month** of stored PDFs; or
+- **1 credit per 50 PDF-months**.
+
+Both components are prorated for the time PDFs are stored during the UTC
+calendar month. We take the higher component, then round up **once for your
+account for that month**. We do not add the two components or round each PDF
+separately. A nonzero monthly total can therefore cost one credit even if you
+store less than 50 MiB and fewer than 50 PDFs.
+
+For example, after the included 30 days:
+
+| Storage retained for a whole month | Monthly credits |
+| ---------------------------------- | --------------- |
+| 1,000 PDFs totalling 500 MiB       | 20              |
+| 1,000 PDFs totalling 5 GiB         | 103             |
+| 250,000 PDFs totalling 100 GiB     | 5,000           |
+
+Retaining 1,000 PDFs totalling 500 MiB for half a month costs 10 credits. PDFs
+expired within their first 30 days have no storage charge.
+
+The same rates and included period apply on **every plan, including Developer**.
+Generated PDFs and combined PDFs are measured as separate retained files. A
+combined PDF's source submissions count separately while you keep them. Normal
+watermarked test submissions, previews, templates and temporary processing files
+have no storage charge. Combining has no test mode, so retaining a combined PDF
+can incur storage charges even when its sources were watermarked.
+
+Storage charges are collected from your credit balance after the month ends,
+independently of your subscription renewal date. Developer accounts use the same
+schedule without needing a Stripe subscription. Spending credits on storage does
+not create another payment invoice.
+
+### If storage credits are due
+
+If your unreserved balance cannot cover the whole storage charge, we keep your
+PDFs and show the credits due in Billing. We email your billing email address and give
+you **seven days** to add credits before new live PDF jobs pause. Already admitted
+jobs can finish; downloads, expiration controls, watermarked test PDFs and previews
+remain available. Funding pays outstanding storage charges before admitting more
+live work, and waiting submissions resume automatically.
+
+Automatic top-up can fund storage charges when enabled, using your chosen pack
+and spending cap. Storage never enables automatic top-up for you. An unpaid
+storage charge can trigger an opted-in purchase even above your usual threshold.
+
+Storage continues to accrue during the grace period and while live jobs are
+paused. **Expire PDFs you no longer need to stop future storage charges.**
+Expiration does not erase charges for storage already used. Cancelling a paid
+subscription does not turn off storage billing or automatic top-up.
+
+### If storage stays unpaid
+
+We don't keep PDFs indefinitely while their storage is unpaid. If storage
+credits are still due **90 days** after live jobs paused, we delete your stored
+PDFs that are past their included 30 days of storage, together with their
+submission data. Your account, templates and newer PDFs are not affected, and
+the storage charge already owed stays due until you add credits.
+
+We email your billing email address **30 days** and again **7 days** before the
+deletion date, which is also shown in Billing. Adding enough credits to pay the
+storage charge at any point before then cancels the deletion.
+
+## Credit expiry and rollover
+
+- **Monthly plan credits** (Starter, Growth, Scale) roll over for **12
+  months**, so occasional busy months are covered by quieter ones.
+- **Purchased credit packs** also expire after **12 months**.
+- **Developer plan credits** (the free monthly grant) don't roll over. They
+  reset with each monthly grant.
+
+Credits are always spent **oldest expiry first**. The **Billing** page shows the
+next credits to expire, and its Usage tab lists every upcoming expiry date.
+When at least 200 credits from a subscription, credit pack, plan upgrade or
+courtesy grant will expire within 30 days, we email your billing email address
+once about them. Free Developer credits are not included because they reset every
+month.
+
+## Low-credit warnings
+
+When your balance drops below the greater of **20% of your monthly allowance or
+100 credits**, we queue an email to your billing email address immediately. We send one
+warning while the balance stays low. Adding enough credits resets the warning
+for the next drop. If your balance recovers before the email is sent, we skip it.
+
+Warnings are suppressed while automatic top-up can recover the balance. If
+top-up has reached its spending cap or requires your attention, low-credit
+warnings remain enabled.
+
+## What happens when you run out
+
+When your balance can't cover a live job (at least one unit of it, plus 60
+credits for each signer or 4 for each source PDF), or storage credits are
+overdue:
+
+- New **live** PDF generation pauses. API requests return
+  `402 Payment Required` and the submission is saved in the
+  `insufficient_credits` state, and nothing is lost.
+- Paused submissions show as **Waiting for Credits** and resume automatically
+  once enough credits are available (buy a pack, enable auto top-up, or receive
+  your next monthly grant). A submission resumes once your balance covers at
+  least one unit of it, plus 60 credits for each signer (or 4 credits for each
+  source PDF of a combined PDF); a larger PDF can need more. A PDF that has
+  already rendered becomes available once your balance covers it.
+- Work waits up to **30 days** from when it first ran out of credits. After
+  that it isn't processed: the dashboard shows **Not processed** and the API
+  reports the `error` state. You can discard waiting work with **Discard
+  waiting submissions** on the **Billing** page, or from a submission's page.
+- No webhook is sent when work starts waiting. When it expires or is discarded,
+  DocSpring sends the `submission.failed` (or `combined_submission.failed`)
+  webhook.
+- **Test** submissions keep working, so development is never interrupted.
+
+See [Credits & Rate Limits in the API guide](/docs/api-guide/credits-and-rate-limits/)
+for how to handle these responses in your integration, and
+[Credit Packs & Auto Top-ups](/docs/billing/credit-packs-and-auto-topup/) for
+keeping your balance topped up automatically.

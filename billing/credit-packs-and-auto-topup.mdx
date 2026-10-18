@@ -1,0 +1,77 @@
+---
+title: Credit Packs & Auto Top-ups
+description: Buy one-time credit packs and configure automatic top-ups when your balance runs low.
+sidebar:
+  order: 3
+---
+
+If you need more credits than your plan's monthly allowance, you can buy
+one-time **credit packs** or enable **automatic top-ups**. Both are available
+on every plan (including the free Developer plan) from the **Billing** page.
+
+## Credit packs
+
+Credit packs are one-time purchases charged to your saved payment method:
+
+| Pack sizes                                                                  |
+| --------------------------------------------------------------------------- |
+| 5,000 · 10,000 · 20,000 · 100,000 · 200,000 · 1,000,000 · 2,000,000 credits |
+
+Larger packs have a lower price per credit. The
+[pricing page](https://docspring.com/pricing/#pdf-prices) shows each pack's
+price and what each kind of PDF costs with it. Pack
+credits expire after **12 months** and are spent alongside your plan credits
+(oldest expiry first). Every purchase gets a PDF invoice and email receipt.
+
+## Automatic top-ups
+
+Auto top-up buys a credit pack when your balance runs low. It helps avoid pauses,
+but generation can still wait for payment, card verification, or your spending
+cap to reset. You configure:
+
+- **Threshold**: top up when the balance falls below this many credits.
+- **Pack size**: which credit pack to purchase.
+- **Monthly cap** (optional): a spending limit; top-ups stop for the month
+  when another pack would exceed the cap. Pending purchases reserve their cost
+  against the cap, and payments count in the calendar month they're paid, which
+  starts at midnight on the 1st in your account's time zone (set in
+  **Account Settings**).
+
+Turn it on from **Automatic top-up** on the **Billing** page, or
+when you first subscribe to a paid plan: tick **Top up automatically when my
+credits run low** in the plan dialog. It's off unless you tick it, and the
+suggested monthly cap can be changed or cleared.
+
+Top-ups trigger proactively as credits are consumed, before you hit zero. If a
+large job does empty your balance, the paused job also triggers a top-up and
+resumes automatically once enough credits are available. An outstanding purchase
+is recovered using the same invoice rather than creating another charge.
+
+:::note[Payment failures]
+If payment is declined or needs verification, open the outstanding invoice from
+the alert at the top of the **Billing** page (or its **Invoices** tab) to
+complete payment. Automatic top-up waits for that
+purchase to resolve before buying another pack; it does not automatically retry
+charging an open invoice, even after you save a new card. Complete that invoice
+manually; automatic purchases resume after it is paid or voided.
+
+Temporary errors while preparing or checking a purchase are retried every
+10 minutes. After three consecutive recovery failures, these checks pause for
+12 hours. Declined payments and invoices requiring verification wait for your
+action instead of being polled repeatedly. Purchases marked uncollectible or
+needing support review must be resolved before automatic purchasing can resume.
+Your account itself is not suspended.
+
+We email your billing email address when these recovery checks pause or a purchase
+needs support review. The notice explains the current state and what to do next;
+a recovery error does not necessarily mean your card was declined. If you need
+credits before the issue is resolved, contact support so we can check the
+existing purchase before you start another one.
+:::
+
+## Unfinished manual purchases
+
+An unfinished manual purchase is reused when you review the same pack again.
+Complete its invoice before choosing another pack; contact support if it should
+be cancelled. Changing your saved card does not retry an already-attempted payment.
+After the credits are added, you can purchase another pack.

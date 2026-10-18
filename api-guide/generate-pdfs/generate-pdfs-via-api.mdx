@@ -29,7 +29,7 @@ Every submission must include:
 
 Optional parameters:
 
-- `test`: Use `true` for free, watermarked PDFs while building your integration. Defaults to `false`.
+- `test`: Use `true` for free, watermarked PDFs while building your integration. Defaults to `false`. Live PDFs use [credits](/docs/billing/how-credits-work/); a request your balance can't cover returns `402` ([Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
 - `metadata`: Map of values you want echoed back in webhooks.
 - `version`: Choose `draft`, `latest` (the default), or a specific version such as `1.2.3`.
 - `editable`: Keep the resulting PDF fillable or flatten the form fields. See [Editable PDFs](#editable-pdfs).

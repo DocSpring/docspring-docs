@@ -1,0 +1,184 @@
+---
+title: Billing & Credits Overview
+description: How DocSpring plans, credits, and billing work.
+sidebar:
+  order: 1
+  label: Overview
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+DocSpring uses a prepaid credit system. Every plan includes a monthly credit
+allowance, and generating documents consumes credits based on the work
+involved. This page explains the plans; see
+[How Credits Work](/docs/billing/how-credits-work/) for the credit cost model.
+
+:::note[Plans purchased before prepaid credits]
+Accounts on a subscription plan purchased before prepaid credits were introduced
+keep their existing pricing, monthly PDF allowance, and API rate limits. The
+credit rules described here apply to the current plans. To move to a current
+plan, contact [support@docspring.com](mailto:support@docspring.com).
+:::
+
+## Plans
+
+Plans differ in monthly credits, API rate limits, support level, and a few
+features:
+
+| Feature                                   | Developer          | Starter             | Growth                | Scale                    |
+| ----------------------------------------- | ------------------ | ------------------- | --------------------- | ------------------------ |
+| Templates                                 | 10                 | 25                  | Unlimited             | Unlimited                |
+| Users                                     | 2                  | 10                  | Unlimited             | Unlimited                |
+| Data requests and e-signatures            | Test mode only     | Yes                 | Yes                   | Yes                      |
+| Embedded template editor                  | No                 | Yes                 | Yes                   | Yes                      |
+| Hosted forms                              | DocSpring branding | Unbranded           | Unbranded             | Unbranded                |
+| Embedded forms, HTML templates, test PDFs | Yes                | Yes                 | Yes                   | Yes                      |
+| HIPAA Business Associate Agreement (BAA)  | No                 | Yes                 | Yes                   | Yes                      |
+| Unused credits                            | Reset monthly      | Roll over 12 months | Roll over 12 months   | Roll over 12 months      |
+| Support                                   | Documentation      | Email & chat        | Priority email & chat | Slack channel & priority |
+
+Pending invitations count toward the user limit.
+
+If your account moves to a plan with lower limits (for example after a
+downgrade), your existing templates and users keep working; you can't add more
+until you're within the new limits. API requests for a feature your plan
+doesn't include return `403 Forbidden` with `"code": "upgrade_required"`.
+
+| Plan          | Monthly credits      | Live API rate limit | Test API rate limit |
+| ------------- | -------------------- | ------------------- | ------------------- |
+| **Developer** | 200 (free)           | 10/min (burst 20)   | 5/min (burst 15)    |
+| **Starter**   | 10,000 or 20,000     | 60/min (burst 120)  | 5/min (burst 15)    |
+| **Growth**    | 50,000 or 100,000    | 120/min (burst 240) | 5/min (burst 15)    |
+| **Scale**     | 200,000 – 10,000,000 | 300/min (burst 600) | 5/min (burst 15)    |
+
+See [What each PDF costs](https://docspring.com/pricing/#pdf-prices) for each
+plan's and pack's price per PDF.
+Each paid plan offers a choice of credit tiers, so you can pick the monthly
+allowance that matches your volume.
+
+:::tip[The free Developer plan is for building]
+Integrations can take weeks or months to build. On the Developer plan you can
+build and test data requests and e-signatures in test mode, then subscribe when
+you go live. Watermarked test submissions and preview PDFs don't consume
+credits. Combining PDFs consumes credits even with a test API token or
+watermarked source PDFs; combined jobs have no test mode.
+:::
+
+## Starting out
+
+You start on the free Developer plan with 200 credits per month, enough for 10
+filled PDF forms. The plan has no time limit.
+
+You can try a paid plan's features (more templates and team members, live data
+requests and e-signatures, the embedded template editor and unbranded hosted
+forms) free for 14 days, without a card. A trial keeps the Developer plan's
+credits. It starts when you choose a paid plan at signup, or from **Choose a
+plan** on the **Billing** page. Each account gets one trial, and an account
+that has had a paid plan can't start one. When it
+ends, your account has the Developer plan's features again: nothing is deleted,
+and templates or team members over its limits keep working, but you can't add
+more until you subscribe.
+
+When you're ready for more credits, subscribe to a paid plan from the
+**Billing** page (only the account owner can subscribe): add a card, then
+select **Choose a plan** and pick your plan and credit tier. Your subscription
+starts once the first payment succeeds. If the payment needs card
+verification, complete it using the payment link; your free plan remains active
+until then. If you chose a paid plan at signup, the billing
+page shows a prompt to finish setting it up whenever you're ready.
+
+Your subscription renews monthly and can be changed or cancelled at any time. If
+you cancel, or if a renewal payment ultimately fails, your account moves back
+to the free Developer plan. Nothing is deleted and your account is never
+suspended.
+
+### Nonprofits
+
+Registered nonprofits and charities get the Starter plan free, with no card.
+Email [support@docspring.com](mailto:support@docspring.com) from your account's
+email address with proof of your status. See
+[DocSpring for nonprofits](https://docspring.com/nonprofits) for who qualifies
+and what to include.
+
+## Changing plans
+
+You can change your plan or credit tier at any time with **Change plan** on the
+**Billing** page:
+
+- **Upgrades** take effect once payment succeeds. You're charged a prorated amount for
+  the remainder of the billing period, and a matching prorated share of the
+  credit difference between your old and new tier is added to your balance as
+  soon as the payment succeeds. The new tier's full allowance starts at your
+  next renewal. A declined payment or pending card verification leaves your
+  current plan active.
+- **Downgrades** apply the lower plan's limits and support immediately, with no
+  partial refund. The lower price and monthly credit allowance take effect from
+  your next billing cycle, and credits you've already received keep their
+  original expiry.
+- **Cancelling** (under **Billing settings**) keeps your paid plan active until the end of the current
+  billing period, then moves your account to the free Developer plan. Your
+  unexpired credits stay in your account. Automatic top-up is controlled
+  separately and remains enabled if you have opted in.
+- Choosing another plan removes a scheduled cancellation, even if the upgrade
+  payment still needs verification. Use **Keep subscription** to undo cancellation
+  without changing your plan.
+
+## Managing billing
+
+The **Billing** page has four tabs:
+
+- **Overview**: your credit balance and next expiry, your plan and its limits,
+  automatic top-up and your payment method. Buy
+  [credit packs](/docs/billing/credit-packs-and-auto-topup/), change your plan or
+  set up [automatic top-ups](/docs/billing/credit-packs-and-auto-topup/#automatic-top-ups)
+  from here.
+- **Usage**: the monthly [credit usage report](#credit-usage-reports), upcoming
+  credit expiry dates and stored PDFs.
+- **Invoices**: every payment, with links to view or download each invoice.
+- **Billing settings**: payment methods, your business billing address and
+  VAT / tax ID for invoices, your billing email (the address that receives
+  invoices and billing emails; the account owner's email unless you set
+  another), cancelling your subscription, and deleting your account. To stop
+  paying without losing anything, cancel your subscription: your account moves
+  to the free Developer plan and keeps its templates, PDFs and unexpired
+  credits. Deleting your account removes access and forfeits unused credits.
+
+Problems that need attention, such as a failed payment, an unpaid purchase or
+work waiting for credits, appear at the top of every tab and on your dashboard.
+Team members can see the Overview and Usage tabs; only the account owner can
+make changes.
+
+## Stored PDFs
+
+Every PDF includes 30 days of storage. After that, monthly storage costs the
+greater of 1 credit per 50 MiB-month or 1 credit per 50 PDF-months, prorated for
+time stored and rounded up once per account per UTC calendar month. These rates
+also apply on Developer. Storage uses your credit balance independently of
+subscription renewals.
+
+<LinkCard
+  title="Storage charges and payment grace period"
+  href="/docs/billing/how-credits-work/#stored-pdfs"
+  description="See the storage calculation, included retention, examples, and what happens when credits are due."
+/>
+
+## Credit usage reports
+
+Open the **Usage** tab on the **Billing** page (also linked from your dashboard) to
+see monthly credit usage.
+Choose a month to view daily totals, generation/merge/data-request/storage
+breakdowns, usage by template, and individual charge history. Download the
+selected activity as CSV. Months and charge timestamps use UTC.
+
+The account credit statement shows allowances, pack purchases, consumption,
+expiry, refunds and adjustments separately. It explains changes in credits;
+invoices remain your payment history. Reports update in the background and
+show when recent activity is still being added.
+
+Storage details show the month the storage was used and any amount still due.
+A storage debit appears in credit activity when those credits are actually
+collected, which can be in the following month. An unpaid assessment is not
+counted as credits already spent.
+
+Stored-PDF totals update daily. Credit activity updates in the background as
+credits are added or spent; recent activity can take a short time to appear.

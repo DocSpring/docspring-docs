@@ -1,0 +1,49 @@
+---
+title: REST API
+description: Changes to the DocSpring REST API that can affect your integration
+sidebar:
+  order: 0
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+Changes to the REST API's responses, states and limits. Changes to the API
+clients are listed in each client's own changelog.
+
+<LinkCard
+  title="Credits & Rate Limits"
+  href="/docs/api-guide/credits-and-rate-limits/"
+  description="How to handle 402, 403 and 429 responses in your integration"
+/>
+
+## Changelog
+
+### October 2026
+
+These changes apply to accounts on the current plans (Developer, Starter,
+Growth and Scale), except the `account_suspended` change, which applies to
+every account. Accounts on a plan purchased before prepaid credits keep their
+existing pricing and API rate limits.
+
+- Submissions and combined submissions have a new state,
+  `insufficient_credits`: a live PDF your credit balance can't cover is saved
+  and resumes automatically when you add credits. Work that is still waiting
+  after 30 days, or that you discard, moves to `error`, and DocSpring sends the
+  `submission.failed` or `combined_submission.failed` webhook. No webhook is
+  sent when work starts waiting.
+- Creating a submission, batch or combined submission that your balance can't
+  cover returns `402 Payment Required` with `"code": "insufficient_credits"`
+  and the saved submission in the body. Synchronous requests return `402` too.
+- Requests that need a higher plan (adding templates over your plan's limit,
+  live data requests, the embedded template editor) return `403 Forbidden` with
+  `"code": "upgrade_required"`. Nothing is saved.
+- Creating submissions, batches or combined PDFs on a suspended account returns
+  `403 Forbidden` with `"code": "account_suspended"`. Nothing is saved.
+- API requests are limited per account by plan, with separate limits for live
+  and test API tokens. Responses include `RateLimit-Limit`,
+  `RateLimit-Remaining` and `RateLimit-Reset`, and requests over the limit get
+  `429 Too Many Requests` with `Retry-After`.
+- If you use a DocSpring [API client](/docs/api-guide/install-api-client/),
+  upgrade it to the latest version. Older versions of the Ruby, Python, PHP,
+  Java and C# clients raise an error when they read the `insufficient_credits`
+  state.

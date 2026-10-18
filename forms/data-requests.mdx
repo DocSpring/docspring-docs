@@ -40,6 +40,25 @@ Once a submission has been declined, its remaining data requests can no longer b
 
 If you read submissions or data requests with a DocSpring [API client](/docs/api-guide/install-api-client/), upgrade it to the latest version. Older versions of the Ruby, Python, PHP, Java and C# clients raise an error when they read the `declined` state.
 
+## Credit Usage
+
+The final live PDF costs its own generation credits plus **60 credits for
+each data request that asks its signer to sign or initial**. Data requests that
+only collect values, such as text, numbers and dates, add nothing: you pay only
+for the PDF. There is no
+separate charge for creating a
+request, issuing access tokens, recording events, or generating previews.
+Watermarked test submissions are free.
+
+Live data requests need the Starter plan or higher. On the free Developer plan
+you can create them in test mode ([Plans](/docs/billing/#plans)).
+
+<LinkCard
+  title="How Credits Work"
+  href="/docs/billing/how-credits-work/"
+  description="Credit calculations and examples for signed PDFs"
+/>
+
 ## Data Request Components
 
 ### Authentication Requirements

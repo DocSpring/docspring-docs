@@ -26,6 +26,11 @@ you want them.
 | `submission.updated`   | When a submission is updated                                 |                                        |
 | `submission.expired`   | When a submission expires                                    |                                        |
 
+No event is sent when a live submission starts waiting for credits (the
+`insufficient_credits` state). If it's still waiting after 30 days, or you
+discard it, it moves to `error` and DocSpring sends `submission.failed`. See
+[Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/#insufficient-credits-http-402).
+
 ## Data Requests
 
 | Event                               | Description                         |                                        |
@@ -42,6 +47,9 @@ you want them.
 | `combined_submission.processed` | When combined PDF generation completes | <Badge text="Default" variant="tip" /> |
 | `combined_submission.failed`    | When combined PDF generation fails     | <Badge text="Default" variant="tip" /> |
 | `combined_submission.expired`   | When a combined submission expires     |                                        |
+
+Combined submissions that wait for credits work the same way: no event when they
+start waiting, and `combined_submission.failed` if they expire or are discarded.
 
 ## Submission Batches
 

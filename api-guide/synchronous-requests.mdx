@@ -12,6 +12,12 @@ The DocSpring API supports both synchronous and asynchronous API requests.
 - **Synchronous API requests** make it much easier to integrate DocSpring with your application. When you make a synchronous API request, the API will wait until the PDF is generated before returning a `201` response with the `download_url`.
 - **Asynchronous requests** are useful when generating a PDF takes a long time, or when you want to generate a PDF in the background. When you make an asynchronous request, the API will return a `201` response immediately, and you can check the status of the request later.
 
+A synchronous create request returns `201` whether the PDF was generated or processing failed. Check the response's `status` field (`success` or `error`) and the submission's `state`. The one exception is running out of credits, which returns `402 Payment Required` (see [Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
+
+A synchronous batch returns `402` as soon as any submission in it is waiting for credits, even if other submissions in the batch were already processed and charged. Check each submission's `state` in the response, and don't resubmit the batch: the waiting submissions resume automatically once you add credits.
+
+A synchronous `GET` for a submission that is still pending waits for it to finish, then returns `200`, `400` or `402` based on the final state. A `GET` for a submission that has already finished returns `200` with its current `state`, including `error` or `insufficient_credits`.
+
 <Aside type="tip">
   We recommend using the `sync.api.docspring.com` subdomain for all API
   requests. The synchronous subdomain supports **all API endpoints**, so you can

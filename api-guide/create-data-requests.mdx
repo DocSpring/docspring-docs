@@ -11,6 +11,23 @@ This feature allows you to request information or signatures from one or more pe
 
 Once all of the data requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server. If a signer [declines to sign](/docs/forms/data-requests/#declining-to-sign), the submission is cancelled instead and no PDF is generated.
 
+Live data requests (and e-signatures) need the Starter plan or higher. On the
+free Developer plan you can create data requests in test mode while you build
+your integration, or start a free 14-day trial of a paid plan from the
+**Billing** page, with no card needed. Without a trial, a live request on the
+Developer plan returns `403 Forbidden` with `"code": "upgrade_required"` and nothing is saved.
+
+Each data request that asks its signer to sign or initial adds **60 credits**
+to the final live PDF's cost. Data requests that only collect values add
+nothing: you pay only for the PDF. Creating data requests, issuing access tokens, and recording events
+have no separate charge. Watermarked test submissions and previews are free.
+
+<LinkCard
+  title="How Credits Work"
+  href="/docs/billing/how-credits-work/"
+  description="Credit costs for PDF generation and data requests"
+/>
+
 :::tip
 See the [Data Requests](/docs/forms/data-requests/) documentation for more information about how data requests work.
 :::

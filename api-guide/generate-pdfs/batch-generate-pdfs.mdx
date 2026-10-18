@@ -101,7 +101,7 @@ When you add `?wait=false` to the request URL, the API responds straight away, a
 
 You can then check the batch with `GET /api/v1/submissions/batches/{submission_batch_id}?include_submissions=true` until its `pending_count` is `0`, or listen for the batch webhooks. DocSpring sends `submission_batch.processed` when every PDF has been generated, or `submission_batch.failed` instead if any of them failed.
 
-If any entry fails validation, DocSpring doesn't generate any of the PDFs in the batch. The API responds straight away with HTTP status `200` and `"status": "error"`, using the same wrapped items. Valid entries have `"status": "valid_but_not_saved"`, and invalid entries have `"status": "error"` with a list of `errors`. Fix the invalid entries and send the whole batch again.
+If any entry fails validation, DocSpring doesn't generate any of the PDFs in the batch. The API responds straight away with HTTP status `200` and `"status": "error"`, using the same wrapped items. Valid entries have `"status": "valid_but_not_saved"`, and invalid entries have `"status": "error"` with a list of `errors`. A live entry your credit balance couldn't cover also has `"status": "error"`, with an `error` saying it wasn't saved. Nothing in the batch is saved, so fix the invalid entries (and add credits if any entry needed them), then send the whole batch again.
 
 Some problems are reported with a `4xx` status and a single `error` message instead, such as more than 50 entries, an unknown template ID, or an entry without a `data` object.
 
@@ -110,6 +110,7 @@ Some problems are reported with a `4xx` status and a single `error` message inst
 - **Up to 50 submissions** per batch request.
 - **Mix templates freely** – each item can target a different template.
 - **Test vs. live mode** – set `test` per submission.
+- **Credits** – live PDFs use [credits](/docs/billing/how-credits-work/). If your balance runs out partway, the batch returns `402` and the blocked submissions wait for credits, then resume automatically. Don't resend the batch: check each submission's `state` instead ([Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
 - **Back pressure** – prefer batch requests when generating many documents to avoid hitting rate limits with individual calls.
 - **Webhooks** – enable webhooks if you need to know when asynchronous submissions finish processing.
 
