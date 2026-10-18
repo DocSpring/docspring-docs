@@ -26,7 +26,25 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.10.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.11.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 18, 2026
+</div>
+
+- Date fields show the date the PDF will print. Dates sent as NN/NN/YYYY are
+  read day first, or in the order of the template's date format when the
+  template's **Parse Dates Using the Template's Date Format** setting is on.
+  Before, the form read them month first and could show a different date from
+  the PDF.
+- The date picker shows dates in the template's default date format when the
+  field has no format of its own, as the PDF does.
+- Dates sent as YYYY-MM-DD no longer show as the day before in time zones
+  behind UTC.
+- Static date fields show their default value as written, as the PDF prints
+  it. Before, the form reformatted it as a date.
+
+### 2.10.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 16, 2026

@@ -42,6 +42,18 @@ _PDF templates only._ When checked, audit trail pages are appended to the genera
 
 _PDF templates only._ When checked, the submission ID is added to the bottom right corner of each page when a submission has data requests.
 
+## Parse Dates Using the Template's Date Format
+
+_PDF templates only._ This setting is in the sidebar on the right, under the default date formats (**Parse Dates**).
+
+We recommend sending date values as `YYYY-MM-DD` (see [Date](/docs/reference/field-data-types/#date)). Dates sent as numbers like `05/07/2024` (with slashes, dashes or dots) are read day first by default, so `05/07/2024` is July 5, and a date like `05/13/2024` can't be read and is left blank.
+
+When **Parse Dates** is checked, these dates are read in the same order as the template's default **Date** format: month first for `%m/%d/%Y`, and day first for `%d/%m/%Y`. Fields that include a time use the default **Date/Time** format. Dates sent as `YYYY-MM-DD` are read the same way either way.
+
+Each template version keeps its own setting. If your template has published versions, publish a new version after changing it: API submissions use the latest published version by default (see [Template Versions](/docs/template-editor/versions/)).
+
+You can also set this for new templates in your account's template settings, and change it with the `parse_dates_using_template_date_format` option in the [templates API](/docs/api/#tag/templates).
+
 ## HTML Page Settings
 
 HTML templates have **Page Format**, **Page Size**, **Page Margins**, and **Print Background** settings. See [Page Settings](/docs/html-templates/overview/#page-settings).
