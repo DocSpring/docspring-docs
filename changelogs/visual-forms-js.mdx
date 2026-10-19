@@ -26,7 +26,24 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.12.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.15.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 18, 2026
+</div>
+
+- New global functions: `DocSpring.getFormData()` returns the values entered in
+  the form, and `DocSpring.setFormData(data)` replaces them. Fields that `data`
+  leaves out go back to their default values. Static fields, and fields set with
+  `staticFormData`, keep their values.
+- New `metadata` option: an object that is saved with the submission.
+- The `test` option can be a function, called when the form is submitted.
+- A form inside a hidden element no longer handles key presses or measures its
+  fields. After you show it, send a window `resize` event so it measures them.
+- The Tab key moves to the form's next field only while the focus is in the form
+  (or nowhere on the page), so it can still reach the rest of the page.
+
+### 2.12.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 18, 2026

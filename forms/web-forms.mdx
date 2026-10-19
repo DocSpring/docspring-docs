@@ -20,6 +20,27 @@ Web forms support [conditional logic](/docs/template-editor/conditional-logic/):
   "Web Forms" to differentiate it from "Visual Forms".
 </Aside>
 
+## Web Form, Visual Form or Both
+
+The online form link (`/templates/<template_id>/form`) can show the web form, the
+[visual form](/docs/forms/visual-forms/), or both in two tabs, **Form** and **PDF**. With both, the values entered in one
+tab are copied to the other when the user switches, and the user can submit from either tab.
+
+The template's [Online Form](/docs/template-editor/settings/#online-form) setting picks the mode, and the `mode` query
+param overrides it:
+
+| Query Param    | Shows             |
+| -------------- | ----------------- |
+| `?mode=web`    | The web form      |
+| `?mode=visual` | The visual form   |
+| `?mode=dual`   | Both, in two tabs |
+
+The page shows the template's name at the top, with its
+[description](/docs/template-editor/settings/#template-description) below it. HTML templates always show the web form.
+
+The [query params](#query-params) below work in every mode, except that the visual form can't hide fields: a link with
+`hidden_fields` shows the web form, unless it asks for the visual form with `?mode=visual`.
+
 ## Configure Template Privacy Settings
 
 First, you will need to go to your template's settings and make sure that "Online Form Privacy"
@@ -111,6 +132,13 @@ https://app.docspring.com/templates/tpl_1234567890abcdef01/form?data[person][][n
 <Aside type="caution">
   If you hide a required field without passing a default value, you will get a
   validation error and you will not be able to generate a PDF.
+</Aside>
+
+<Aside type="note">
+  The visual form can't hide fields, so a link with `hidden_fields` shows the
+  web form, even when the template's Online Form setting is the visual form or
+  both. A link with `?mode=visual` still shows the visual form, with every
+  field.
 </Aside>
 
 ### Template Version
