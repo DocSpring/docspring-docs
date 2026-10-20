@@ -74,6 +74,15 @@ setting: they have no visual form, so they always show the web form.
 You can also set this in your account's template settings, for new templates and, with **Update Templates**, for
 existing ones. HTML templates stay on the web form either way.
 
+## Show Continue Once Required Fields Are Filled In
+
+_PDF templates only._ Visual forms and data requests have a **Next** button that takes the user through each field in
+turn. By default, while the user is in a field, the **Continue** button only replaces it once every field has a value
+or has been visited. Check
+this setting to show **Continue** as soon as every required field is filled in, so users can skip the optional
+fields. The `allowSkippingOptionalFields` option of [Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) and
+[Data Requests JS](/docs/forms/js-libraries/data-requests-js/) overrides this setting either way.
+
 ## Submission Privacy
 
 Set this to **Public** to allow anyone to view submission data and download their PDF if they have the URL.

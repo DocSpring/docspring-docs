@@ -55,6 +55,67 @@ Configure where users go after form submission:
 1. Set in template settings as default
 2. Override with the `redirectURL` option when embedding the form
 
+### Show Continue Once Required Fields Are Filled In
+
+The form header has a **Next** button that takes the user through each field in turn. By default, while the user is in
+a field, the **Continue** button only replaces it once every field has a value or has been visited. To let users skip
+the optional fields, check
+**Show Continue Once Required Fields Are Filled In** in the template's settings. **Continue** then appears as soon as
+every required field is filled in. You can also set it with the `allowSkippingOptionalFields` option when embedding
+the form, which overrides the template setting either way. Embedded visual forms use the setting and the option with
+[Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) version 2.16.0 or above.
+
+### Required Field Color
+
+Visual forms and data requests highlight every field the user can fill in with the same translucent blue, and mark
+required fields with an asterisk. To make required fields stand out, open the template's settings in the template
+editor and pick a **Required Field Color** under **Visual Form Defaults**, in the sidebar on the right. Required fields
+are then highlighted in that color instead, including fields that
+[conditional logic](/docs/template-editor/conditional-logic/) makes required.
+
+- The highlight stays see-through, so the PDF is still visible underneath.
+- It never appears in the generated PDF.
+- A field with a background color keeps that color, and a field with an error is still shown in red. This includes
+  the template's default **Background Color**: when it's set, text fields show it instead of the required field
+  color.
+- To use the color for new templates, set **Required Field Color** under **Visual Form Defaults** on your account's
+  Template Settings page. Use **Update Templates** on that page to apply it to existing templates.
+
+Embedded visual forms show it with [Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) version 2.16.0 or above.
+
+## Clearing Optional Fields
+
+While someone is in a field, it keeps showing its value (its default value, `defaultFormData` value or formula result),
+and they edit it as in any form. They can clear an optional field, or uncheck the selected option of an optional radio
+button group, and it's left empty in the PDF. A required field that someone clears gets its default value back when they leave it.
+
+A text, number, email or URL field that someone has changed shows a ↺ button while it's focused or the mouse is over
+it. The button puts back what the field showed before they changed it: its default value, its `defaultFormData` value,
+its value from the submission, or what its [formula](/docs/template-editor/formulas/) calculates now. **Tab** moves from
+the field to the button, and **Enter** presses it.
+
+Accounts that use template JSON schema version 1 can't submit an empty number, or an empty value for a field with a
+list of options. When one of those fields has a default value, a `defaultFormData` value or a value from the
+submission, clearing it brings that value back, and the form submits it. To let people clear these fields, upgrade
+your template schema in your [account settings](https://app.docspring.com/account/edit). You can revert the upgrade at
+any time.
+
+## Keyboard
+
+Visual forms and data requests can be filled in without a mouse:
+
+- **Tab** moves to the next field and **Shift+Tab** to the previous one, selecting the field's text so that typing
+  replaces it. A group of radio buttons counts as one field.
+- The **arrow keys** move between the options of a radio button group and select them.
+- **Space** checks or unchecks a checkbox, and selects the focused radio button (or clears it, if the field is
+  optional and that option is already selected).
+- **Escape** leaves the current field.
+
+On a page with an inline form, these keys go to the form while the user is in it: after they click a field, or while
+nothing else on the page is focused. Once they click or focus something else on your page, your page gets its own
+keyboard behavior back until they click the form again. Embedded visual forms support Shift+Tab and the arrow keys from
+[Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) version 2.16.0.
+
 ## Next Steps
 
 <LinkCard

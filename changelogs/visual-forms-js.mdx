@@ -26,7 +26,53 @@ to fill out PDF templates and generate PDFs.
 
 ## Changelog
 
-### 2.15.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.16.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 20, 2026
+</div>
+
+- Added the `allowSkippingOptionalFields` option and support for the template's
+  [Show Continue Once Required Fields Are Filled
+  In](/docs/forms/visual-forms/#show-continue-once-required-fields-are-filled-in)
+  setting, so the **Continue** button can appear as soon as every required field
+  is filled in. Values passed in `defaultFormData` now count as filled in.
+- Required fields are highlighted in the template's [required field
+  color](/docs/forms/visual-forms/#required-field-color), when it has one.
+- A field's background color is shown at the field's opacity, as in the PDF.
+  Translucent static shapes are no longer drawn fainter than in the PDF.
+- Text fields stop accepting characters at the field's maximum length. A value
+  that is already too long (for example from `defaultFormData`) shows an error
+  on the field instead of failing when the form is submitted.
+- Unchecking an optional radio button, or clearing an optional number, select
+  or date field, no longer makes the submission fail. `onFieldChange` gets the
+  value that is stored: `null`, or on accounts that use template JSON schema
+  version 1, `''` or `undefined` (the value is left out), depending on the
+  field's type. On schema version 1, a default or prefilled value then comes
+  back (see [Clearing Optional
+  Fields](/docs/forms/visual-forms/#clearing-optional-fields)).
+- A field keeps showing its default value, `defaultFormData` value or formula
+  result while the user is in it, instead of going blank, and the user edits it
+  like any input. Moving to a field with **Tab**, **Shift+Tab** or the **Next**
+  button selects its text, so typing replaces it.
+- A cleared optional text, email or URL field stays empty, instead of its
+  default value coming back. A cleared required field still gets its default
+  back when the user leaves it.
+- A text, number, email or URL field the user has changed shows a ↺ button,
+  which puts back what the field showed before: its default value, its
+  `defaultFormData` value, its value from the submission, or what its formula
+  calculates now. `onFieldChange` gets `undefined` (the user's value is
+  removed), or the submission's value in a data request.
+- **Shift+Tab** moves to the previous field, the arrow keys move between the
+  options of a radio button group, and **Space** selects a radio button like a
+  click. An inline form only takes these keys while the user is in it, so it no
+  longer takes the Tab key from the rest of your page. See
+  [Keyboard](/docs/forms/visual-forms/#keyboard).
+- When DocSpring rejects the submitted data, the form names each field and says
+  what is wrong with it, instead of asking the user to refresh the page. Number
+  fields' minimum and maximum values are checked before the form is submitted.
+
+### 2.15.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 18, 2026
