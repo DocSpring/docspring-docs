@@ -47,3 +47,27 @@ existing pricing and API rate limits.
   upgrade it to the latest version. Older versions of the Ruby, Python, PHP,
   Java and C# clients raise an error when they read the `insufficient_credits`
   state.
+
+These expiry changes apply to every account:
+
+- Expiring a submission also clears its metadata, schema errors, overflow text,
+  PDF password, error message, rendered HTML, and the submitter's IP address,
+  browser and location. An expired submission returns `metadata` and
+  `truncated_text` as `{}`, `json_schema_errors` as `[]`, and `password` and
+  `error_message` as `null`. A request that was waiting for credits keeps its
+  "Not processed" error message. The `submission.expired` webhook has the
+  cleared values too, so match it to your records by its `id`.
+- Expiring a combined submission also clears its metadata, password and error
+  message, and removes the URLs from `source_pdfs`.
+- The `actions` of an expired submission or combined submission keep their
+  state, with `result_data` as `{}` and `error_message` as `null`.
+- A submission that doesn't process (any state other than `processed`, such as
+  `error` or `invalid_data`) is kept for at least 48 hours before it expires,
+  even when `expires_in` or the template's expiry is shorter, so you can debug
+  it and a retry still has its data. Its `expires_at` shows when. A processed
+  submission keeps your expiry setting, and a failed submission that is later
+  processed expires that long after processing.
+- Submissions saved with invalid data now expire like any other. Before, they
+  were never deleted.
+- A combined submission with `expires_in` that fails now expires too, after at
+  least 48 hours. Before, failed combined submissions were never deleted.

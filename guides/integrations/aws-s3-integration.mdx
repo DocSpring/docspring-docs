@@ -151,7 +151,11 @@ For role-based authentication:
 
   Combined PDFs are uploaded with every setting.
 
+- **Template IDs**: Comma-separated list of template IDs. Only submissions for these templates are uploaded.
+- **Folder IDs**: Comma-separated list of folder IDs. Only submissions for templates in these folders (and their subfolders) are uploaded. When you set both Template IDs and Folder IDs, a submission is uploaded if its template matches either one. Leave both blank to upload submissions for every template. Combined PDFs aren't filtered by template or folder.
 - **API Token IDs**: Comma-separated list to limit uploads to specific API tokens. Submissions created without an API token (for example from the dashboard or a web form) are still uploaded.
+
+To stop uploading a kind of PDF, leave its path template blank. For example, leave **Object Key Template for Combined PDFs** blank to upload submissions but not combined PDFs.
 
 ## Path Templates
 
@@ -175,6 +179,8 @@ For combined submissions, `template_id`, `template_name`, and `submission_id` ar
 - `combined_submission_id` - Combined submission ID (e.g., `com_Zbetd3ayK4EK3J4Hf4`)
 
 ### Default Templates
+
+New integrations start with these templates. A blank template skips that kind of upload.
 
 ```liquid
 submission_path_template: "live/templates/{{ template_id }}/{{ submission_id }}.pdf"

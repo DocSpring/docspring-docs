@@ -18,7 +18,9 @@ Locked templates cannot be changed or deleted. See [Locked Templates](/docs/temp
 The _Expire Submissions_ setting allows you to configure a data retention policy for your submissions.
 
 - If _Expire Submissions_ is **unchecked** (the default), we will store all submission data and generated PDFs indefinitely. (Nothing will ever be deleted automatically.)
-- If _Expire Submissions_ is **checked**, we will automatically delete all submission data, generated PDFs, and any uploaded images after a certain period of time. The expiration time can be configured in the template settings (_5 minutes_, _24 hours_, _7 days_, etc.)
+- If _Expire Submissions_ is **checked**, we will automatically delete all submission data and metadata, generated PDFs, any uploaded images, and the submitter's IP address, browser and location after a certain period of time. The expiration time can be configured in the template settings (_5 minutes_, _24 hours_, _7 days_, etc.)
+
+A submission that fails (for example, with invalid data) is kept for at least 48 hours before it expires, even if the expiration time is shorter, so that you can see what went wrong and a retry still has its data.
 
 (Please note that electronic signatures and a SHA256 hash of the PDF are always retained for UETA and ESIGN compliance.)
 

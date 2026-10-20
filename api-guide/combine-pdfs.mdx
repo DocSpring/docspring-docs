@@ -115,7 +115,7 @@ The download URL becomes:
 
 ### Expiration and Password
 
-- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF.
+- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF, its metadata and its password. A combined submission that fails is kept for at least 48 hours, then expires.
 - `password`: Encrypt the merged PDF with this password.
 
 ### Credit Usage

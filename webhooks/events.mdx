@@ -26,6 +26,10 @@ you want them.
 | `submission.updated`   | When a submission is updated                                 |                                        |
 | `submission.expired`   | When a submission expires                                    |                                        |
 
+A `submission.expired` or `combined_submission.expired` payload is sent after
+expiry has cleared the data, so its `metadata` is empty. Match it to your
+records by its `id`.
+
 No event is sent when a live submission starts waiting for credits (the
 `insufficient_credits` state). If it's still waiting after 30 days, or you
 discard it, it moves to `error` and DocSpring sends `submission.failed`. See

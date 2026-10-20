@@ -33,7 +33,7 @@ Optional parameters:
 - `metadata`: Map of values you want echoed back in webhooks.
 - `version`: Choose `draft`, `latest` (the default), or a specific version such as `1.2.3`.
 - `editable`: Keep the resulting PDF fillable or flatten the form fields. See [Editable PDFs](#editable-pdfs).
-- `expires_in`: Number of seconds until the submission expires. DocSpring then deletes the PDF and the submission data.
+- `expires_in`: Number of seconds until the submission expires. DocSpring then deletes the PDF, the submission data and metadata, and the submitter's IP address, browser and location. A submission that fails is kept for at least 48 hours.
 - `password`: Encrypt the generated PDF with this password.
 - `field_overrides`: Temporarily adjust field requirements or defaults.
 - `data_requests`: Kick off a data collection or signature workflow before finalizing the PDF.
