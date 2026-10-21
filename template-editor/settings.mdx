@@ -126,4 +126,18 @@ every mode, and is the page's meta description. It is not shown on embedded form
 
 ## Template PDF
 
-_PDF templates only._ Shows the template's PDF file. Drop a new PDF onto the upload area to replace it.
+_PDF templates only._ Shows the template's PDF file. Drop a new PDF onto the upload area to replace it. The template
+keeps its fields.
+
+To replace the fields too, check **Re-import fields from the new PDF** before you drop the new PDF. When the PDF has
+been processed, all of the template's fields are replaced with the fillable fields in the new PDF, the same way as when
+you first uploaded a PDF (the fields can't be edited until then). Fields you added or changed in DocSpring are removed.
+The default typeface, font size, bold and color are taken from the new PDF's fields, and the template's other settings
+are kept. Click **Undo** in the message that appears to put the previous fields and defaults back. If the new PDF has no
+fillable fields, the template keeps its fields.
+
+With the API, set `reimport_fields` to `true` when you
+[update the template](/docs/api/#tag/templates/put/templates/{template_id}) with a new `document`. Without a new
+`document`, the fields are re-imported from the template's current PDF. In our API clients, use the "Update a
+template's document with a cached S3 file upload" operation (`updateTemplateDocumentFromUpload`), which has the
+`reimport_fields` option. A re-import isn't allowed on a locked template.

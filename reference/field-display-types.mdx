@@ -54,6 +54,7 @@ These lines can be useful when you're not sure how many cells are in a field. Fo
 - Bold
 - Uppercase
 - Strikethrough
+- Keep Leading Spaces: Keeps the spaces at the start of the text and at the start of each line, so you can line text up with spaces. Without it, those spaces are removed. Comb fields and editable fields always keep them. Right-to-left text (such as Hebrew or Arabic) doesn't keep them.
 - Color
 - Background Color
 - Opacity
@@ -70,7 +71,19 @@ You can configure the check character, color, and opacity.
 
 ## Shape
 
+A shape can be a square, rectangle, circle, ellipse, triangle or polygon. A triangle points up, with its base along the
+bottom of the field. A polygon has 3 to 12 sides (6 by default, set with **Sides**) and a flat bottom edge. Triangles
+and polygons stretch to fill the field, as an ellipse is a stretched circle, and turn with the field's rotation. Visual
+forms older than version 2.17.0 show them as rectangles.
+
 You can configure a fill, border, or both. You can also configure the border width, and opacity.
+
+With the API, set the field's `shapeType` to `triangle` or `polygon`, and `shapeSides` to the number of sides of a
+polygon.
+
+In visual forms and data requests, a shape that isn't selected is shown faded, as an unselected check mark is: the PDF
+only draws the shapes whose value is true, or that match their Condition. Embedded visual forms show this from version
+2.17.0.
 
 ![Shape Options](@images/template_editor/shape-options.png)
 
