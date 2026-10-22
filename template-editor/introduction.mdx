@@ -7,6 +7,7 @@ sidebar:
 ---
 
 import { Image } from "astro:assets";
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 import templateEditorImg from "@images/template_editor.jpg";
 import addFieldGif from "@images/template_editor/getting_started/add_field.gif";
 import newFieldTypeImg from "@images/template_editor/getting_started/new_field_type.png";
@@ -21,6 +22,14 @@ If you need any help getting started, please [contact us](https://docspring.com/
 <Image src={templateEditorImg} alt="Template Editor" />
 
 ## Getting Started
+
+When uploading a PDF form, DocSpring can automatically detect fields and suggest names and data types.
+
+<LinkCard
+  title="Automatic Field Detection"
+  description="Use DocSpring's field detection AI to create fields from uploaded PDF forms"
+  href="/docs/template-editor/automatic-field-detection/"
+/>
 
 ### Add a Field
 
@@ -45,8 +54,6 @@ You can also hover over the field in the sidebar, and click the Trash icon:
 ## Next Steps
 
 Once you're comfortable with the basics, explore these topics:
-
-import { LinkCard, CardGrid } from "@astrojs/starlight/components";
 
 <CardGrid>
   <LinkCard

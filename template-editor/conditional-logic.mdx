@@ -2,7 +2,7 @@
 title: Conditional Logic
 description: Show, hide, or require fields based on the value or presence of other fields
 sidebar:
-  order: 5
+  order: 6
 ---
 
 import { Aside, LinkCard } from "@astrojs/starlight/components";
@@ -78,6 +78,18 @@ fields you rename or move out of the group are no longer affected, and the
 rule is removed when the group no longer contains any fields. To keep a group
 rule while renaming the group, rename the group itself (click the group in
 the field list) rather than renaming its fields one by one.
+
+## Seeing All Rules
+
+Click **Logic** in the template editor header to see every rule on the
+template in one place. You can add, change and remove rules there. Rules that
+belong to a field or a group are changed in that field's or group's options.
+
+When AI sets up conditional logic (see
+[Automatic Field Detection](/docs/template-editor/automatic-field-detection/)),
+each rule it added shows **Why** it was added. The Logic window also lists
+the formulas the AI added to fill in totals, and the fields it made required
+or optional, which you can **Undo**.
 
 ## Behavior Details
 

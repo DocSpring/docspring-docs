@@ -2,7 +2,7 @@
 title: Right-to-left Languages
 description: Support for right-to-left languages like Arabic and Hebrew in DocSpring
 sidebar:
-  order: 10
+  order: 11
 ---
 
 DocSpring supports right-to-left languages such as Arabic and Hebrew.
