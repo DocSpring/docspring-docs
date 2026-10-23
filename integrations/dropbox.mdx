@@ -47,7 +47,7 @@ The paths are [Liquid](https://shopify.github.io/liquid/) templates and take the
   are replaced with underscores, so a value can't create a subfolder.
 </Aside>
 
-If a file path is used again (for example `{{ template_name }}.pdf`, which every PDF from a template shares), DocSpring replaces the file. Dropbox keeps the earlier version in the file's version history. Use at least one unique variable, such as `submission_id`, in each path so different PDFs never share a file name. Reprocessing a submission creates a new submission with its own ID, so it gets its own file.
+If a file path is used again (for example `{{ template_name }}.pdf`, which every PDF from a template shares), DocSpring replaces the file. Dropbox keeps the earlier version in the file's [version history](https://help.dropbox.com/delete-restore/version-history-overview) for as long as your Dropbox plan keeps versions. Use at least one unique variable, such as `submission_id`, in each path so different PDFs never share a file name. Reprocessing a submission creates a new submission with its own ID, so it gets its own file.
 
 ## Check an upload
 
