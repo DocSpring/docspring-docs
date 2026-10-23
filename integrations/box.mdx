@@ -1,0 +1,100 @@
+---
+title: Box Integration
+description: Automatically upload generated PDFs to a folder in your Box account
+sidebar:
+  order: 5
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+DocSpring's Box integration saves every PDF it generates to a folder you choose in your Box account. Each PDF is uploaded as soon as it's generated, including combined PDFs, and you choose the file names.
+
+## Set up the integration
+
+1. In DocSpring, go to **Integrations → Manage Box connections** ([US](https://app.docspring.com/account_integrations/box), [EU](https://app-eu.docspring.com/account_integrations/box)).
+2. Click **Connect Box** and sign in to the Box account that should receive the PDFs, then grant DocSpring access.
+3. DocSpring opens the new integration's settings. Click **Choose Folder** to browse your Box account, starting at **All Files**. Click a folder to open it, then click **Choose This Folder**.
+4. Set the file paths and choose which PDFs to upload (see below), then click **Save**.
+5. Generate a PDF and check that it appears in the folder.
+
+Nothing is uploaded until a folder is chosen. You can connect more than one Box account, or the same account with different folders, by connecting again.
+
+## Choose which PDFs to upload
+
+- **Submission Type**: Only Live _(default)_, Only Test, or Both Live and Test. Combined PDFs are uploaded with every setting.
+- **API Token IDs**: a comma-separated list of API token IDs. Only PDFs generated with one of these tokens are uploaded. Submissions created without an API token (for example from the dashboard or a web form) are still uploaded.
+
+## File paths
+
+Each kind of PDF has its own file path, relative to the folder you chose. A `/` in the path creates subfolders, which DocSpring creates the first time they're needed. The defaults are:
+
+```liquid
+{{ template_name }}/{{ submission_id }}.pdf
+Test PDFs/{{ template_name }}/{{ submission_id }}.pdf
+Combined PDFs/{{ combined_submission_id }}.pdf
+```
+
+The paths are [Liquid](https://shopify.github.io/liquid/) templates and take the same variables as the S3 integration, such as `template_id`, `submission_id`, `date`, `year` and `metadata.<key>`.
+
+<LinkCard
+  title="Available variables"
+  href="/docs/guides/integrations/aws-s3-integration/#available-variables"
+  description="The full list of variables you can use in file paths"
+/>
+
+<Aside type="caution">
+  In `template_name` and metadata values, `/` and the characters `\ : * ? " < > |`
+  are replaced with underscores, so a value can't create a subfolder.
+</Aside>
+
+If a file path is used again (for example `{{ template_name }}.pdf`, which every PDF from a template shares), DocSpring uploads a new version of the file that's already there, so Box keeps the earlier version. Use at least one unique variable, such as `submission_id`, in each path so different PDFs never share a file name. Reprocessing a submission creates a new submission with its own ID, so it gets its own file.
+
+## Check an upload
+
+The submission's `actions` array in the API response has an entry for each upload. Its `state` is `pending` until the PDF is in your Box account, then `processed`:
+
+```json
+{
+  "action_type": "box_upload",
+  "state": "processed",
+  "error_message": null,
+  "result_data": {
+    "path": "Lease Agreement/sub_Gbxesk7Xf52Pq3KgT9.pdf",
+    "folder_id": "123456789012",
+    "file_id": "1987654321098",
+    "file_url": "https://app.box.com/file/1987654321098"
+  }
+}
+```
+
+If the upload fails, `state` is `failed` and `error_message` says why. Problems that can go away by themselves (timeouts, rate limits, errors at Box) are retried automatically.
+
+<LinkCard
+  title="When an integration fails"
+  href="/docs/integrations/overview/#when-an-integration-fails"
+  description="Failure emails, automatic disabling, and turning an integration back on"
+/>
+
+## Reconnect or disconnect
+
+If DocSpring's access stops working (for example after you remove DocSpring from your Box account), uploads fail with a message asking you to reconnect. Open the integration's settings and click **Reconnect Box**. Reconnecting with a different Box account clears the folder, so choose it again.
+
+Deleting the integration disconnects DocSpring from your Box account. You can also remove DocSpring's access at any time from the **Apps** tab of your [Box account settings](https://app.box.com/account).
+
+## FAQ
+
+### Which Box folders can DocSpring upload to?
+
+Any folder the connected Box user can upload to. DocSpring acts as that user, so Box applies the user's folder permissions and your company's Box policies.
+
+### Is there a size limit?
+
+Box uploads are limited to 50 MB per PDF.
+
+### Does DocSpring need to reconnect regularly?
+
+No. DocSpring refreshes its access automatically, even when nothing has been uploaded for a while.
+
+### Does DocSpring still keep a copy of the PDF?
+
+Yes. The integration uploads a copy. DocSpring keeps its own copy to serve download URLs and combine PDFs, and deletes only its own copy when a submission expires. It never deletes files in your Box account.

@@ -1,0 +1,98 @@
+---
+title: Google Drive Integration
+description: Automatically upload generated PDFs to a folder in your Google Drive or a shared drive
+sidebar:
+  order: 3
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+DocSpring's Google Drive integration saves every PDF it generates to a folder you choose in your Google Drive or in a shared drive. Each PDF is uploaded as soon as it's generated, including combined PDFs, and you choose the file names.
+
+## Set up the integration
+
+1. In DocSpring, go to **Integrations → Manage Google Drive connections** ([US](https://app.docspring.com/account_integrations/google_drive), [EU](https://app-eu.docspring.com/account_integrations/google_drive)).
+2. Click **Connect Google Drive** and sign in with the Google account that owns (or can add files to) the folder. Google asks you to let DocSpring use the folder you choose and the files it creates.
+3. DocSpring opens the new integration's settings. Click **Choose Folder** to open Google's file picker, then select a folder in your Drive or in a shared drive.
+4. Set the file paths and choose which PDFs to upload (see below), then click **Save**.
+5. Generate a PDF and check that it appears in the folder.
+
+Nothing is uploaded until a folder is chosen. You can connect more than one Google Drive account, or the same account with different folders, by connecting again.
+
+## Choose which PDFs to upload
+
+- **Submission Type**: Only Live _(default)_, Only Test, or Both Live and Test. Combined PDFs are uploaded with every setting.
+- **API Token IDs**: a comma-separated list of API token IDs. Only PDFs generated with one of these tokens are uploaded. Submissions created without an API token (for example from the dashboard or a web form) are still uploaded.
+
+## File paths
+
+Each kind of PDF has its own file path, relative to the folder you chose. A `/` in the path creates subfolders, which DocSpring creates the first time they're needed. The defaults are:
+
+```liquid
+{{ template_name }}/{{ submission_id }}.pdf
+Test PDFs/{{ template_name }}/{{ submission_id }}.pdf
+Combined PDFs/{{ combined_submission_id }}.pdf
+```
+
+The paths are [Liquid](https://shopify.github.io/liquid/) templates and take the same variables as the S3 integration, such as `template_id`, `submission_id`, `date`, `year` and `metadata.<key>`.
+
+<LinkCard
+  title="Available variables"
+  href="/docs/guides/integrations/aws-s3-integration/#available-variables"
+  description="The full list of variables you can use in file paths"
+/>
+
+<Aside type="caution">
+  In `template_name` and metadata values, `/` and the characters `\ : * ? " < > |`
+  are replaced with underscores, so a value can't create a subfolder.
+</Aside>
+
+If a file path is used again (for example `{{ template_name }}.pdf`, which every PDF from a template shares), DocSpring uploads a new version of the file it uploaded before, so Google Drive keeps the earlier version in the file's version history. Use at least one unique variable, such as `submission_id`, in each path so different PDFs never share a file name. Reprocessing a submission creates a new submission with its own ID, so it gets its own file.
+
+## Check an upload
+
+The submission's `actions` array in the API response has an entry for each upload. Its `state` is `pending` until the PDF is in your Google Drive or a shared drive, then `processed`:
+
+```json
+{
+  "action_type": "google_drive_upload",
+  "state": "processed",
+  "error_message": null,
+  "result_data": {
+    "path": "Lease Agreement/sub_Gbxesk7Xf52Pq3KgT9.pdf",
+    "folder_id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+    "file_id": "1ZyXwVuTsRqPoNmLkJiHgFeDcBa",
+    "file_url": "https://drive.google.com/file/d/1ZyXwVuTsRqPoNmLkJiHgFeDcBa/view?usp=drivesdk"
+  }
+}
+```
+
+If the upload fails, `state` is `failed` and `error_message` says why. Problems that can go away by themselves (timeouts, rate limits, errors at Google Drive) are retried automatically.
+
+<LinkCard
+  title="When an integration fails"
+  href="/docs/integrations/overview/#when-an-integration-fails"
+  description="Failure emails, automatic disabling, and turning an integration back on"
+/>
+
+## Reconnect or disconnect
+
+If DocSpring's access stops working (for example after you remove DocSpring from your Google Drive account), uploads fail with a message asking you to reconnect. Open the integration's settings and click **Reconnect Google Drive**. Reconnecting with a different Google Drive account clears the folder, so choose it again.
+
+Deleting the integration disconnects DocSpring from your Google account, unless another integration still uses the same Google account. You can also remove DocSpring's access at any time from your [Google Account's third-party connections](https://myaccount.google.com/connections).
+
+## FAQ
+
+### What can DocSpring see in my Google Drive?
+
+Only the folder you choose and the files and folders DocSpring creates in it. DocSpring uses Google's `drive.file` access, so it can't list, read or change anything else in your Drive.
+
+Because of this, a subfolder you created yourself isn't visible to DocSpring. If your file path has a folder with the same name, DocSpring creates its own folder next to yours. Let DocSpring create the subfolders, or choose the subfolder itself as the integration's folder.
+
+### Can I upload to a shared drive?
+
+Yes. Choose a folder in a shared drive in the folder picker. Your Google account needs permission to add files to the shared drive.
+
+### Does DocSpring still keep a copy of the PDF?
+
+Yes. The integration uploads a copy. DocSpring keeps its own copy to serve download URLs and combine PDFs, and deletes only its own copy when a submission expires. It never deletes files in your Google Drive or a shared drive.

@@ -129,6 +129,7 @@ DocSpring supports two methods of authentication for AWS S3:
 
 ### Required Fields
 
+- **Storage Provider**: Amazon S3 (the default). For other providers, see [S3-compatible storage](/docs/integrations/aws-s3/#s3-compatible-storage)
 - **Authentication Type**: Choose "Access Key" or "Role-based Authentication"
 - **Bucket Name**: Your S3 bucket name
 - **Region**: The AWS region where your bucket is located (e.g., "us-east-1")
@@ -221,7 +222,7 @@ clients/{{ metadata.client_id }}/{{ date }}_{{ submission_id }}.pdf
 {
   "actions": [{
     "action_type": "aws_s3_upload",
-    "state": "processed",  // "pending" before upload completes, "error" if it failed
+    "state": "processed",  // "pending" before upload completes, "failed" or "error" if it failed
     "error_message": null,
     "result_data": {
       "s3_region": "us-east-1",
@@ -249,7 +250,7 @@ const pdfHasBeenUploadedToS3Bucket = (submission) => {
 };
 ```
 
-If the upload fails, the action's `state` is `error` and its `error_message` explains why. Failed uploads are retried automatically.
+If the upload fails because of your bucket or the integration's settings, the action's `state` is `failed` and its `error_message` explains why. Uploads that fail because access was denied are retried automatically, so they go through once you fix the policy. A timeout or an error at AWS sets the `state` to `error`, and DocSpring retries the upload. If uploads keep failing because of your settings, DocSpring emails you and eventually disables the integration ([When an integration fails](/docs/integrations/overview/#when-an-integration-fails)).
 
 ### Using AWS S3 Event Notifications
 

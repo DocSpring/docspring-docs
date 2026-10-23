@@ -1,11 +1,13 @@
 ---
 title: AWS S3 Integration
-description: Automatically upload generated PDFs to your own S3 bucket
+description: Automatically upload generated PDFs to your own S3 bucket, on Amazon S3 or S3-compatible storage
+sidebar:
+  order: 2
 ---
 
 import { Aside, LinkCard, CardGrid } from "@astrojs/starlight/components";
 
-DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bucket in your own AWS account, giving you full control over your document storage.
+DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bucket in your own AWS account, giving you full control over your document storage. It also works with [S3-compatible storage](#s3-compatible-storage) such as Cloudflare R2, Google Cloud Storage, Backblaze B2, Wasabi, DigitalOcean Spaces and MinIO.
 
 <LinkCard
   title="Step-by-Step Implementation Guide"
@@ -87,6 +89,59 @@ clients/{{ metadata.client_id }}/invoices/{{ submission_id }}.pdf
   description="The full list of variables you can use in path templates"
 />
 
+## S3-compatible storage
+
+The S3 integration can upload to any storage service with an S3-compatible API. When you create the integration, choose your provider under **Storage Provider**, then enter:
+
+- **Endpoint URL**: the provider's S3 API endpoint, starting with `https://`. Enter just the server, without a path (for example `https://s3.us-west-004.backblazeb2.com`, not a URL with the bucket in it).
+- **Region**: the region requests are signed for. Leave it blank to use the provider's default.
+- **Access Key ID** and **Secret Access Key**: an access key that can write to the bucket. Role-based authentication only works with Amazon S3.
+- **Bucket Name**: the name of your bucket.
+
+DocSpring uploads with path-style requests (`https://<endpoint>/<bucket>/<key>`), which every provider below supports. The endpoint must be reachable from the internet: DocSpring doesn't upload to private or local network addresses. The action's `result_data` includes the endpoint as `s3_endpoint`, and `s3_url` is the object's URL on that endpoint.
+
+Problems with the endpoint, the access key or the bucket fail the upload and count toward [the integration's failure alerts](/docs/integrations/overview/#when-an-integration-fails). Timeouts, rate limits and errors at the provider are retried.
+
+### Cloudflare R2
+
+- **Endpoint URL**: `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`, with your Cloudflare account ID. For a bucket in the EU jurisdiction, use `https://<ACCOUNT_ID>.eu.r2.cloudflarestorage.com`.
+- **Region**: leave blank (`auto`).
+- **Access key**: in the Cloudflare dashboard, go to **R2 → Manage API tokens** and create a token with **Object Read & Write** permission for your bucket. Use its **Access Key ID** and **Secret Access Key**.
+
+### Google Cloud Storage
+
+- **Endpoint URL**: `https://storage.googleapis.com`
+- **Region**: leave blank (`auto`).
+- **Access key**: in the Google Cloud console, go to **Cloud Storage → Settings → Interoperability** and create an HMAC key for a service account with the **Storage Object User** role on your bucket. (Replacing a file at the same path needs more than **Storage Object Creator**.) Use its access ID and secret.
+
+### Backblaze B2
+
+- **Endpoint URL**: your bucket's S3 endpoint, shown on the bucket's page, such as `https://s3.us-west-004.backblazeb2.com`.
+- **Region**: leave blank. DocSpring reads it from the endpoint (`us-west-004`).
+- **Access key**: under **Application Keys**, add a key with **Read and Write** access to your bucket. Use its **keyID** as the Access Key ID and its **applicationKey** as the Secret Access Key.
+
+### Wasabi
+
+- **Endpoint URL**: the service URL for your bucket's region, such as `https://s3.us-east-1.wasabisys.com` or `https://s3.eu-central-1.wasabisys.com`.
+- **Region**: leave blank. DocSpring reads it from the endpoint.
+- **Access key**: create an access key for a Wasabi user whose policy allows `s3:PutObject` on your bucket.
+
+### DigitalOcean Spaces
+
+- **Endpoint URL**: your bucket's region endpoint, such as `https://nyc3.digitaloceanspaces.com`.
+- **Region**: leave blank (`us-east-1` is used for signing).
+- **Access key**: under **Spaces Object Storage → Access Keys**, create a key with read and write access to your bucket.
+
+### MinIO
+
+- **Endpoint URL**: the HTTPS address of your MinIO server's S3 API, such as `https://minio.example.com`. It needs a valid TLS certificate and a public address.
+- **Region**: leave blank unless your server sets one (`MINIO_SITE_REGION`). The default is `us-east-1`.
+- **Access key**: create an access key whose policy allows `s3:PutObject` on your bucket.
+
+### Other S3-compatible storage
+
+Choose **Other S3-compatible storage**, and enter the provider's S3 endpoint and the region it expects (or leave it blank for `us-east-1`).
+
 ## Use Cases
 
 - **Compliance** - Keep document copies in your own infrastructure
@@ -128,7 +183,9 @@ No. DocSpring will only delete our own copy of the PDF when a submission expires
 
 One thing to be aware of is that the submission state will change to processed as soon as our copy of the PDF is ready, but it might take a few seconds before the PDF is uploaded into your custom S3 bucket. The AWS integration upload happens after the initial processing is completed.
 
-If you need to know when the PDF is available in your own S3 bucket, you can check the `actions` array in the API response. This array will be empty before the submission is processed. As soon as the submission is processed, it will contain an entry for the `aws_s3_upload` action. This action's `state` will be `pending` until the file has been uploaded into your S3 bucket, and then it will change to `processed`. If an upload fails, the `state` changes to `error` and `error_message` explains why. Uploads that fail because your bucket or role policy denies access are retried automatically, so they go through once you fix the policy. Uploads that fail because of a wrong access key, bucket name, or region are not retried.
+If you need to know when the PDF is available in your own S3 bucket, you can check the `actions` array in the API response. This array will be empty before the submission is processed. As soon as the submission is processed, it will contain an entry for the `aws_s3_upload` action. This action's `state` will be `pending` until the file has been uploaded into your S3 bucket, and then it will change to `processed`. If an upload fails because of your bucket or the integration's settings, the `state` changes to `failed` and `error_message` explains why. Uploads that fail because your bucket or role policy denies access are retried automatically, so they go through once you fix the policy. Uploads that fail because of a wrong access key, bucket name, or region are not retried. An `error` state means the upload failed because of a problem at DocSpring, which we retry.
+
+If uploads keep failing, DocSpring emails you and eventually disables the integration. See [When an integration fails](/docs/integrations/overview/#when-an-integration-fails).
 
 For example, here's how you could wait for the PDF to be uploaded to your own S3 bucket (in JavaScript):
 
