@@ -65,6 +65,20 @@ Need to create many PDFs at once? Use the batch endpoint to submit up to 50 requ
   description="Send up to 50 submissions in one request and mix templates, test mode, and metadata"
 />
 
+## Forms from the DocSpring Form Library
+
+The [form library](https://docspring.com/forms) has ready-made templates for common forms, such as IRS Form W-9. Each form's page shows its template ID. Send submissions to that template ID with your own API token, and they go into your account:
+
+- The submissions and their PDFs are in your account, with your other submissions, and count toward your account's usage like your other PDFs. No other account can see them. The form doesn't count toward your plan's template limit.
+- We keep the form up to date. Each request uses the latest version we've published, unless you set `version` to one of its published versions. You can't fill the draft we're working on: `"version": "draft"` returns a 404.
+- Our settings for the form don't apply to your submissions: no webhook URL, Slack or email notifications, redirect URL or PDF encryption, and signers can't download the PDF from the signing page. Submissions expire as your account's default template settings say.
+- Your account's webhooks get the `submission.*` and `submission_data_request.*` events. A webhook limited to some of your templates or folders doesn't, unless it's also limited to the API token you used. Your storage integrations upload the PDFs, except integrations limited to some of your templates or folders.
+- If we take a form out of the library, you can't create new submissions with it. Your earlier submissions stay in your account.
+
+To change the form or use your own settings, open it in the template editor (from the form's page, or from one of your submissions) and click **Copy to account**. The copy is your own template, with its own template ID, and we don't update it. If you find a problem with one of our forms, click **Send feedback** in the editor.
+
+Batch requests and data requests work the same way. The form library is currently only available to accounts in our US region.
+
 ## More Info
 
 <LinkCard
