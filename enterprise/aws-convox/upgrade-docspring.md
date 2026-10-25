@@ -1,0 +1,43 @@
+---
+title: Upgrade DocSpring
+description: Upgrade DocSpring Enterprise on Convox to a new release with a rolling, zero-downtime deploy.
+sidebar:
+  order: 4
+---
+
+Run the update script in your `docspring_enterprise` repository:
+
+```bash
+./update.sh
+```
+
+It pulls the DocSpring Docker image, runs any new database migrations, and does a
+rolling upgrade with zero downtime. If you have
+[pinned the image version](/docs/enterprise/aws-convox/installation/#pin-the-docker-image-version),
+change the version tag in `convox.yml` first.
+
+The [DocSpring Enterprise releases](https://docspring.com/enterprise-releases)
+page lists every version and its release notes.
+
+The script builds a new release, runs `bin/pre_release` in it, then promotes it:
+
+```bash
+#!/bin/bash
+set -eo pipefail
+CURRENT_DIR=$(dirname "$0")
+
+if ! [ -f "${CURRENT_DIR}/.rack_name" ]; then
+  echo "ERROR: .rack_name file not found"
+  exit 1
+fi
+RACK_NAME=$(cat "${CURRENT_DIR}/.rack_name")
+
+echo "[${RACK_NAME}] => Creating new build..."
+RELEASE_ID=$(convox build --id --rack "${RACK_NAME}")
+
+echo "[${RACK_NAME}] => Running bin/pre_release in: $RELEASE_ID"
+convox run --release "$RELEASE_ID" command bin/pre_release --rack "${RACK_NAME}"
+
+echo "[${RACK_NAME}] => Promoting Release: $RELEASE_ID"
+convox releases promote "$RELEASE_ID" --rack "${RACK_NAME}"
+```

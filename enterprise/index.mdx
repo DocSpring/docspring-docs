@@ -1,0 +1,99 @@
+---
+title: DocSpring Enterprise
+description: Run DocSpring on your own infrastructure. Requirements, deployment options, configuration, release notes and the Admin API.
+sidebar:
+  label: Overview
+  order: 1
+---
+
+import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+DocSpring Enterprise runs DocSpring on your own infrastructure. DocSpring is a
+Rails application, released as a Docker image for both AMD64 and ARM64.
+
+## Requirements
+
+- PostgreSQL 14 or later. We run PostgreSQL 17 and recommend it for new installs.
+- Redis 6.2 or later.
+- A file storage service, such as AWS S3 or Google Cloud Storage.
+- Your DocSpring license key and the credentials for DocSpring's Docker
+  registry. We send these to you by email.
+
+## Deployment options
+
+### AWS via Convox
+
+[Convox](https://www.convox.com/) is an open source PaaS that runs in your own
+AWS account. It sets up a Kubernetes cluster on
+[EKS](https://aws.amazon.com/eks/) and uses
+[Terraform](https://www.terraform.io/) to manage your infrastructure config and
+state.
+
+Convox offers a hosted Console service and paid support plans, but the
+[Convox Rack](https://github.com/convox/convox) itself is open source and free
+to use. Our install script sets up a free, self-hosted Convox Rack on AWS. You
+don't need the Convox Console.
+
+<LinkCard
+  title="Install DocSpring on AWS with Convox"
+  href="/docs/enterprise/aws-convox/installation/"
+  description="Set up a Convox Rack, Postgres, Redis and an S3 bucket with one script"
+/>
+
+<Aside type="tip">
+  Let us know if you need our Convox install script to support another cloud,
+  such as Google Cloud, DigitalOcean or Microsoft Azure.
+</Aside>
+
+### Helm charts for Kubernetes
+
+If you already run a Kubernetes cluster, you can set up DocSpring with our Helm
+charts:
+[DocSpring/docspring_helm_chart](https://github.com/DocSpring/docspring_helm_chart).
+
+### Aptible
+
+[Aptible](https://www.aptible.com/) is a PaaS for deploying secure and
+compliant infrastructure. See
+[DocSpring/docspring-enterprise-aptible](https://github.com/DocSpring/docspring-enterprise-aptible)
+for setup instructions.
+
+## Release notes
+
+The [DocSpring Enterprise releases](https://docspring.com/enterprise-releases)
+page lists every release of the Enterprise image, with its version tag and
+release notes.
+
+## Configure and automate
+
+<CardGrid>
+  <LinkCard
+    title="Custom domain and SSL"
+    href="/docs/enterprise/configuration/custom-domain-and-ssl/"
+  />
+  <LinkCard
+    title="Environment variables"
+    href="/docs/enterprise/configuration/environment-variables/"
+  />
+  <LinkCard
+    title="Error reporting"
+    href="/docs/enterprise/configuration/error-reporting/"
+  />
+  <LinkCard
+    title="Email notifications"
+    href="/docs/enterprise/configuration/email-notifications/"
+  />
+  <LinkCard
+    title="AI field detection"
+    href="/docs/enterprise/configuration/ai-field-detection/"
+  />
+</CardGrid>
+
+<LinkCard
+  title="Admin API"
+  href="/docs/enterprise/admin-api/"
+  description="Export and import accounts and templates, and manage accounts and users"
+/>
+
+Contact [support@docspring.com](mailto:support@docspring.com) if you need help
+getting started.

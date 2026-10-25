@@ -1,0 +1,453 @@
+---
+title: Admin API
+description: Automate DocSpring Enterprise with the JSON admin routes. Export and import accounts and templates, and manage accounts and users.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+DocSpring Enterprise has an internal admin API that you can use to automate and
+administer your installation: export and import templates and accounts, create
+accounts, add users, and more.
+
+## Authentication
+
+The admin API is the JSON version of the admin interface. If you can do something
+in the admin interface at `/admin`, you can usually make the same request by adding
+`.json` to the end of the URL's path and sending an `Authorization` header instead
+of signing in.
+
+Send admin API requests to your admin domain: `DOCSPRING_ADMIN_DOMAIN_NAME`, which defaults
+to your app's domain (`DOCSPRING_APP_DOMAIN_NAME`, then `DOCSPRING_DOMAIN_NAME`).
+
+### The DOCSPRING_ADMIN_API_TOKEN environment variable
+
+Set the `DOCSPRING_ADMIN_API_TOKEN` environment variable to turn on admin API authentication
+with a token you choose. The token can contain any characters and be any length.
+Use a long random string, such as the output of `openssl rand -hex 32`.
+`DOCSPRING_ADMIN_API_TOKEN` only works on DocSpring Enterprise installations.
+
+Authenticate with HTTP Basic Auth. The username is the literal string
+`ADMIN_API_TOKEN`, and the password is the token you set in the `DOCSPRING_ADMIN_API_TOKEN`
+environment variable.
+
+For example, if you set `DOCSPRING_ADMIN_API_TOKEN=apitoken1234`, encode
+`ADMIN_API_TOKEN:apitoken1234` in Base64 (`QURNSU5fQVBJX1RPS0VOOmFwaXRva2VuMTIzNA==`)
+and send this header:
+
+```txt
+Authorization: Basic QURNSU5fQVBJX1RPS0VOOmFwaXRva2VuMTIzNA==
+```
+
+With curl, `-u` builds the header for you:
+
+```bash
+curl -u "ADMIN_API_TOKEN:$DOCSPRING_ADMIN_API_TOKEN" \
+  -H 'Accept: application/json' \
+  https://docspring.example.com/admin/authentication.json
+```
+
+### Where the token works
+
+- **The admin API**: paths that start with `/admin/` and end in `.json`, such as
+  `/admin/accounts/acc_1234567890abcdef/export.json`. An `Accept: application/json`
+  header isn't enough: the path itself must end in `.json`. Query parameters such
+  as `?async=true` go after it.
+- **The application API**: requests to `/api/v1/...` (or to your
+  `DOCSPRING_API_DOMAIN_NAME`, if it is separate). They run as the user described below.
+
+Nowhere else. The admin pages themselves, the Sidekiq, GoodJob, PgHero and Flipper
+dashboards, and the web app's pages only accept a signed-in user, never a token.
+
+### Which user the token acts as
+
+- The first admin user in the database: normally the one that `rake db:seed`
+  created. `rake db:seed` creates this user from `DOCSPRING_ADMIN_EMAIL`, `DOCSPRING_ADMIN_NAME` and
+  `DOCSPRING_ADMIN_PASSWORD`. `DOCSPRING_ADMIN_PASSWORD` is required: set a unique password, such as
+  the output of `openssl rand -hex 16`.
+- If there is no admin user (e.g. the database is empty), the request runs as an
+  _ephemeral_ admin user that isn't saved to the database. This is mainly for
+  importing an account export into a fresh database: the import creates all the
+  account, user and template records that were exported.
+  - You can't import a single template export this way, because it needs an
+    existing account.
+  - Most other endpoints fail with the ephemeral admin user, because it doesn't
+    belong to an account.
+
+### Application API tokens
+
+API tokens created on the `/api_tokens` page can't be used for the admin API, even
+when they belong to an admin user. Use `DOCSPRING_ADMIN_API_TOKEN` instead. (Versions up to
+c224e10e07 also accepted an admin user's API token on admin routes.)
+
+### Authentication errors
+
+A request that fails authentication gets a `401` response with a JSON body:
+
+```json
+{
+  "status": "error",
+  "error": "Invalid API token secret"
+}
+```
+
+The `error` message tells you what went wrong:
+
+| Message                                                                                              | Cause                                                                                        |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `Missing Basic Auth: Please provide an API token via Basic Auth. ...`                                | No `Authorization` header.                                                                   |
+| `Invalid API token secret`                                                                           | The password doesn't match `DOCSPRING_ADMIN_API_TOKEN`.                                      |
+| `API tokens can't be used on admin pages. DocSpring Enterprise's Admin API accepts ADMIN_API_TOKEN.` | An application API token, or `ADMIN_API_TOKEN` on an admin path that doesn't end in `.json`. |
+| `ADMIN_API_TOKEN can only be used for the Admin API and the application API.`                        | `ADMIN_API_TOKEN` on a web app page.                                                         |
+| `Could not find API token with ID: ADMIN_API_TOKEN`                                                  | `DOCSPRING_ADMIN_API_TOKEN` isn't set on the server.                                         |
+
+## Synchronous and asynchronous requests
+
+Over the JSON admin routes, imports and exports (account migrations) run
+synchronously by default: the request waits for the job to finish before it
+responds. Check that the response's `state` is `processed`. If the job fails, the
+`state` is `error` and `error_message` says why.
+
+Add `async=true` (in the query string or the JSON body) to respond straight away
+and run the job in the background. We recommend this when you export or import a
+lot of templates: a synchronous request gives up after 3 minutes and responds with
+a `500` error. (The job keeps running in the background, and you can find it on the
+`/admin/account_migrations` page.)
+
+An asynchronous request responds with the new account migration's `id` and a
+`state` of `pending`. Poll the migration with `GET` requests until its `state` is
+`processed`: see
+[Fetch the state of an account migration](#fetch-the-state-of-an-account-migration).
+
+<Aside>
+  Exports and imports run on GoodJob, in the `worker-gj` service, not on
+  Sidekiq. At least one `worker-gj` process must be running, or the job stays
+  `pending`. The work is split into parts, and each `worker-gj` process works on
+  up to 3 parts at a time, so running more `worker-gj` processes during a large
+  export or import makes it faster. Nothing else uses `worker-gj`, so you can
+  scale it down once the migration is done, as long as it is running again
+  before the next export or import.
+</Aside>
+
+## Endpoints
+
+Send `Accept: application/json` and your `Authorization` header with every
+request.
+
+### Check authentication
+
+```txt
+GET /admin/authentication.json
+```
+
+Responds with `200` and `{"status":"success"}` when the token is valid. When it
+isn't, see [Authentication errors](#authentication-errors).
+
+### Export a single template
+
+```txt
+POST /admin/templates/<template_id>/create_template_export.json
+POST /admin/templates/<template_id>/create_template_export.json?async=true
+```
+
+`<template_id>` is the template's ID (`tpl_...`). This exports the template's
+draft. To export a published version instead, add a `version` parameter, e.g.
+`?version=1.2.0`.
+
+Response (`200`):
+
+```json
+{
+  "id": 1,
+  "archive_url": null,
+  "index_data": {
+    "migration_type": "Template",
+    "batches": [
+      {
+        "resource_type": "templates",
+        "resource_count": 1,
+        "account_id": "acc_1234567890abcdef",
+        "parts": ["<signed download URL>"]
+      }
+    ],
+    "templates_count": 1
+  },
+  "direction": "export",
+  "include_submissions": false,
+  "templates_and_folders_only": false,
+  "skip_webhook_settings": false,
+  "error_message": null,
+  "state": "processed",
+  "created_at": "2018-10-20T13:00:00Z",
+  "updated_at": "2018-10-20T13:00:00Z"
+}
+```
+
+An export is stored as one or more `.tar.gz` parts. When the export's `state` is
+`processed`, the response includes `index_data`, which lists a download URL for
+every part. With S3 storage, these are signed URLs that expire after 48 hours. To
+import the export on another server, save `index_data` to a JSON file and upload
+that file as the `archive` parameter (see [Import an archive](#import-an-archive)).
+`archive_url` is `null` for exports.
+
+### Export an account
+
+Exports an entire account, including its users and templates.
+
+```txt
+POST /admin/accounts/<account_id>/export.json
+POST /admin/accounts/<account_id>/export.json?async=true
+```
+
+`<account_id>` can be the account's ID (`acc_...`) or its numeric database ID.
+(Versions before c224e10e07 only accept the `acc_...` ID.) Use `all` to export
+every account.
+
+The export includes the account's users, API tokens, folders, integrations and
+templates, but not its submissions. To include submissions, add
+`account_migration[include_submissions]=1` (or `"include_submissions": true` in
+the JSON body's `account_migration` object).
+
+To export only the account's folders and templates, add
+`account_migration[templates_and_folders_only]=1` (from 798971d240). The archive
+then has no users, API tokens, integrations or account settings, so it holds no
+user credentials or API tokens, although templates still carry their webhook URLs
+and PDF encryption passwords. It works for a single account and can't be combined
+with `include_submissions`. An archive exported this way can only be imported into
+an existing account (see [Import options](#import-options)).
+
+<Aside type="caution">
+  Treat an account export as a credentials file. It contains users' password
+  hashes and two-factor secrets, API token hashes, the secrets of test API
+  tokens, and integration settings (which can include access keys). Delete the
+  export once you have imported it (this deletes its files from storage).
+</Aside>
+
+Response (`200`):
+
+```json
+{
+  "id": 1,
+  "archive_url": null,
+  "index_data": {
+    "migration_type": "Account",
+    "batches": [
+      {
+        "resource_type": "accounts_data",
+        "resource_count": 1,
+        "parts": ["<signed download URL>"]
+      },
+      {
+        "resource_type": "templates",
+        "resource_count": 25,
+        "parts": ["<signed download URL>"]
+      }
+    ],
+    "accounts_count": 1,
+    "templates_count": 25
+  },
+  "direction": "export",
+  "include_submissions": false,
+  "templates_and_folders_only": false,
+  "skip_webhook_settings": false,
+  "error_message": null,
+  "state": "processed",
+  "created_at": "2018-10-20T13:00:00Z",
+  "updated_at": "2018-10-20T13:00:00Z"
+}
+```
+
+You can also start an export with
+`POST /admin/account_migrations.json`, sending
+`account_migration[direction]=export` and `account_migration[account_id]`
+with the same options.
+
+### Import an archive
+
+```txt
+POST /admin/account_migrations.json
+POST /admin/account_migrations.json?async=true
+```
+
+Send the export's index in one of two ways.
+
+**Upload the index file** (a multipart form POST with an `archive` field):
+
+```bash
+curl -u "ADMIN_API_TOKEN:$DOCSPRING_ADMIN_API_TOKEN" \
+  -H 'Accept: application/json' \
+  -F 'account_migration[direction]=import' \
+  -F 'account_migration[account_id]=acc_1234567890abcdef' \
+  -F 'account_migration[archive]=@index.json;type=application/json' \
+  https://docspring.example.com/admin/account_migrations.json
+```
+
+`account_migration[archive]` is the export's index: its `index_data` saved as a
+JSON file (a gzipped `.json.gz` file also works). The server downloads the parts
+from the URLs in the index, so they must not have expired.
+
+**Or give a URL for the index** (a JSON POST with `archive_import_url`):
+
+```json
+{
+  "account_migration": {
+    "direction": "import",
+    "archive_import_url": "<URL where the index JSON can be downloaded>",
+    "account_id": "acc_1234567890abcdef"
+  }
+}
+```
+
+`archive_import_url` must return the export's index JSON (or a gzipped copy)
+without authentication, so it can't point at another server's admin API. To copy
+an export between servers, upload the index file instead.
+
+Response (`200`):
+
+```json
+{
+  "id": 1,
+  "archive_url": null,
+  "index_data": null,
+  "direction": "import",
+  "include_submissions": false,
+  "templates_and_folders_only": false,
+  "skip_webhook_settings": false,
+  "error_message": null,
+  "state": "processed",
+  "created_at": "2018-10-20T13:00:00Z",
+  "updated_at": "2018-10-20T13:00:00Z"
+}
+```
+
+If the request is invalid, the response is `422` with an `error` array that lists
+the problems.
+
+#### Import notes
+
+- `account_id` is always required when you import a single template archive.
+- `account_id` can be the account's ID (`acc_...`) or its numeric database ID.
+  (Versions before c224e10e07 only accept the numeric ID.)
+- If you give an `account_id` when you import an account archive, all of the
+  archive's templates are imported into this account. The archive's users, API
+  tokens and integrations are imported into this account as well, so that
+  everything keeps working after you move an account between servers. Only the
+  account record itself is skipped, and the archive's billing user becomes this
+  account's billing user.
+- If the template ID already exists in the account you are importing into, the
+  existing template is updated in place and keeps its ID. If the template ID
+  exists in a different account, the imported template gets a new ID. Otherwise,
+  the template ID is preserved.
+- Importing a single-template archive of a template's draft updates the draft. If
+  the template has published versions, publish a new version afterwards to make
+  the changes live.
+- The import stops with an error if one of the archive's users has the same email
+  address as a user on this server with a different user ID, or in a different
+  account.
+- Archives exported before template versioning (March 2025) can be imported on
+  c224e10e07 and later.
+
+#### Importing an archive again
+
+Export and import are built for moving an account to a new server. Until the new
+server goes live, you can import the account again as often as you need to bring
+it up to date, and the archive's data takes precedence over what is on the new
+server. (Once the new server is live, stop importing into it.) Records are matched
+by their IDs, so nothing is duplicated:
+
+- **Templates** are updated in place and keep their IDs. Their settings, fields,
+  PDF and images are replaced with the archive's, and templates that were deleted
+  on this server are restored. When you import with `account_id`, each template
+  keeps its owner. An account archive also sets each template's folder from the
+  archive, so a template that is at the root in the archive moves back to the root.
+  A single-template archive keeps the template's folder.
+- **Users** that were removed on this server are restored. Users that already
+  exist are updated from the archive, including their password, two-factor settings
+  and lock state, so a user who changed their password on the old server between
+  two imports gets the new one. (Before 798971d240, they kept this server's
+  password, two-factor settings, sessions, and password reset and lock state.) The
+  archive's billing user becomes the account's billing user again.
+- **API tokens** that were revoked on this server are enabled again, unless the
+  archive's copy is revoked too. (Before 798971d240, they stayed revoked.) API
+  tokens that were deleted on this server are imported again, and work again.
+- **Integrations** are updated from the archive, including whether they are
+  enabled, so an integration you disabled on this server is enabled again.
+- **Folders** are updated from the archive.
+- **Submissions** (if the archive includes them) that were already imported are
+  updated, not duplicated.
+
+If you use an import to copy production data to a test server and then remove
+production users, API tokens or integrations there, remove them again after each
+import. To copy only the templates, import with `templates_and_folders_only`
+instead (see [Import options](#import-options)).
+
+#### Import options
+
+From 798971d240, you can add these options to either kind of import request, as
+`account_migration[...]` form fields or as keys in the JSON `account_migration`
+object. Set them to `1` or `true`.
+
+- `templates_and_folders_only`: import only the archive's folders and templates
+  into the account given by `account_id`, which is required. The archive's account
+  settings, users, API tokens, integrations and submissions are skipped. Folders
+  and templates that are updated in place keep their owner, and new ones are owned
+  by the account's billing user. An archive exported with this option is always
+  imported this way. An archive of all accounts can't be imported this way: export
+  the account you need on its own.
+- `skip_webhook_settings`: keep this server's webhook settings. Templates keep
+  their webhook URL, webhook options and Slack webhook URL, API tokens keep their
+  webhook URL, and the account keeps its default webhook URL and webhook version.
+  S3 integrations aren't webhook settings, so they are still imported.
+
+### Fetch the state of an account migration
+
+Works for both imports and exports.
+
+```txt
+GET /admin/account_migrations/<account_migration_id>.json
+```
+
+`<account_migration_id>` can be the numeric `id` from the import or export
+response, or the migration's ID (`mig_...`) from the admin interface. When an
+export has finished (`state` is `processed`), the response also includes
+`index_data` (see [Export a single template](#export-a-single-template)).
+
+Response (`200`):
+
+```json
+{
+  "id": 1,
+  "archive_url": null,
+  "index_data": null,
+  "direction": "export",
+  "include_submissions": false,
+  "templates_and_folders_only": false,
+  "skip_webhook_settings": false,
+  "error_message": null,
+  "state": "pending",
+  "created_at": "2018-10-20T13:00:00Z",
+  "updated_at": "2018-10-20T13:00:00Z"
+}
+```
+
+## Other admin API endpoints
+
+We haven't documented every admin API endpoint. You can use any other endpoint
+that you find in the admin interface: use your browser's developer tools to see
+the requests it makes, then add `.json` to the end of the URL's path and send the
+request with the Basic Auth header described above.
+
+A few examples:
+
+| Action                               | Request                                       |
+| ------------------------------------ | --------------------------------------------- |
+| Create an account                    | `POST /admin/accounts.json`                   |
+| Create a user                        | `POST /admin/users.json`                      |
+| List all users                       | `GET /admin/users.json`                       |
+| List the users in a specific account | `GET /admin/accounts/<account_id>/users.json` |
+| List all templates                   | `GET /admin/templates.json`                   |
+
+Every "list" endpoint supports pagination with the `page` and `per_page` query
+parameters, e.g. `/admin/users.json?per_page=50&page=2`.
+
+Contact [support@docspring.com](mailto:support@docspring.com) if you have a
+feature request or need help.
