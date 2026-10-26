@@ -7,17 +7,31 @@ sidebar:
 
 import { Code, LinkCard } from "@astrojs/starlight/components";
 import fieldDefaults from "@client_shared/field_defaults.json";
+import openapi from "@root/openapi/v2/openapi.json";
 
-You can manually add a new field to a template by sending an Add Field API request.
-You can also modify existing fields or add many new fields at once with an Update Template request.
+You can add fields to a template with
+[Add fields to a template](/docs/api/#tag/templates/post/templates/{template_id}/fields), and change them with
+[Update a template's fields](/docs/api/#tag/templates/put/templates/{template_id}/fields). Every property is optional:
+a field without a `page` goes on page 1, and the field's other properties have the following default values:
 
-When adding fields to a template, the only required property is `name`.
-`page` is also required for PDF templates but not for HTML templates.
+{/* The defaults are stored with the template editor's camelCase names. These are the settings of API v2's Field. */}
 
-All other field properties will be set to the following default values:
+export const settingNames = Object.keys(
+  openapi.components.schemas.Field.properties,
+).filter((name) => !["id", "name", "page", "acroform_name"].includes(name));
+
+export const apiDefaults = (defaults) =>
+  Object.fromEntries(
+    Object.entries(defaults)
+      .map(([key, value]) => [
+        key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`),
+        value,
+      ])
+      .filter(([name]) => settingNames.includes(name)),
+  );
 
 <Code
-  code={JSON.stringify(fieldDefaults.field, null, 2)}
+  code={JSON.stringify(apiDefaults(fieldDefaults.field), null, 2)}
   lang="json"
   title="Default field values"
 />
@@ -25,17 +39,15 @@ All other field properties will be set to the following default values:
 Properties that are shared by every field with the same name (such as `type`, `required`, and `default`) use the following default values.
 Note that new fields are required by default (`"required": true`).
 
-export const sharedFieldDefaults = Object.fromEntries(
-  Object.entries(fieldDefaults.shared_field).filter(
-    ([key]) => key !== "fieldCount",
-  ),
-);
+export const sharedFieldDefaults = apiDefaults(fieldDefaults.shared_field);
 
 <Code
   code={JSON.stringify(sharedFieldDefaults, null, 2)}
   lang="json"
   title="Default shared field values"
 />
+
+API v1 names these settings in camelCase (`fontSize` instead of `font_size`).
 
 <LinkCard
   title="Field Schema"

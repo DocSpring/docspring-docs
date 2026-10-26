@@ -6,7 +6,7 @@ sidebar:
 ---
 
 import { Code, LinkCard } from "@astrojs/starlight/components";
-import openapi from "@root/openapi/v1/openapi.json";
+import openapi from "@root/openapi/v2/openapi.json";
 
 This page shows the complete JSON schema for template fields, including all possible properties and their types.
 
@@ -18,20 +18,19 @@ This page shows the complete JSON schema for template fields, including all poss
 
 ## Required Properties
 
-The only required properties for a field are:
-
-- `name` - The field name/identifier
-- `page` - The page number (for PDF templates only)
-
-All other properties are optional and will use the [default values](/docs/reference/field-defaults/)
+When you [add fields to a template](/docs/api/#tag/templates/post/templates/{template_id}/fields), every property is
+optional: a field without a `page` goes on page 1, and the others use their [default values](/docs/reference/field-defaults/).
+To [change fields](/docs/api/#tag/templates/put/templates/{template_id}/fields), send each one's `id` with the settings
+to change.
 
 ## Field Schema
 
-The following schema is extracted from the API v1 OpenAPI specification, where you add fields to a template with the [add fields](/docs/api/v1/#tag/templates/put/templates/{template_id}/add_fields) endpoint. API v2 doesn't add fields to templates yet. It shows all available field properties, their types, and validation rules. API v2 names field settings in snake_case (`font_size` instead of `fontSize`), in template `defaults` and a submission's `field_overrides`.
+This is a field as [List a template's fields](/docs/api/#tag/templates/get/templates/{template_id}/fields) returns it,
+with every property, its type and its allowed values. Adding and changing fields take the same properties, except the
+read-only ones. The same settings are in template `defaults` and a submission's `field_overrides`. API v1 names them in
+camelCase (`fontSize` instead of `font_size`).
 
-export const fieldSchema = openapi.paths[
-  "/templates/{template_id}/add_fields"
-].put.parameters.find((p) => p.name === "data").schema.properties.fields.items;
+export const fieldSchema = openapi.components.schemas.Field;
 
 <Code
   code={JSON.stringify(fieldSchema, null, 2)}

@@ -232,30 +232,26 @@ endpoint, which replaces the whole array:
 }
 ```
 
-Per-field rules are stored in the `dependencies` property of each field. API v2
-doesn't set fields yet, so set per-field rules in the template editor, or with
-the `shared_field_data` of API v1's
-[Update Template](/docs/api/v1/#tag/templates/put/templates/{template_id})
-endpoint (with `rangeMax` instead of `range_max`):
+Per-field rules are each field's `dependencies`. Set them with
+[Update a template's fields](/docs/api/#tag/templates/put/templates/{template_id}/fields),
+with the field's `id` from
+[List a template's fields](/docs/api/#tag/templates/get/templates/{template_id}/fields).
+A rule applies to every field with the same name, and `null` removes it:
 
 ```json
 {
-  "template": {
-    "shared_field_data": {
-      "beneficiary": {
-        "name": "beneficiary",
-        "type": "string",
-        "required": false,
-        "dependencies": {
-          "action": "require_and_show",
-          "match": "all",
-          "conditions": [
-            { "field": "coverage", "operator": "equals", "value": "family" }
-          ]
-        }
+  "fields": [
+    {
+      "id": 12,
+      "dependencies": {
+        "action": "require_and_show",
+        "match": "all",
+        "conditions": [
+          { "field": "coverage", "operator": "equals", "value": "family" }
+        ]
       }
     }
-  }
+  ]
 }
 ```
 

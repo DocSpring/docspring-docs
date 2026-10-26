@@ -34,6 +34,7 @@ Optional parameters:
 - `editable`: Keep the resulting PDF fillable or flatten the form fields. See [Editable PDFs](#editable-pdfs).
 - `expires_in`: Number of seconds until the submission expires. DocSpring then deletes the PDF, the submission data and metadata, and the submitter's IP address, browser and location. A submission that fails is kept for at least 48 hours.
 - `password`: Encrypt the generated PDF with this password. It's never returned: the submission's `has_password` says whether it's set.
+- `output_formats`: The files to make: `pdf`, and `png` for an image of each of the PDF's pages (see [Images of the Pages](#images-of-the-pages)). Defaults to `["pdf"]`.
 - `field_overrides`: Change field settings for this submission only, by field name, such as `{"name": {"required": false, "font_size": 9}}`. Setting names are snake_case.
 - `signature_requests`: Ask people to fill in fields and sign before the PDF is generated. See [Create Signature Requests](/docs/api-guide/create-signature-requests/).
 
@@ -43,6 +44,8 @@ Two options are query parameters, not part of the JSON body:
 - `wait`: Choose between synchronous and asynchronous processing (for example, `?wait=false`). See [Processing Modes](#processing-modes).
 
 Data that doesn't match the template's fields returns a 422 with an `invalid_data` error. The submission is still saved with its errors, so you can find it in DocSpring: the error's `submission_id` is its ID.
+
+To check a request without creating anything, send the same query and body to `POST /api/v2/templates/{template_id}/submissions/validate`. It runs the same checks without saving a submission, generating a PDF or using credits. The response's `valid` says whether creating the submission would succeed, and when it's `false`, `error` is the error that creating it would return.
 
 ## Processing Modes
 
@@ -60,6 +63,30 @@ There are two ways to control this:
 Some templates (for example, older templates) have the "Generate Editable PDFs" template setting turned on. For these templates, every field is editable unless the submission sets `editable: false`.
 
 Signed PDFs are always static. When a submission has a [signature request](/docs/forms/signature-requests/) that asks someone to sign or initial, every field is flattened, whatever the submission, the template and the fields say. Anyone holding an editable signed PDF could change a value and it would still look like the signed original. Signature requests that only collect values keep the options above.
+
+## Images of the Pages
+
+Add `png` to `output_formats` to also get a PNG image of each page of the PDF. The images are of the PDF, so `png` adds `pdf` if you leave it out:
+
+```json
+{
+  "data": { "first_name": "Jane" },
+  "output_formats": ["pdf", "png"]
+}
+```
+
+The images are made with the PDF, and the submission is processed once both exist. They're in the submission's `files.png.pages`, in page order (`pages[0]` is page 1), each with its `width` and `height` in pixels, a `download_url` and a `permanent_url`. The images are 140 DPI: a US Letter page is 1190 x 1540 pixels. If the images can't be made, you still get the PDF: the submission is processed, and `files.png` has the `state` `error` with an `error_message` that says why.
+
+To add the images to a submission that has already been processed, send `{"formats": ["png"]}` to `POST /api/v2/submissions/{submission_id}/generate_files`. On `sync.api.docspring.com` the request waits for the images. Otherwise `files.png` has the `state` `pending` until they've been made, then `processed`, or `error` with an `error_message`. The submission itself stays processed.
+
+- Images can be made of PDFs with up to 100 pages. A request for `png` is refused when the template, or for `generate_files` the PDF, has more pages. An audit trail adds pages, so a PDF can still go over the limit: then only `files.png` shows the error.
+- A password-protected PDF can't have images of its pages: they would show what the password protects.
+
+<LinkCard
+  title="API Reference: Generate More Files"
+  href="/docs/api/#tag/submissions/post/submissions/{submission_id}/generate_files"
+  description="Add images of the pages to a processed submission"
+/>
 
 ## Batch Generation
 

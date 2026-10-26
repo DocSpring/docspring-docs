@@ -1,0 +1,280 @@
+---
+title: Create a PDF Template with the API
+description: Create a template from a PDF, add fields where its pages need them, check what changed and publish it, with a curl request for each step.
+sidebar:
+  order: 5
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+This guide makes a PDF template with the API: it creates the template from a PDF,
+looks at images of its pages, adds fields to them, checks what changed and
+publishes a version. Each step is one `curl` request that you can copy.
+
+Send every request to `https://sync.api.docspring.com/api/v2` (EU accounts:
+`https://sync.api-eu.docspring.com/api/v2`). Authenticate with an
+[API token](/docs/api-guide/authentication/): its ID and secret are the username and
+password for HTTP Basic auth.
+
+```bash
+export DOCSPRING_TOKEN_ID="your_token_id"
+export DOCSPRING_TOKEN_SECRET="your_token_secret"
+```
+
+## 1. Create the template
+
+`template_type: "pdf"` makes a PDF template. Send its PDF in one of these ways:
+
+- `document_url`: an `https://` link to the PDF (up to 100 MB). DocSpring downloads it,
+  following redirects to other `https://` links.
+- `document_base64`: the PDF encoded as base64 (up to 7 MB before it's encoded). A
+  `data:` URI works too. Set `filename` to name the file.
+- `cache_id`: a file you uploaded with a [presigned upload](/docs/api/#tag/custom-files/get/uploads/presign),
+  for large files.
+- [Upload a template](/docs/api/#tag/templates/post/templates/upload) sends the PDF
+  with the request as `multipart/form-data`.
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "template_type": "pdf",
+    "name": "Rental application",
+    "document_url": "https://example.com/forms/rental-application.pdf"
+  }'
+```
+
+`sync.api.docspring.com` waits until the PDF has been downloaded and processed, so the
+response is the template with its PDF (shortened here):
+
+```json
+{
+  "id": "tpl_1234567890abcdef01",
+  "name": "Rental application",
+  "template_type": "pdf",
+  "ready": true,
+  "document": {
+    "filename": "rental-application.pdf",
+    "state": "processed",
+    "error_message": null,
+    "page_count": 2,
+    "page_dimensions": [
+      [612, 792],
+      [612, 792]
+    ]
+  }
+}
+```
+
+Keep the `id`: the next steps use it. If the PDF has fillable form fields, the template
+already has a field for each one. Their `acroform_name` is the name of the form field.
+
+The template is ready to use when `ready` is `true`. Until then, `document.state` says
+where it is:
+
+- `downloading` while DocSpring downloads a `document_url`, then `pending` while it
+  processes the PDF.
+- `download_failed` if the link couldn't be downloaded. `document.error_message` says
+  why, such as the HTTP status the link returned or that it wasn't a PDF.
+- `password_required` or `malformed_pdf` if the PDF can't be used: send another PDF.
+
+With `?wait=false`, or on `api.docspring.com`, the response comes straight away:
+[get the template](/docs/api/#tag/templates/get/templates/{template_id}) until it's
+ready.
+
+To replace the PDF later, send a `document_url`, `document_base64` or `cache_id` to
+[Update a template's document](/docs/api/#tag/templates/put/templates/{template_id}/document).
+A `document_base64` or `cache_id` replaces the PDF straight away. A `document_url`
+replaces it once it's downloaded: until then the template keeps using its current PDF,
+and it keeps that PDF if the link can't be downloaded. While DocSpring processes the new
+PDF (`document.state` is `pending`), new submissions wait for it.
+
+## 2. Look at the pages
+
+[Get images of a template's pages](/docs/api/#tag/templates/get/templates/{template_id}/page_images)
+returns a JPEG image of each page, with a temporary link to download it:
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/page_images \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET"
+```
+
+```json
+{
+  "template_id": "tpl_1234567890abcdef01",
+  "version": null,
+  "page_count": 2,
+  "pages": [
+    {
+      "page": 1,
+      "width": 1190,
+      "height": 1540,
+      "download_url": "https://downloads.docspring.com/store/.../page_1_large-...jpg?Expires=...&Signature=...",
+      "permanent_url": null,
+      "filename": "tpl_1234567890abcdef01_page_1.jpg",
+      "content_type": "image/jpeg",
+      "size": 184211,
+      "sha256": null
+    }
+  ]
+}
+```
+
+The images are 140 DPI, so a US Letter page is 1190 x 1540 pixels.
+
+Fields are placed in units where every page is 2480 wide, measured from the top-left
+corner of the page. To place a field at a point on an image, multiply the point's
+pixel coordinates by 2480 and divide them by the image's `width`. A point at pixel
+(238, 476) on a 1190-pixel-wide image is at `x` 496 and `y` 992. Sizes convert the same
+way. To convert from PDF points, divide by the page's width in points
+(`document.page_dimensions`) instead.
+
+## 3. Add fields
+
+[Add fields to a template](/docs/api/#tag/templates/post/templates/{template_id}/fields)
+takes a list of fields. Each has a `name` (the key of its value in submission data), the
+`page` it's on, its position and size, and a `type`:
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/fields \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fields": [
+      { "name": "full_name", "page": 1, "x": 496, "y": 992, "width": 1200, "height": 70, "type": "string" },
+      { "name": "move_in_date", "page": 1, "x": 496, "y": 1150, "width": 500, "height": 70, "type": "date" },
+      { "name": "signature", "page": 2, "x": 300, "y": 2600, "width": 900, "height": 200, "type": "signature", "display_type": "image" }
+    ]
+  }'
+```
+
+The response has all of the template's fields, with all of their settings and the `id`
+each new field was given. A field is required unless you send `"required": false`.
+Settings you leave out get their defaults, the same as a field added in the
+[template editor](/docs/template-editor/introduction/).
+
+Fields with the same `name` share one value. They also share the settings that
+describe the value, such as `type`, `required` and `default`: the
+[field reference](/docs/api/#tag/templates/post/templates/{template_id}/fields) says
+which settings are shared.
+
+To change fields, send each one's `id` with the settings to change to
+[Update a template's fields](/docs/api/#tag/templates/put/templates/{template_id}/fields).
+Settings you leave out keep their values. Renaming a field updates the conditional
+logic and formulas that use its name.
+
+```bash
+curl -X PUT https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/fields \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{ "fields": [{ "id": 2, "y": 1180, "required": false }] }'
+```
+
+To remove fields, send their IDs to
+[Remove fields from a template](/docs/api/#tag/templates/post/templates/{template_id}/fields/remove)
+as `{"field_ids": [3]}`. [List a template's fields](/docs/api/#tag/templates/get/templates/{template_id}/fields)
+returns them all, page by page. To change their order, send every field's ID in the new order to
+[Reorder a template's fields](/docs/api/#tag/templates/post/templates/{template_id}/fields/reorder). Each
+field stays on its page, and a later field prints over an earlier one where they overlap.
+
+These requests change the template's draft, the version you see in the template editor.
+A request that has a mistake changes nothing, and its 422 has a `pointer` to each
+value that's wrong, such as `/fields/1/page`.
+
+## 4. Check what changed
+
+[Compare a version of a template with the one before it](/docs/api/#tag/templates/get/templates/{template_id}/diff)
+returns what changed in the draft since the latest published version: the fields added,
+removed, changed and moved, the template settings that changed, and whether the PDF was
+replaced.
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/diff \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET"
+```
+
+The response (shortened here: each field has all its settings):
+
+```json
+{
+  "template_id": "tpl_1234567890abcdef01",
+  "from_version": null,
+  "to_version": null,
+  "summary": {
+    "fields_added": 3,
+    "fields_removed": 0,
+    "fields_changed": 0,
+    "fields_reordered": 0,
+    "settings_changed": 1,
+    "total_changes": 5
+  },
+  "fields": {
+    "added": [{ "id": 1, "name": "full_name", "page": 1, "x": 496, "y": 992 }],
+    "removed": [],
+    "changed": [],
+    "reordered": []
+  },
+  "changed_settings": ["name"],
+  "document_changed": true
+}
+```
+
+A template that was never published is compared with a new template, so `from_version`
+is `null` and every field is added. Send `?version=1.2.0` to see what a published
+version changed.
+
+## 5. Publish a version
+
+Submissions use the latest published version of a template (or its draft, until a
+version has been published). [Publish a version](/docs/api/#tag/templates/post/templates/{template_id}/publish_version)
+of the draft for them to use the new fields:
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/publish_version \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{ "version_type": "minor", "description": "Added the applicant fields" }'
+```
+
+## 6. Try it
+
+[Check a submission without creating it](/docs/api/#tag/submissions/post/templates/{template_id}/submissions/validate)
+checks a submission's data and settings as creating it would, without generating a PDF
+or using credits (it doesn't check your account's credits). Send it the data you plan to
+send:
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/submissions/validate \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{ "data": { "full_name": "Jane Doe", "move_in_date": "2026-11-01" } }'
+```
+
+The response's `valid` is `false` here, and its `error` is the error that creating the
+submission would return: `signature` is required.
+
+To see where the values print, create a test submission (`"test": true`, which is free)
+with `"output_formats": ["pdf", "png"]`. Its `files.png.pages` has an image of each
+filled page. See [Images of the Pages](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/#images-of-the-pages).
+
+## Troubleshooting
+
+| Response                  | What happened                                                                                                                                                         |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `422` `validation_failed` | The request itself is wrong: an unknown property, a missing one, or a value that isn't allowed. Each detail's `pointer` names the value. Nothing was saved.           |
+| `409` `conflict`          | The template's PDF isn't ready yet, or couldn't be used. The error's `message` says which. Get the template and wait until `ready` is `true`, or send another PDF.    |
+| `404` `not_found`         | No template with that ID in your account, or no published version with that number.                                                                                   |
+| `504` `polling_timeout`   | The PDF wasn't downloaded and processed before the request timed out. It's still being processed: get the template with the error's `template_id` until it's `ready`. |
+
+<LinkCard
+  title="API Reference: Templates"
+  href="/docs/api/#tag/templates"
+  description="Every template operation and field setting"
+/>
+
+<LinkCard
+  title="Generate PDFs via API"
+  href="/docs/api-guide/generate-pdfs/generate-pdfs-via-api/"
+  description="Fill the template with data"
+/>

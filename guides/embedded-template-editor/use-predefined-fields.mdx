@@ -9,31 +9,29 @@ Predefined fields let you give embedded template editor users a controlled list 
 
 ## Template Configuration
 
-Set `predefined_fields` when creating or updating a template with API v1. API v2 doesn't set predefined fields yet, so use API v1's [update template](/docs/api/v1/#tag/templates/put/templates/{template_id}) endpoint for this call:
+Set `predefined_fields` when you [create](/docs/api/#tag/templates/post/templates) or [update](/docs/api/#tag/templates/put/templates/{template_id}) a template. Setting it replaces the whole list, and an empty list turns predefined fields off:
 
 <Code
   code={`{
-  "template": {
-    "predefined_fields": [
-      {
-        "name": "customer/name",
-        "type": "string",
-        "required_in_template": true
-      },
-      {
-        "name": "customer/email",
-        "type": "string",
-        "required_in_template": true,
-        "field_required": true
-      },
-      {
-        "name": "agreement/signed_at",
-        "type": "date",
-        "required_in_template": false,
-        "field_required": false
-      }
-    ]
-  }
+  "predefined_fields": [
+    {
+      "name": "customer/name",
+      "type": "string",
+      "required_in_template": true
+    },
+    {
+      "name": "customer/email",
+      "type": "string",
+      "required_in_template": true,
+      "field_required": true
+    },
+    {
+      "name": "agreement/signed_at",
+      "type": "date",
+      "required_in_template": false,
+      "field_required": false
+    }
+  ]
 }`}
   lang="json"
   title="Template predefined fields"
@@ -43,7 +41,8 @@ When predefined fields are enabled in the template editor, users can assign fiel
 
 `type` sets the field's data type, such as `string`, `number`, `boolean`,
 `date`, `email`, `image`, or `signature`. For `string` fields, you can also set
-`optionList` to a comma-separated list of allowed values, such as `"Yes,No"`.
+`option_list` to a comma-separated list of allowed values, such as `"Yes,No"`
+(`optionList` in API v1).
 
 Use `required_in_template` when a predefined field must be added to the template
 at least once (the default is `false`). This controls the missing/present indicator in the predefined
@@ -62,9 +61,9 @@ defaults to `true`. Set it to `false` to hide the checkbox, so that fields keep
 the `field_required` value from their predefined field.
 
 <LinkCard
-  title="API v1 Reference: Update a Template"
-  href="/docs/api/v1/#tag/templates/put/templates/{template_id}"
-  description="Set predefined_fields and other template attributes with API v1"
+  title="API Reference: Update a Template"
+  href="/docs/api/#tag/templates/put/templates/{template_id}"
+  description="Set predefined_fields and other template settings"
 />
 
 ## Field Names

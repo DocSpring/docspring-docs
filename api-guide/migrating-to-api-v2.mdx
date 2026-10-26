@@ -5,7 +5,7 @@ sidebar:
   order: 10
 ---
 
-import { Aside, LinkCard } from "@astrojs/starlight/components";
+import { LinkCard } from "@astrojs/starlight/components";
 
 API v2 is the current version of the DocSpring API. Our 4.x [API clients](/docs/api-guide/install-api-client/)
 call it, and the 3.x clients call API v1. API v1 keeps working, so you can move one integration at a time: an API
@@ -42,7 +42,8 @@ Most operations keep their path. They're named after the resource they act on, s
 | `createHtmlTemplate`, `createPdfTemplateFromUpload` | `createTemplate`, with a `template_type` of `html` or `pdf`               |
 | `createPdfTemplate` (a multipart PDF upload)        | `uploadTemplate` (`POST /templates/upload`)                               |
 | `getTemplate`                                       | `getTemplate`; lists return summaries                                     |
-| `getFullTemplate` (`?full=true`)                    | `getTemplate`, without the template's fields for now                      |
+| `getFullTemplate` (`?full=true`)                    | `getTemplate`, and `listTemplateFields` for its fields                    |
+| `addFieldsToTemplate`                               | `addTemplateFields` (`POST /templates/{template_id}/fields`)              |
 | `updateTemplateDocumentFromUpload`                  | `updateTemplateDocument` (`PUT /templates/{template_id}/document`)        |
 | `updateTemplateDocument` (a multipart PDF upload)   | `uploadTemplateDocument` (`PUT /templates/{template_id}/document/upload`) |
 | `moveTemplateToFolder`                              | `moveTemplate`                                                            |
@@ -50,15 +51,15 @@ Most operations keep their path. They're named after the resource they act on, s
 | `getDataRequest`, `updateDataRequest`               | `getSignatureRequest`, `updateSignatureRequest` (`/signature_requests`)   |
 | `createDataRequestToken`, `createDataRequestEvent`  | `createSignatureRequestToken`, `createSignatureRequestEvent`              |
 
-API v2 also has `getFolder`, `listCustomFiles`, `getCustomFile` and `deleteCustomFile`.
+`updateTemplate` changes a template's settings, `predefined_fields`, conditional logic (`field_dependencies`) and the
+settings of its field groups (`field_groups`, v1's `{{name}}` entries in `shared_field_data`). Its fields have their
+own operations: `updateTemplateFields` changes them (in place of v1's `fields`, `fields_patch` and
+`shared_field_data`), `removeTemplateFields` removes them and `reorderTemplateFields` sets their order (v1's
+`field_order`). Each field in `listTemplateFields` has all its settings, including the ones it shares with the fields
+of the same name and its own conditional logic (`dependencies`), and its `y` is measured from the top of its own page.
 
-<Aside type="note" title="Not in API v2 yet">
-  A template's fields (`fields`, `shared_field_data` and `field_order` from
-  `getFullTemplate`), adding fields (`addFieldsToTemplate`), predefined fields
-  and per-field conditional rules are only in API v1 for now. Use the [API v1
-  reference](/docs/api/v1/) for them, with the same API token. API v2's
-  `getTemplateSchema` returns the JSON schema of a template's fields.
-</Aside>
+API v2 also has `getFolder`, `listCustomFiles`, `getCustomFile`, `deleteCustomFile`, `validateSubmission`,
+`generateSubmissionFiles`, `getTemplatePageImages` and `getTemplateDiff`.
 
 ## Requests
 

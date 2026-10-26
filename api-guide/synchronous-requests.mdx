@@ -16,7 +16,7 @@ A synchronous create request returns `201` with the record in its final state, w
 
 A synchronous batch returns a 402 as soon as any submission in it is waiting for credits, even if other submissions in the batch were already processed and charged. The error has the batch's `submission_batch_id`: [get the batch](/docs/api/#tag/submissions/get/submissions/batches/{submission_batch_id}) to see each submission's `state`, and don't resubmit the batch: the waiting submissions resume automatically once you add credits.
 
-Only requests that create a submission, batch, combined PDF or template PDF wait. A `GET` always returns the record straight away, in its current `state`, including a failure state or `insufficient_credits`.
+Only requests that create a submission, batch, combined PDF or template PDF, or add files to a submission, wait. A `GET` always returns the record straight away, in its current `state`, including a failure state or `insufficient_credits`.
 
 <Aside type="tip">
   We recommend using the `sync.api.docspring.com` subdomain for all API
@@ -43,8 +43,9 @@ The `wait` query parameter has no effect on the async subdomain.
 - Create Combined PDF: `POST /api/v2/combined_pdfs`
 - Create Template: `POST /api/v2/templates` and `POST /api/v2/templates/upload`
 - Update Template Document: `PUT /api/v2/templates/{template_id}/document` and `PUT /api/v2/templates/{template_id}/document/upload`
+- Generate More Files: `POST /api/v2/submissions/{submission_id}/generate_files`
 
-A template request waits until the template's PDF has been processed (its `document.state` isn't `pending`).
+A template request waits until the template's PDF has been processed, and until a `document_url` has been downloaded (its `document.state` isn't `pending` or `downloading`). A request for more files waits until they've been made (none of the submission's `files` has the `state` `pending`).
 
 ## Time limit
 
