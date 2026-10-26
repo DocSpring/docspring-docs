@@ -49,7 +49,9 @@ If you add some Field Options, then the value must be one of those options. A se
 
 ### Conditions
 
-When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Condition. The field will only be displayed when the value matches the condition. The condition predicate can be one of: _Equals_, _Contains_, _Starts With_, _Ends With_, or _Regex_. ([Static check marks and shapes](/docs/reference/field-display-types/#static-check-marks-and-shapes) are always displayed.)
+When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Condition. The field will only be displayed when the value matches the condition. The condition predicate can be one of: _Equals_, _Contains_, _Starts With_, _Ends With_, or _Regex_. ([Static check marks and shapes](/docs/reference/field-display-types/#static-check-marks-and-shapes) are always displayed.) A submission's _Regex_ conditions can take 2 seconds in all to check: if they take longer, the PDF isn't generated, and the submission's error names the field to fix.
+
+A _Regex_ condition is a Ruby regular expression. Visual forms and signature requests show which check marks and shapes match, as the PDF does, but they don't support some Ruby-only syntax: POSIX bracket expressions (`[[:alpha:]]`), class intersections (`[a-z&&[^aeiou]]`), `\p{...}`, atomic groups (`(?>...)`), possessive quantifiers (`a++`), comments (`(?#...)`), options other than a leading `(?i)`, and the escapes `\R`, `\X`, `\K`, `\G`, `\g` and `\e`. A form shows a check mark or shape whose Regex uses them as not matching, though the PDF still draws it when the value matches. So does a Regex with a group that repeats with nothing fixed in it, like `(a+)*` or `(\w+\s?)+`, which a browser can take minutes to match against a long value.
 
 <Image src={conditionsImg} alt="Conditions" width={250} />
 
@@ -211,7 +213,7 @@ See the [Image Display Type](/docs/reference/field-display-types/#image) section
 
 ## Signature
 
-A _Signature_ field allows you to collect legally binding e-signatures using our data requests feature.
+A _Signature_ field allows you to collect legally binding e-signatures with a signature request.
 
 <Image src={signatureFieldVisualImg} alt="Signature field modal" width={500} />
 
@@ -260,14 +262,14 @@ You must configure the correct barcode [symbology](https://en.wikipedia.org/wiki
 DocSpring supports the following symbologies:
 
 - [EAN-13](https://en.wikipedia.org/wiki/International_Article_Number)
-  - 12 digits _(a checksum digit is added)_
-  - _Pattern:_ `/^[0-9]{12}$/`
+  - 12 digits _(the check digit is added)_, or 13 ending with the check digit _(it must be correct)_
+  - _Pattern:_ `/^[0-9]{12,13}$/`
 - [EAN-8](https://en.wikipedia.org/wiki/EAN-8)
-  - 7 digits _(a checksum digit is added)_
-  - _Pattern:_ `/^[0-9]{7}$/`
+  - 7 digits _(the check digit is added)_, or 8 ending with the check digit _(it must be correct)_
+  - _Pattern:_ `/^[0-9]{7,8}$/`
 - [UPC-A](https://en.wikipedia.org/wiki/Universal_Product_Code)
-  - 11 digits _(DocSpring adds the leading zero)_
-  - _Pattern:_ `/^[0-9]{11}$/`
+  - 11 digits _(the check digit is added)_, or 12 ending with the check digit _(it must be correct)_
+  - _Pattern:_ `/^[0-9]{11,12}$/`
 - [PDF417](https://en.wikipedia.org/wiki/PDF417)
   - Any ASCII character
   - _(No validation)_
@@ -304,6 +306,8 @@ Choose _Use Separator_ or _Use Format String_:
 
 - _Separator_: Joins the values with any string (including an empty string.)
 - _Format String_: A string containing numbered variables that start at `$0`, in the order of the _Combined Field Names_. Example: `Full Name: $0, Address: $1`
+
+Each value is printed as its own field prints it: a date in the field's date format, a number with its decimal places, and a check box as its true or false text. A value is printed as written, even when it contains something like `$1`.
 
 ### Display Types
 

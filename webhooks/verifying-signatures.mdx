@@ -33,6 +33,9 @@ The header has two comma-separated parts:
 - `v1` — the signature: an HMAC-SHA256 hex digest. `v1` denotes the signature
   scheme version.
 
+The header can hold more than one `v1` signature, such as while a webhook's secret is
+being replaced. Accept the request when any of them matches.
+
 ## How the signature is computed
 
 DocSpring builds a **signed payload** by joining the timestamp and the raw request
@@ -56,10 +59,11 @@ possible.
 
 To verify an incoming request:
 
-1. Read the `X-DocSpring-Signature` header and parse out `t` and `v1`.
+1. Read the `X-DocSpring-Signature` header and parse out `t` and every `v1`.
 2. Recompute `HMAC_SHA256(secret, "{t}.{raw_body}")` using the **raw request body**
    exactly as received.
-3. Compare your computed value to `v1` using a **constant-time** comparison.
+3. Compare your computed value to each `v1` using a **constant-time** comparison.
+   The request is verified when one of them matches.
 4. Optionally reject requests whose timestamp `t` is too old to limit replay attacks.
 
 <Aside type="danger" title="Use the raw request body">
@@ -83,10 +87,10 @@ response).
     TOLERANCE_SECONDS = 300 # 5 minutes
 
     def verify_webhook(secret, signature_header, raw_body)
-      parts = signature_header.to_s.split(",").map { |p| p.split("=", 2) }.to_h
-      timestamp = parts["t"]
-      signature = parts["v1"]
-      return false if timestamp.nil? || signature.nil?
+      parts = signature_header.to_s.split(",").map { |p| p.split("=", 2) }
+      timestamp = parts.find { |key, _| key == "t" }&.last
+      signatures = parts.select { |key, _| key == "v1" }.map(&:last)
+      return false if timestamp.nil? || signatures.empty?
 
       # Reject old timestamps (replay protection)
       return false if (Time.now.to_i - timestamp.to_i).abs > TOLERANCE_SECONDS
@@ -94,10 +98,10 @@ response).
       signed_payload = "#{timestamp}.#{raw_body}"
       expected = OpenSSL::HMAC.hexdigest("SHA256", secret, signed_payload)
 
-      # Constant-time comparison (both are 64-char hex strings)
-      return false unless expected.bytesize == signature.bytesize
-
-      OpenSSL.fixed_length_secure_compare(expected, signature)
+      # Constant-time comparison (both are 64-char hex strings). Any v1 can match.
+      signatures.any? do |signature|
+        expected.bytesize == signature.bytesize && OpenSSL.fixed_length_secure_compare(expected, signature)
+      end
     end
 
     # Example (Rails controller):
@@ -114,13 +118,12 @@ response).
     const TOLERANCE_SECONDS = 300; // 5 minutes
 
     function verifyWebhook(secret, signatureHeader, rawBody) {
-      const parts = Object.fromEntries(
-        String(signatureHeader)
-          .split(",")
-          .map((p) => p.split("=", 2)),
-      );
-      const { t: timestamp, v1: signature } = parts;
-      if (!timestamp || !signature) return false;
+      const parts = String(signatureHeader)
+        .split(",")
+        .map((p) => p.split("=", 2));
+      const timestamp = parts.find(([key]) => key === "t")?.[1];
+      const signatures = parts.filter(([key]) => key === "v1").map(([, value]) => value);
+      if (!timestamp || signatures.length === 0) return false;
 
       // Reject old timestamps (replay protection)
       if (Math.abs(Date.now() / 1000 - Number(timestamp)) > TOLERANCE_SECONDS) {
@@ -133,9 +136,12 @@ response).
         .update(signedPayload, "utf8")
         .digest("hex");
 
+      // Any v1 can match
       const a = Buffer.from(expected);
-      const b = Buffer.from(signature);
-      return a.length === b.length && crypto.timingSafeEqual(a, b);
+      return signatures.some((signature) => {
+        const b = Buffer.from(signature);
+        return a.length === b.length && crypto.timingSafeEqual(a, b);
+      });
     }
 
     // Example (Express): use express.raw() so req.body is the raw Buffer:
@@ -160,12 +166,10 @@ response).
 
 
     def verify_webhook(secret: str, signature_header: str, raw_body: str) -> bool:
-        parts = dict(
-            part.split("=", 1) for part in signature_header.split(",") if "=" in part
-        )
-        timestamp = parts.get("t")
-        signature = parts.get("v1")
-        if not timestamp or not signature:
+        parts = [part.split("=", 1) for part in signature_header.split(",") if "=" in part]
+        timestamp = next((value for key, value in parts if key == "t"), None)
+        signatures = [value for key, value in parts if key == "v1"]
+        if not timestamp or not signatures:
             return False
 
         # Reject old timestamps (replay protection)
@@ -179,8 +183,8 @@ response).
             hashlib.sha256,
         ).hexdigest()
 
-        # Constant-time comparison
-        return hmac.compare_digest(expected, signature)
+        # Constant-time comparison. Any v1 can match.
+        return any(hmac.compare_digest(expected, signature) for signature in signatures)
 
 
     # Example (Flask): request.get_data(as_text=True) returns the raw body

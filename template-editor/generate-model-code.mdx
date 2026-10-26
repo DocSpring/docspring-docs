@@ -52,8 +52,8 @@ For languages that support it, the generated types are wrapped in a namespace or
 Build your request data with the generated type so your application can catch mistakes before the API call, then pass it as the submission `data`.
 
 <LinkCard
-  title="Create a PDF Submission"
-  href="/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions"
+  title="Create a Submission"
+  href="/docs/api/#tag/submissions/post/templates/{template_id}/submissions"
   description="Submit your data to generate a PDF"
 />
 
@@ -62,7 +62,7 @@ Build your request data with the generated type so your application can catch mi
 You can also fetch the code with the API, for example to keep your models up to date in a build step:
 
 ```
-GET https://sync.api.docspring.com/api/v1/templates/{template_id}/model_code?lang=ruby
+GET https://sync.api.docspring.com/api/v2/templates/{template_id}/model_code?lang=ruby
 ```
 
 The response contains the code and the name of the root type. For a template called "Lease Agreement":

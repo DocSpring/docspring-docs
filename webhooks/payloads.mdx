@@ -32,7 +32,13 @@ below.
 
 ## Request body
 
-The body is a JSON object with four top-level keys:
+The body's format depends on the webhook's [version](#webhook-versions). Webhooks
+you create in the dashboard or with API v1 use **version 3**, described first.
+Webhooks you create with [API v2](/docs/api/#tag/webhooks/post/webhooks) use
+**version 4**, where each event's `data` is the resource exactly as API v2 returns
+it (see [Version 4](#version-4)).
+
+A version 3 body is a JSON object with four top-level keys:
 
 ```json
 {
@@ -77,17 +83,17 @@ timestamps in API responses.
 - `resource` — a small pointer to the resource that triggered the event, with its
   `type` (e.g. `Submission`) and `id` (e.g. `sub_0XYZ...`).
 - The rest of `data` is the **serialized resource** itself. For a submission this is
-  the same object the API returns — including its `id`, `state`, `download_url`,
-  `metadata`, and so on.
+  the same object [API v1](/docs/api/v1/) returns — including its `id`, `state`,
+  `download_url`, `metadata`, and so on.
 
 The fields in `data` for each resource type (`data.resource.type`):
 
 | `data.resource.type`    | Fields                                                                              |
 | ----------------------- | ----------------------------------------------------------------------------------- |
-| `Submission`            | The API's submission object                                                         |
-| `CombinedSubmission`    | The API's combined submission object                                                |
-| `SubmissionBatch`       | The API's submission batch object, without its submissions                          |
-| `Template`              | The API's template object, as returned when listing templates                       |
+| `Submission`            | API v1's submission object                                                          |
+| `CombinedSubmission`    | API v1's combined submission object                                                 |
+| `SubmissionBatch`       | API v1's submission batch object, without its submissions                           |
+| `Template`              | API v1's template object, as returned when listing templates                        |
 | `SubmissionDataRequest` | `id`, `submission_id`, `name`, `email`, `completed_at`, `declined_at`, `fields`     |
 | `Folder`                | `id`, `name`, `path`, `parent_folder_id`                                            |
 | `CustomFile`            | `id`, `url`                                                                         |
@@ -96,7 +102,8 @@ The fields in `data` for each resource type (`data.resource.type`):
 | `AccountIntegration`    | `id`, `service`, `enabled`, `created_at`, `updated_at`                              |
 | `Webhook`               | `id`                                                                                |
 
-See the [API Reference](/docs/api/) for the fields of the objects the API returns.
+See the [API v1 reference](/docs/api/v1/) for the fields of these objects. Version 4
+payloads use API v2's objects instead (below).
 
 <Aside type="note" title="Which id is which">
   The top-level `id` is the event ID. `data.resource.id` and `data.id` are both
@@ -107,9 +114,74 @@ See the [API Reference](/docs/api/) for the fields of the objects the API return
   envelope, and the inner `data` is the submission's field data.
 </Aside>
 
+### Version 4
+
+A version 4 body has the same four parts, named as API v2 names things:
+
+```json
+{
+  "id": "6f1c2e8a-3b4d-4c5e-9f60-7a8b9c0d1e2f",
+  "event_type": "submission.processed",
+  "created_at": "2026-06-27T03:16:07Z",
+  "data": {
+    "id": "sub_1234567890abcdef01",
+    "state": "processed",
+    "test": false,
+    "template_id": "tpl_1234567890abcdef01",
+    "files": {
+      "pdf": {
+        "state": "processed",
+        "error_message": null,
+        "download_url": "https://downloads.docspring.com/store/...pdf?Expires=...&Signature=...&Key-Pair-Id=...&Hash-Algorithm=SHA256",
+        "permanent_url": "https://app.docspring.com/submissions/sub_1234567890abcdef01/files/pdf",
+        "filename": "sub_1234567890abcdef01.pdf",
+        "content_type": "application/pdf",
+        "size": 48213,
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+      }
+    },
+    "metadata": { "customer_id": "cus_123" },
+    "data": { "name": "Jane Doe", "amount": "1234.00" }
+  }
+}
+```
+
+The `data` above is shortened: it has every field of the API's
+[submission](/docs/api/#tag/submissions/get/submissions/{submission_id}).
+
+| Field        | Description                                                                      |
+| ------------ | -------------------------------------------------------------------------------- |
+| `id`         | The event ID. It stays the same when a delivery is retried.                      |
+| `event_type` | The event type in API v2's names, e.g. `submission.processed`.                   |
+| `created_at` | When the event happened (UTC, ISO 8601). It stays the same when it's retried.    |
+| `data`       | The resource as API v2 returns it, the same object as `GET` on it would give you |
+
+What `data` holds for each event:
+
+| Events                | `data`                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `submission.*`        | The [submission](/docs/api/#tag/submissions/get/submissions/{submission_id})                                                               |
+| `signature_request.*` | The [signature request](/docs/api/#tag/signature-requests/get/signature_requests/{signature_request_id})                                   |
+| `combined_pdf.*`      | The [combined PDF](/docs/api/#tag/combined-pdfs/get/combined_pdfs/{combined_pdf_id})                                                       |
+| `submission_batch.*`  | The [submission batch](/docs/api/#tag/submissions/get/submissions/batches/{submission_batch_id}), with its submissions' `data` always null |
+| `template.*`          | The template summary, as [listing templates](/docs/api/#tag/templates/get/templates) returns it                                            |
+| `webhook.*`           | The [webhook](/docs/api/#tag/webhooks/get/webhooks/{webhook_id}), without its `secret` and `headers`                                       |
+| `custom_file.*`       | The [custom file](/docs/api/#tag/custom-files/get/custom_files/{custom_file_id})                                                           |
+| `folder.*`            | The [folder](/docs/api/#tag/folders/get/folders/{folder_id})                                                                               |
+
+Version 4 webhooks use API v2's [event names](/docs/webhooks/events/#event-names-in-version-4),
+and can't subscribe to API token, user and integration events, which API v2 has no
+resources for. For a `*.deleted` event, `data` is the resource as it was just before
+it was deleted.
+
+When **Include submission data** is off, a submission's and a signature request's
+`data`, a submission's `truncated_text`, and each signature request's `ip_address` and
+`user_agent` are `null` instead of being left out. See
+[Include submission data](#include-submission-data).
+
 ### Event IDs
 
-Every v3 delivery has an event ID, sent as the body's top-level `id` and in the
+Every v3 and v4 delivery has an event ID, sent as the body's top-level `id` and in the
 `X-DocSpring-Event-Id` header. The ID stays the same when DocSpring
 [retries](/docs/webhooks/delivery-and-retries/) a delivery, so you can use it to
 recognize an event you've already processed and ignore the repeat.
@@ -127,21 +199,24 @@ Every webhook has a **version** that controls the payload format used for
 **submission events** — `submission.processed`, `submission.failed`, and the other
 `submission.*` events:
 
-| Version          | Format                                                                                                   |
-| ---------------- | -------------------------------------------------------------------------------------------------------- |
-| **v3** (current) | The event envelope shown above (`id`, `event`, `timestamp`, `data`).                                     |
-| **v2** (legacy)  | `{ "submission": { ... } }` — the serialized submission as a JSON object.                                |
-| **v1** (legacy)  | A form-encoded body with a single `submission` field holding the serialized submission as a JSON string. |
+| Version          | Format                                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| **v4** (API v2)  | `id`, `event_type`, `created_at` and `data`, with API v2's resources and names. See [Version 4](#version-4). |
+| **v3** (current) | The event envelope shown above (`id`, `event`, `timestamp`, `data`).                                         |
+| **v2** (legacy)  | `{ "submission": { ... } }` — the serialized submission as a JSON object.                                    |
+| **v1** (legacy)  | A form-encoded body with a single `submission` field holding the serialized submission as a JSON string.     |
 
-New webhooks default to **v3**, which we recommend for all new integrations. The v1
-and v2 formats exist only so that endpoints created before the current webhook system
-keep receiving the exact payloads they were built for.
+Webhooks you create with API v2 are **v4**, and webhooks you create in the dashboard
+or with API v1 default to **v3**. The v1 and v2 formats exist only so that endpoints
+created before the current webhook system keep receiving the exact payloads they were
+built for. A webhook's version applies to every event it sends, except on v1 and v2
+webhooks (see below).
 
 <Aside type="note" title="Versioning only applies to submission events">
   The version setting only changes the payload for submission events, since
   those were the only events the legacy formats ever sent. Every other event
-  type — data requests, templates, folders, and so on — is always delivered as
-  **v3**, even on a v1 or v2 webhook.
+  type — signature requests, templates, folders, and so on — is always delivered
+  as **v3**, even on a v1 or v2 webhook.
 </Aside>
 
 **Include submission data** and **strip fields** still apply to legacy payloads; they
@@ -155,8 +230,14 @@ the original webhook behavior.
 
 By default the submitted form values are included (under `data.data`). If you only
 need to know that an event happened — and want to avoid sending field data to your
-endpoint — turn **Include submission data** off. DocSpring then omits the `data.data`
-object from the payload while keeping the rest of the event.
+endpoint — turn **Include submission data** off. DocSpring then leaves out every form
+value while keeping the rest of the event:
+
+- The submission's `data` is left out (`null` on a version 4 webhook), and its
+  `truncated_text` is `null`.
+- For each data request (signature request) in the payload, the values its signer
+  entered (`data`), and the `ip_address` and `user_agent` they signed from, are `null`.
+  Its name, email, state, timestamps and authentication details are kept.
 
 ### Strip specific fields
 

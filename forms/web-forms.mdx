@@ -46,6 +46,10 @@ The [query params](#query-params) below work in every mode, except that the visu
 First, you will need to go to your template's settings and make sure that "Online Form Privacy"
 is set to "Public". This will allow unauthenticated users to fill out your embedded form.
 
+Anyone can then create a submission for the template through the API, without an API token. Only your own account's
+API tokens can send `data_requests`, `html`, `css`, `password`, `expires_in` or `editable` with it: anyone else gets a
+422 error. From anyone else, `field_overrides` keeps only `hidden`, `required` and `backgroundColor`.
+
 You may also want to set "Submission Privacy" to "Public".
 When this is set to "Private", the user can save the form, but they will not be able to see when the PDF has been processed. They will also not be able to download the generated PDF.
 

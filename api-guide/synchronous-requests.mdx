@@ -9,14 +9,14 @@ import { Aside } from "@astrojs/starlight/components";
 
 The DocSpring API supports both synchronous and asynchronous API requests.
 
-- **Synchronous API requests** make it much easier to integrate DocSpring with your application. When you make a synchronous API request, the API will wait until the PDF is generated before returning a `201` response with the `download_url`.
+- **Synchronous API requests** make it much easier to integrate DocSpring with your application. When you make a synchronous API request, the API will wait until the PDF is generated before returning a `201` response with the PDF's `download_url` (in `files.pdf`).
 - **Asynchronous requests** are useful when generating a PDF takes a long time, or when you want to generate a PDF in the background. When you make an asynchronous request, the API will return a `201` response immediately, and you can check the status of the request later.
 
-A synchronous create request returns `201` whether the PDF was generated or processing failed. Check the response's `status` field (`success` or `error`) and the submission's `state`. The one exception is running out of credits, which returns `402 Payment Required` (see [Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
+A synchronous create request returns `201` with the record in its final state, whether the PDF was generated or processing failed. Check the submission's `state`: `processed` when the PDF is ready, or a failure state with an `error_message` that says why (`error`, `syntax_error`, `image_download_failed` or `image_processing_failed`). The one exception is running out of credits, which returns a 402 with an `insufficient_credits` error and the record's ID (see [Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
 
-A synchronous batch returns `402` as soon as any submission in it is waiting for credits, even if other submissions in the batch were already processed and charged. Check each submission's `state` in the response, and don't resubmit the batch: the waiting submissions resume automatically once you add credits.
+A synchronous batch returns a 402 as soon as any submission in it is waiting for credits, even if other submissions in the batch were already processed and charged. The error has the batch's `submission_batch_id`: [get the batch](/docs/api/#tag/submissions/get/submissions/batches/{submission_batch_id}) to see each submission's `state`, and don't resubmit the batch: the waiting submissions resume automatically once you add credits.
 
-A synchronous `GET` for a submission that is still pending waits for it to finish, then returns `200`, `400` or `402` based on the final state. A `GET` for a submission that has already finished returns `200` with its current `state`, including `error` or `insufficient_credits`.
+Only requests that create a submission, batch, combined PDF or template PDF wait. A `GET` always returns the record straight away, in its current `state`, including a failure state or `insufficient_credits`.
 
 <Aside type="tip">
   We recommend using the `sync.api.docspring.com` subdomain for all API
@@ -38,44 +38,41 @@ The `wait` query parameter has no effect on the async subdomain.
 
 ## Synchronous API Endpoints
 
-- Create Submission: `POST /api/v1/templates/{template_id}/submissions`
-- Create Submission Batch: `POST /api/v1/submissions/batches`
-- Create Combined Submission: `POST /api/v1/combined_submissions`
-- Create Template: `POST /api/v1/templates`
-- Get Submission: `GET /api/v1/submissions/{submission_id}`
-- Get Submission Batch: `GET /api/v1/submissions/batches/{submission_batch_id}`
-- Get Combined Submission: `GET /api/v1/combined_submissions/{combined_submission_id}`
-- Get Template: `GET /api/v1/templates/{template_id}`
+- Create Submission: `POST /api/v2/templates/{template_id}/submissions`
+- Create Submission Batch: `POST /api/v2/submissions/batches`
+- Create Combined PDF: `POST /api/v2/combined_pdfs`
+- Create Template: `POST /api/v2/templates` and `POST /api/v2/templates/upload`
+- Update Template Document: `PUT /api/v2/templates/{template_id}/document` and `PUT /api/v2/templates/{template_id}/document/upload`
+
+A template request waits until the template's PDF has been processed (its `document.state` isn't `pending`).
 
 ## Time limit
 
 The synchronous subdomain waits **up to 95 seconds** for your PDF. Most PDFs are ready within a few seconds, so this is only an upper limit.
 
-If the PDF still isn't ready after 95 seconds, the API returns a `504` response with the error code `polling_timeout`. The response still includes the submission (or the template, combined submission or submission batch you created), and processing carries on in the background:
+If the PDF still isn't ready after 95 seconds, the API returns a `504` response with the error code `polling_timeout`. The error includes the ID of the submission (or the `submission_batch_id`, `combined_pdf_id` or `template_id` of the record you created), and processing carries on in the background:
 
 ```json
 {
-  "status": "error",
   "error": {
     "code": "polling_timeout",
-    "message": "polling timeout after 1m35s"
-  },
-  "submission": {
-    "id": "sub_1234567890abcdef01",
-    "state": "pending"
+    "message": "Timed out waiting for the submission to be processed. It's still being processed: get it with GET /api/v2/submissions/sub_1234567890abcdef01 until its state isn't pending.",
+    "details": [],
+    "request_id": "req_1234567890abcdef01",
+    "submission_id": "sub_1234567890abcdef01"
   }
 }
 ```
 
-_(Other submission fields are left out here.)_
-
-Use the ID to [check the submission's status](/docs/api/#tag/pdf-submissions/get/submissions/{submission_id}), or use [webhooks](/docs/webhooks/overview/) to find out when it's ready. A status check on the synchronous subdomain also waits up to 95 seconds for the PDF. Add `?wait=false` to get the current status straight away.
+Use the ID to [check the submission's status](/docs/api/#tag/submissions/get/submissions/{submission_id}), or use [webhooks](/docs/webhooks/overview/) to find out when it's ready.
 
 <Aside type="caution">
   If a request to create a submission (or another record) returns a
   `polling_timeout` error that includes the record, don't send that request
   again. The record was already created, so sending it again creates a
-  duplicate.
+  duplicate. A `polling_timeout` error without an ID means DocSpring didn't
+  answer the request in time, so the record may or may not have been created:
+  check for it before you send the request again.
 </Aside>
 
 If some of your PDFs regularly take longer than 95 seconds, add `?wait=false` to those requests. You'll get the pending submission straight away, and can then check its status or use webhooks as described above.

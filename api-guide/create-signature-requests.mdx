@@ -1,0 +1,167 @@
+---
+title: Create Signature Requests
+description: Learn how to create PDF submissions with pending signature requests
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+### Create a new PDF job submission with pending signature requests
+
+API v1 calls signature requests data requests (`data_requests`). They're the same records.
+
+This feature allows you to request information or signatures from one or more people. When you have a pending signature request, you can then redirect your user to a form hosted on docspring.com, embed this form on your website, or send them a link via email.
+
+Once all of the signature requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server. If a signer [declines to sign](/docs/forms/signature-requests/#declining-to-sign), the submission is cancelled instead and no PDF is generated.
+
+Each signature request that asks its signer to sign or initial adds **60 credits**
+to the final live PDF's cost. Signature requests that only collect values add
+nothing: you pay only for the PDF. Creating signature requests, issuing access tokens, and recording events
+have no separate charge. Watermarked test submissions and previews are free.
+
+<LinkCard
+  title="How Credits Work"
+  href="/docs/billing/how-credits-work/"
+  description="Credit costs for PDF generation and signature requests"
+/>
+
+:::tip
+See the [Signature Requests](/docs/forms/signature-requests/) documentation for more information about how signature requests work.
+:::
+
+### API Endpoint
+
+This uses the same API endpoint as a regular PDF generation request, with an additional `signature_requests` array.
+Signature requests are for PDF templates only.
+
+<LinkCard
+  title="POST /api/v2/templates/{template_id}/submissions"
+  description="Create a submission from a template"
+  href="/docs/api/#tag/submissions/post/templates/{template_id}/submissions"
+/>
+
+### Parameters
+
+The request body must be a JSON object with the following properties:
+
+- `data` _(object, optional)_: Values for the fields that nobody fills in, by field name. Required unless the signature requests collect every value.
+- `metadata` _(object, optional)_: Any additional data, such as a user id. `metadata` will be included in webhook requests.
+- `test` _(boolean, optional)_: `true` to generate a test PDF, `false` for a live PDF. Test PDFs are free, but watermarked.
+- `signature_requests` _(array of objects, optional)_: Up to 100 signature requests. Each object in the array can have the following properties:
+  - `role` _(string, optional)_: Which of the template's signers this person is: `Signer 1`, `Signer 2` and so on. Without roles, the first signature request is `Signer 1`, the second `Signer 2`, and so on.
+    - To leave a signer out, give every signature request its `role` and leave that signer's out. Either every signature request has a `role` or none does.
+    - `Signer 1`'s details go in the template's [`@@signature_requests/0` fields](/docs/template-editor/field-names/#special-field-names-for-signature-requests), `Signer 2`'s in `@@signature_requests/1`, and so on. A signer you leave out has no signature request, so its fields stay empty.
+  - `email` _(string, optional)_: The user's email address. We recommend including it, because it is shown in the audit trail.
+  - `name` _(string, optional)_: The user's name.
+  - `fields` _(array of field names, required)_: The field names that this person must fill in.
+    - Each field can only be in one signature request.
+    - For a list, name the field with `~` for its items (`items/~/code`) to ask for every item, or name one item (`items/0/code`) to ask for only that one.
+    - A field that `data` already has a value for is a 422, unless you set `prefilled_values_editable` to let the person change the value.
+    - A name that the template doesn't have saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. Set `ignore_unknown_fields` to leave those names out instead, which lets you send one field list with several templates.
+  - `metadata` _(object, optional)_: Any additional data that you want to associate with this signature request.
+  - `auth_type` _(string, required)_: One of: `password`, `oauth`, `email_link`, `phone_number`, `ldap`, `saml`
+    - Use `email_link` if you are sending an authenticated link in an email.
+  - `auth_session_started_at` _(string, optional)_: The timestamp when the user was authenticated.
+    - We will set `auth_session_started_at` automatically when `auth_type` is `email_link`.
+  - `auth_second_factor_type` _(string, optional)_: One of: `none`, `phone_number`, `totp`, `mobile_push`, `security_key`, `fingerprint`.
+  - `auth_provider` _(string, optional)_: If `auth_type` is `oauth`, then please tell us the service (e.g. _google_, _facebook_, _twitter_)
+  - `auth_session_id_hash` _(string, optional)_: SHA256 hash of (salt + session ID) _(if your application uses a session ID)_
+  - `auth_user_id_hash` _(string, optional)_: User ID, or SHA256 hash of (salt + User ID)
+  - `auth_username_hash` _(string, optional)_: Username, or SHA256 hash of (salt + username)
+  - `auth_phone_number_hash` _(string, optional)_: Phone number, or SHA256 hash of (salt + phone number) _(if the user used their phone for authentication)_
+  - `prefilled_values_editable` _(boolean, optional)_: Let the person change the values that `data` already has for their fields.
+  - `ignore_unknown_fields` _(boolean, optional)_: Leave out names in `fields` that the template doesn't have.
+
+You can also send the other parameters of a standard PDF generation request, such as the `version` query parameter, `expires_in` and `password`. See [Generate PDFs via API](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/).
+
+Only the signers can sign a submission that has signature requests, and its signed PDF is always static:
+
+- A value for a signature or initials field, in `data` or in a field override's `default`, saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. Image fields can still take values.
+- `editable: true`, on the submission or in `field_overrides`, is a 422.
+
+:::note
+Please [contact us](https://docspring.com/contact/) if you need a different `auth_type` or `auth_second_factor_type`.
+:::
+
+### Authentication Details
+
+It's important to provide accurate authentication details in case an electronic signature is disputed.
+You can send us SHA256 hashes if you don't want to disclose too much information about
+your user accounts. (However, you must never send a plaintext session ID, because
+this is very sensitive information.)
+
+If your user ID column is an incrementing integer, then it
+is important to use a salt to hide this information.
+We recommend configuring a single salt that you use for all of your SHA256 hashes.
+Alternatively, you can use a different salt for each user, and store this in
+your database. But please make sure you never lose this salt, otherwise there is no way to
+prove that the SHA256 hashes match the records in your database.
+
+### Example Response
+
+The response is the submission. Some of its properties are left out here:
+
+```json
+{
+  "id": "sub_1234567890abcdef01",
+  "template_id": "tpl_1234567890abcdef01",
+  "state": "waiting_for_signature_requests",
+  "test": true,
+  "metadata": {
+    "user_id": 42
+  },
+  "signature_requests": [
+    {
+      "id": "srq_1234567890abcdef01",
+      "submission_id": "sub_1234567890abcdef01",
+      "name": "John Smith",
+      "email": "jsmith@example.com",
+      "fields": ["name", "signature"],
+      "sort_order": 0,
+      "state": "pending",
+      "viewed_at": null,
+      "completed_at": null,
+      "declined_at": null,
+      "auth_type": "email_link"
+    }
+  ],
+  "files": {},
+  "expired": false,
+  "expires_at": null,
+  "processed_at": null,
+  "created_at": "2018-10-20T09:00:00Z"
+}
+```
+
+`files.pdf` appears when every signature request is completed and the PDF has been generated. `files.preview` can appear earlier, so check `state` to know when the submission is signed.
+
+### See Also
+
+<LinkCard
+  title="Signature Requests Overview"
+  href="/docs/forms/signature-requests/"
+  description="Learn about signature requests and how they work"
+/>
+
+<LinkCard
+  title="API Reference: Create a Submission"
+  href="/docs/api/#tag/submissions/post/templates/{template_id}/submissions"
+  description="Full API reference for creating a submission"
+/>
+
+<LinkCard
+  title="Create Signature Request Event"
+  href="/docs/api/#tag/signature-requests/post/signature_requests/{signature_request_id}/events"
+  description="Track user interactions with signature request forms"
+/>
+
+<LinkCard
+  title="Create Signature Request Auth Token"
+  href="/docs/api/#tag/signature-requests/post/signature_requests/{signature_request_id}/tokens"
+  description="Generate authentication tokens for secure signature requests"
+/>
+
+<LinkCard
+  title="Update Signature Request"
+  href="/docs/api/#tag/signature-requests/put/signature_requests/{signature_request_id}"
+  description="Update existing signature request information"
+/>

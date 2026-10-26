@@ -18,17 +18,122 @@ to fill out PDF templates and generate PDFs.
 
 <Aside type="caution">
   The visual forms library does not provide any ESIGN/UETA compliance features
-  such as audit trail logging. It is used internally by the [Data
-  Requests](/docs/guides/embedded-forms/embedded-data-requests/) library when we
-  display the signing form inside a secure iframe. Please use the data requests
-  library if you need to collect legally binding signatures.
+  such as audit trail logging. Signature Requests JS uses it inside a secure
+  iframe to show the signing form for a [signature
+  request](/docs/guides/embedded-forms/embedded-signature-requests/). Use
+  signature requests if you need to collect legally binding signatures.
 </Aside>
 
 You can also [get these release notes by email](https://app.docspring.com/email/subscribe?list=visual_form).
 
 ## Changelog
 
-### 2.17.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.18.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 26, 2026
+</div>
+
+- A template with a static _Number_ field that has a default or a formula can
+  be submitted. The form sent the field's value, which the template's JSON
+  schema doesn't allow, so the submission failed. The value is still shown, and
+  calculated again when the PDF is generated.
+- The form ignores values for a field that is static in the template, in
+  `defaultFormData`, `staticFormData` or a field override of a static _Number_
+  field's default, and shows the template's value, which the PDF prints. The
+  API rejected a submission with them. A template that allows additional
+  properties accepts them, so the form keeps and submits them, as before. The
+  `onSubmit` callback still gets every static field's value.
+- Image fields with a default value no longer make the submission fail. The
+  default isn't sent: the PDF shows it when the field is optional and left
+  empty.
+- Check marks and shapes match their _Condition_ as the PDF does. _Starts
+  With_, _Ends With_ and _Regex_ conditions no longer stop the form from
+  loading, and _Number_ conditions are applied. A _Regex_ is matched as Ruby
+  matches it, apart from some [Ruby-only
+  syntax](/docs/reference/field-data-types/#conditions) that the form doesn't
+  support. A _String_ check mark or shape whose _Equals_ condition is empty is
+  selected only when its value is empty, as the PDF draws it. It was always
+  shown selected.
+- Clicking a selected optional check mark or shape clears it, also when a longer
+  value selects it (_Starts With_, _Ends With_ or _Contains_). A _Regex_ check
+  mark only shows whether the value matches: clicking it doesn't change the
+  value.
+- Images passed in `defaultFormData` or `staticFormData`, or sent with the
+  submission, count as filled in and are shown. So do signatures and initials
+  on a visual form. One the form can't preview (a URL or an uploaded image ID)
+  shows "Image added", "Signed" or "Initialed". A typed signature with a blank
+  name doesn't count as signed.
+- A prefilled image that the field only shows can't be replaced: clicking it no
+  longer opens the file picker.
+- In a signature request, only the signer can sign: the form ignores
+  signatures and initials in `defaultFormData` and `staticFormData`, and a
+  signature field the request asks for starts empty. A signature the submission
+  already has for another field is shown read-only, and no longer stops the
+  signer from finishing.
+- A field whose options were removed in the template editor shows a text input
+  instead of an empty drop-down.
+- A static field with options, or a field whose value is shown read-only, shows
+  its value instead of a drop-down. A required drop-down can be changed but no
+  longer cleared.
+- An option list with spaces after its commas (`Yes, No`) no longer rejects the
+  options after the first one.
+- Fields for each item of a list (named like `items/0/code`) are checked item by
+  item. A required one no longer stops the form from being submitted when every
+  item is filled in, and max length, number limits, email and option checks
+  apply to each item. An empty item before a filled one is sent as an empty
+  item instead of `null`, which the API rejected. In a signature request, a
+  field list that names a list's field with `~` (`items/~/code`) asks for every
+  item, and one that names an item (`items/0/code`) asks for only that item.
+- A _Number_ field named `length` is submitted with the form.
+- Shows the dates in fields named `@@signature_requests/N/completed_at` and
+  `viewed_at`, the new name for `@@data_requests/N/...` (which still works).
+- A `completed_at` or `viewed_at` field for another signer shows the dates of
+  the signature request with index N, as the PDF does (see
+  [special field names](/docs/template-editor/field-names/#special-field-names-for-signature-requests)).
+  When no signature request had that index, it showed the next signer's dates.
+- The internal error for a form opened without its signature request options
+  names the missing options, without their values.
+- `onError` gets `{ error, message }` when the PDF couldn't be generated
+  (`processing_failed`), and once when it takes more than a minute
+  (`processing_timeout`) while the form keeps waiting. It got nothing before,
+  every second after the first minute. A failed save still passes the request's
+  error.
+- Waiting for the PDF carries on after a failed status check, and stops after
+  five in a row. It stopped at the first.
+
+Signing forms (signature requests):
+
+- A signer can only fill in the fields the signature request asks them to fill in.
+  Every other field is read-only and shows what the PDF will print, and isn't
+  shown when there's nothing to print. DocSpring only saves the signer's own
+  fields.
+- `setField()`, `defaultFormData` and `staticFormData` only fill in the
+  signer's own fields. `setField()` can't fill in a signature or initials field:
+  only the signer signs.
+- `submitForm()` shows the **I Agree** step, as the **Continue** button does
+  (or the fields that still need a value). The signer agrees to submit.
+- Opened by Signature Requests JS 3.0.0, the form ignores `setField()`,
+  `submitForm()`, `defaultFormData`, `staticFormData` and `domainVerification`,
+  and sends `onError` an `error` code and a `message` for every error.
+- The form only takes messages from the page that opened it, takes the page's
+  options once, and only the options Signature Requests JS (or Data Requests
+  JS) sends.
+- A read-only image or signature field no longer opens the file picker or the
+  inline signature pad.
+- A list field or multiline field that the signature request asks for is shown even
+  when it's empty, and static and combined fields are shown.
+- An image or signature that the PDF prints from a URL shows the copy that
+  DocSpring downloaded when the submission was created, which the PDF prints,
+  and **Loading image…** until it's downloaded.
+
+In visual forms and signing forms:
+
+- A combined field shows what the PDF prints, including other signers' values,
+  with each value formatted as the PDF prints it (dates in their date format,
+  numbers with their decimal places, check boxes as their true or false text).
+
+### 2.17.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 22, 2026
@@ -161,7 +266,7 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 </div>
 
 - Added the **Decline** button that [Data Requests JS
-  2.4.0](/docs/changelogs/data-requests-js/) shows in the form header, so a
+  2.4.0](/docs/changelogs/signature-requests-js/) shows in the form header, so a
   signer can decline to sign.
 
 ### 2.9.1
@@ -510,7 +615,7 @@ You can also [get these release notes by email](https://app.docspring.com/email/
   Released on Sep 9, 2020
 </div>
 
-- _For [Data Request](/docs/guides/embedded-forms/embedded-data-requests/) users:_ Added support for all `field_overrides` (from the [Generate PDF](/docs/api/#tag/pdf-submissions/post/templates/{template_id}/submissions) API requests), so that field options can be configured dynamically for each data request.
+- _For [Data Request](/docs/guides/embedded-forms/embedded-signature-requests/) users:_ Added support for all `field_overrides` (from the [Generate PDF](/docs/api/v1/#tag/pdf-submissions/post/templates/{template_id}/submissions) API requests), so that field options can be configured dynamically for each data request.
 
 ### 2.3.7
 

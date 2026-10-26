@@ -1,0 +1,194 @@
+---
+title: Create an HTML Template with the API
+description: Create an HTML template, fill it with JSON data and download the PDF, with a curl request for each step.
+sidebar:
+  order: 2
+  label: Create with the API
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+This guide creates an HTML invoice template with the API, generates a PDF from JSON
+data, and downloads it. Each step is one `curl` request that you can copy.
+
+Send every request to `https://sync.api.docspring.com/api/v2` (EU accounts:
+`https://sync.api-eu.docspring.com/api/v2`). Authenticate with an
+[API token](/docs/api-guide/authentication/): its ID and secret are the username and
+password for HTTP Basic auth.
+
+```bash
+export DOCSPRING_TOKEN_ID="your_token_id"
+export DOCSPRING_TOKEN_SECRET="your_token_secret"
+```
+
+## 1. Create the template
+
+`template_type: "html"` makes an HTML template. Its `html` uses
+[Liquid](/docs/html-templates/overview/#liquid) to insert the values you send, and
+`scss` styles it (plain CSS works too).
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "template_type": "html",
+    "name": "Invoice",
+    "html": "<h1>Invoice {{ invoice_number }}</h1><p>Bill to: {{ customer_name }}</p><table>{% for item in line_items %}<tr><td>{{ item.description }}</td><td>{{ item.amount }}</td></tr>{% endfor %}</table>",
+    "scss": "h1 { font-size: 24px; } td { padding: 4px 8px; }"
+  }'
+```
+
+The response is the new template (shortened here):
+
+```json
+{
+  "id": "tpl_1234567890abcdef01",
+  "name": "Invoice",
+  "template_type": "html",
+  "ready": true,
+  "document": null,
+  "html": "<h1>Invoice {{ invoice_number }}</h1>...",
+  "scss": "h1 { font-size: 24px; } td { padding: 4px 8px; }",
+  "created_at": "2026-10-19T09:00:00Z"
+}
+```
+
+Keep the `id`: you'll use it to generate PDFs.
+
+<Aside type="caution">
+  Without `template_type`, the API rejects the request. A PDF template
+  (`"template_type": "pdf"`) needs a PDF, which you upload with [Upload a
+  template](/docs/api/#tag/templates/post/templates/upload).
+</Aside>
+
+## 2. Check that the template is ready
+
+A template can generate PDFs when its `ready` is `true`:
+
+- **HTML templates** are ready as soon as they're created, and have no `document`.
+- **PDF templates** are ready once DocSpring has processed their PDF. Until then
+  `ready` is `false` and `document.state` is `pending`. If the PDF can't be used,
+  `document.state` says why (`password_required` or `malformed_pdf`): upload the PDF
+  again.
+
+[Get a template](/docs/api/#tag/templates/get/templates/{template_id}) returns its
+current `ready` and `document`.
+
+## 3. Generate a PDF
+
+Send the values for the Liquid variables as `data`. `test: true` makes a free test
+PDF with a watermark; leave it out (or send `false`) for a live PDF, which uses
+[credits](/docs/api-guide/credits-and-rate-limits/).
+
+```bash
+curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/submissions \
+  -u "$DOCSPRING_TOKEN_ID:$DOCSPRING_TOKEN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "test": true,
+    "data": {
+      "invoice_number": "INV-1001",
+      "customer_name": "Jane Doe",
+      "line_items": [
+        { "description": "Consulting", "amount": "$1,200.00" },
+        { "description": "Support", "amount": "$300.00" }
+      ]
+    }
+  }'
+```
+
+An HTML template doesn't need fields: Liquid renders the data you send. If you add
+fields to the template in the editor, DocSpring checks the data against them (see
+[Troubleshooting](#troubleshooting)).
+
+## 4. Download the PDF
+
+`sync.api.docspring.com` waits until the PDF is ready, so the response is the
+processed submission (shortened here):
+
+```json
+{
+  "id": "sub_1234567890abcdef01",
+  "template_id": "tpl_1234567890abcdef01",
+  "template_type": "html",
+  "state": "processed",
+  "test": true,
+  "error_message": null,
+  "files": {
+    "pdf": {
+      "state": "processed",
+      "error_message": null,
+      "download_url": "https://downloads.docspring.com/store/...pdf?Expires=...&Signature=...&Key-Pair-Id=...&Hash-Algorithm=SHA256",
+      "permanent_url": "https://app.docspring.com/submissions/sub_1234567890abcdef01/files/pdf",
+      "filename": "sub_1234567890abcdef01.pdf",
+      "content_type": "application/pdf",
+      "size": 21843,
+      "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+    }
+  },
+  "processed_at": "2026-10-19T09:00:04Z"
+}
+```
+
+Download the PDF from `files.pdf.download_url`. It's a temporary link: to download
+the PDF later, [get the submission](/docs/api/#tag/submissions/get/submissions/{submission_id})
+again for a new one.
+
+```bash
+curl -o invoice.pdf "https://downloads.docspring.com/store/...pdf?Expires=...&Signature=...&Key-Pair-Id=...&Hash-Algorithm=SHA256"
+```
+
+To get the response at once instead of waiting, add `?wait=false` to the URL. The
+submission is then `pending`: get it again until its `state` is `processed`, or use a
+[webhook](/docs/webhooks/overview/).
+
+## Troubleshooting
+
+Every error has the same shape. `code` says what went wrong, `details` points at
+each value it's about, and `request_id` identifies the request if you contact us.
+
+```json
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "Invalid request: /colour isn't a documented property",
+    "details": [
+      {
+        "code": "unknown_property",
+        "message": "isn't a documented property",
+        "pointer": "/colour"
+      }
+    ],
+    "request_id": "req_1234567890abcdef01"
+  }
+}
+```
+
+| Response                     | What happened                                                                                                                                                                                                    |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `401` `unauthorized`         | The API token ID or secret is wrong, or the token is for the other region.                                                                                                                                       |
+| `422` `validation_failed`    | The request itself is wrong: an unknown property, a missing one, or a value of the wrong type. Nothing was saved.                                                                                                |
+| `422` `invalid_data`         | The data doesn't match the template's fields. The submission was saved in the `invalid_data` state, and the error has its `submission_id`. Each detail's `pointer` names a value, such as `/data/customer_name`. |
+| `402` `insufficient_credits` | A live PDF needs more credits. The submission waits and is generated once you add them. See [Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/).                                                   |
+| `504` `polling_timeout`      | The PDF wasn't ready before the request timed out. It's still being generated: get the submission with the error's `submission_id`.                                                                              |
+
+The PDF is ready only when the submission's `state` is `processed`. A submission
+in a failure state couldn't be generated, and its `error_message` says why:
+`syntax_error` for a mistake in the template's Liquid or SCSS,
+`image_download_failed` or `image_processing_failed` for an image that couldn't
+be downloaded or read, and `error` for anything else. A submission that stays
+`pending` is still being generated; [synchronous requests](/docs/api-guide/synchronous-requests/)
+explain how long the API waits.
+
+<LinkCard
+  title="API Reference: Create a submission"
+  href="/docs/api/#tag/submissions/post/templates/{template_id}/submissions"
+  description="Every option for generating a PDF"
+/>
+
+<LinkCard
+  title="HTML/CSS Templates"
+  href="/docs/html-templates/overview/"
+  description="Liquid, headers and footers, page settings and limits"
+/>

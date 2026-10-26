@@ -77,15 +77,23 @@ The date when this submission was created.
 
 The date and time when this submission was created.
 
-## Special Field Names for Data Requests
+## Special Field Names for Signature Requests
 
-### `@@data_requests/<index>/completed_at`
+`<index>` is the signature request's `sort_order`: `Signer 1` is 0, `Signer 2` is
+1, and so on. In API v1, it's the request's position in the `data_requests` list
+you sent when you created the submission, starting at 0. A position with no
+signature request leaves its fields empty.
 
-The date and time that the data request was completed (e.g. signed)
+These names used to start with `@@data_requests/`. Templates that still use
+that name keep working.
 
-### `@@data_requests/<index>/viewed_at`
+### `@@signature_requests/<index>/completed_at`
 
-The date and time that the data request was most recently viewed before completion.
+The date and time that the signature request was completed (e.g. signed)
+
+### `@@signature_requests/<index>/viewed_at`
+
+The date and time that the signature request was most recently viewed before completion.
 
 ## Example Names
 

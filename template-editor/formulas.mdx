@@ -16,7 +16,7 @@ A [_Number_](/docs/reference/field-data-types/#number) field can be a formula th
 
 Formulas are calculated for PDF templates. [HTML templates](/docs/html-templates/overview/) use Liquid filters instead.
 
-In [visual forms](/docs/forms/visual-forms/) and data requests, people can type over a formula that's a field's
+In [visual forms](/docs/forms/visual-forms/) and signature requests, people can type over a formula that's a field's
 _default_ value. The field's ↺ button puts the formula's result back (see [Clearing Optional
 Fields](/docs/forms/visual-forms/#clearing-optional-fields)).
 
@@ -137,6 +137,15 @@ IF(b = 0, 0, a / b)
 ```
 
 Visual forms calculate formulas as you fill them in. If a formula can't be calculated with the values you entered, the form shows the problem on the field and can't be submitted until you change the values.
+
+## Signature Requests
+
+A formula can only use the sender's data and the fields of the signer who fills in its field, so one signer's values
+can't change what another signer saw and signed. A formula field that no signer is asked to fill in is calculated from
+the fields it uses, so it can use the sender's data and one signer's fields: that signer sees it calculated as they fill
+in the form, and can't change it. [API v2](/docs/api-guide/migrating-to-api-v2/) refuses to create signature requests
+where another signer's fields feed a formula, or where more than one signer's fields feed a formula that no signer
+fills in, and names the field in a `422` error.
 
 ## Conditions
 

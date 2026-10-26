@@ -12,7 +12,7 @@ Combine multiple PDFs from different sources into a single merged document.
 ## Endpoint
 
 ```
-POST /api/v1/combined_submissions
+POST /api/v2/combined_pdfs
 ```
 
 ## Source Types
@@ -29,24 +29,28 @@ Generated PDFs from template submissions:
 
 The submission must already be processed and not expired. If you generate it with `?wait=false`, wait until it has been processed before you combine it.
 
-### Combined Submissions
+### Combined PDFs
 
 Previously combined PDFs:
 
 ```json
-{ "type": "combined_submission", "id": "com_1234567890abcdef01" }
+{ "type": "combined_pdf", "id": "com_1234567890abcdef01" }
 ```
 
-The combined submission must already be processed and not expired.
+The combined PDF must already be processed and not expired.
 
 ### Templates
 
-Original template PDFs (unfilled):
+Unfilled template PDFs:
 
 ```json
 { "type": "template", "id": "tpl_1234567890abcdef01" }
 { "type": "template", "id": "tpl_1234567890abcdef01", "template_version": "1.2.3" }
+{ "type": "template", "id": "tpl_1234567890abcdef01", "processed": false }
 ```
+
+A template source merges the template's processed PDF by default: the PDF that submissions are filled in on,
+decrypted and with its form fields removed. Set `"processed": false` to merge the PDF as it was uploaded.
 
 ### Custom Files
 
@@ -104,8 +108,8 @@ Set a custom PDF filename via metadata:
 }
 ```
 
-The download URL becomes:
-`/combined_submissions/{id}/merged_documents_2024.pdf`
+The combined PDF's `files.pdf.filename` becomes `merged_documents_2024.pdf`. Without `pdf_filename`, it's the
+combined PDF's ID (`com_1234567890abcdef01.pdf`).
 
 **Filename rules:**
 
@@ -115,7 +119,7 @@ The download URL becomes:
 
 ### Expiration and Password
 
-- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF, its metadata and its password. A combined submission that fails is kept for at least 48 hours, then expires.
+- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF, its metadata and its password. A combined PDF that fails is kept for at least 48 hours, then expires.
 - `password`: Encrypt the merged PDF with this password.
 
 ### Credit Usage
@@ -127,8 +131,9 @@ combining two existing one-page PDFs costs 12 credits: 8 for the two source PDFs
 plus 4 for the 2-page combined PDF.
 
 Combined PDFs have no test mode. Combining consumes credits even when you use a
-test API token or combine watermarked test PDFs. An insufficient balance can
-pause the combined job and return `402 Payment Required`.
+test API token or combine watermarked test PDFs. When your balance can't cover
+it, the combined PDF is saved in the `insufficient_credits` state and the request
+returns a 402 with an `insufficient_credits` error and the `combined_pdf_id`.
 
 Accounts on a plan purchased before prepaid credits were introduced can still
 combine PDFs without using credits.
@@ -184,7 +189,7 @@ Handle form fields with truncated text by generating additional pages:
 
 <LinkCard
   title="API Reference: Combine PDFs"
-  href="/docs/api/#tag/combine-pdfs/post/combined_submissions"
+  href="/docs/api/#tag/combined-pdfs/post/combined_pdfs"
   description="View all parameters, example requests/responses, and code samples"
 />
 

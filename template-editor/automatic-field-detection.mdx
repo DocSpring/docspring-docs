@@ -82,42 +82,37 @@ Your account's **Template Settings** page, in the left sidebar, sets the default
 
 For templates created with the API, field detection is disabled by default, so DocSpring doesn't create fields when your integration adds them separately.
 
-Set `detect_fields` to `true` when you create a PDF template to set up its fields. These options choose how, like the choices in Set Up Fields:
+Set `detect_fields` to `true` when you create a PDF template (with `POST /templates` or `POST /templates/upload`) to set up its fields. These options choose how, like the choices in Set Up Fields:
 
 - `field_source`: where the fields come from. `auto` (the default) imports a fillable PDF's form fields, and detects the fields of a PDF without them. `pdf_detection` detects the fields from the page layout, even on a fillable PDF. `pdf_form_fields` only imports the PDF's form fields.
 - `field_naming`: `ai` (the default) names the fields with AI and sets their types and settings. `preserve` keeps the names of the PDF's form fields, and only detected fields get AI names. `preserve` needs `field_source` `auto` or `pdf_form_fields`.
 - `field_logic`: `ai` sets up conditional logic and required fields with AI once the fields are named, and `none` skips it. It defaults to your account's **AI Conditional Logic** setting.
-- `ai_field_naming_language` (`auto`, `english` or `form_language`): the language of the field names. It defaults to your account's **AI Field Name Language** setting, and is saved on the template.
+- `ai_field_naming_language` (`auto`, `english` or `form_language`): the language of the field names. It defaults to your account's **AI Field Name Language** setting, and is saved on the template, where you can change it later.
 
 `field_source`, `field_naming` and `field_logic` only apply with `detect_fields` set to `true`; sending one without it returns an error.
 
 ```json
 {
-  "template": {
-    "name": "W-9",
-    "document": {
-      "id": "cache/...",
-      "storage": "cache",
-      "metadata": {}
-    },
-    "detect_fields": true,
-    "field_logic": "none",
-    "ai_field_naming_language": "english"
-  }
+  "template_type": "pdf",
+  "name": "W-9",
+  "cache_id": "cache/...",
+  "detect_fields": true,
+  "field_logic": "none",
+  "ai_field_naming_language": "english"
 }
 ```
 
 To import a fillable PDF's form fields with their own names and no AI, send `"field_source": "pdf_form_fields"`, `"field_naming": "preserve"` and `"field_logic": "none"`. This doesn't use any AI pages.
 
-Field setup runs after the template is created. To know when it's done, either:
+Field setup runs after the template is created. A new PDF for an existing template keeps the template's fields: run Set Up Fields in the editor to set them up again. To know when field setup is done, either:
 
 - listen for the `template.updated` webhook, which DocSpring sends when the fields are ready, or
-- poll the template until every page is done and the AI logic pass has finished. Each item of `page_processing_statuses` describes a page, which is done when its `fields` status is `processed`, `failed` or `disabled`. After the last page, `field_logic_status` is `pending` or `processing` while AI sets up conditional logic, which can still rename fields and add rules, and then `processed`, `failed` or `skipped`. It's `null` when there's no logic pass.
+- poll the template (`GET /templates/{template_id}`) until `document.state` is `processed`, which means every page's fields are done, and then until the AI logic pass has finished. Each item of `document.page_processing_statuses` describes a page: its `fields` status ends as `processed`, `failed` or `disabled`, and `ai_naming` and `ai_error` say when AI didn't name its fields. After the last page, `document.field_logic_status` is `pending` or `processing` while AI sets up conditional logic, which can still rename fields and add rules, and then `processed`, `failed` or `skipped`. It's `null` when there's no logic pass.
 
 <LinkCard
-  title="API Reference: Create PDF Template"
-  href="/docs/api/#tag/templates/post/templates?endpoint_variant=create_template_from_cached_upload"
-  description="Create a PDF template from a cached file upload"
+  title="API Reference: Create a template"
+  href="/docs/api/#tag/templates/post/templates"
+  description="Create a PDF template from a PDF you uploaded"
 />
 
 ## Editing detected fields

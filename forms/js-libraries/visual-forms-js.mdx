@@ -7,7 +7,7 @@ import { Code, Aside, LinkCard } from "@astrojs/starlight/components";
 
 The Visual Forms JavaScript library allows you to embed a visual PDF form directly on your
 website so that your users can fill it out and generate a PDF.
-It doesn't provide the compliance and audit trail features of [data requests](/docs/forms/js-libraries/data-requests-js/),
+It doesn't provide the compliance and audit trail features of [signature requests](/docs/forms/js-libraries/signature-requests-js/),
 but it provides more flexibility and has many options for customization and styling.
 
 <LinkCard
@@ -60,7 +60,7 @@ The form is rendered inline, inside the container element. Visual forms don't ha
 | `templateData`                | object              | `null`                         | Cached template data (alternative to `templateId`)                                                                                                                                                                                                                                                                                                                                |
 | `defaultFormData`             | object              | `{}`                           | Default values for fields (can be changed by the user)                                                                                                                                                                                                                                                                                                                            |
 | `staticFormData`              | object              | `{}`                           | Static values for fields (cannot be changed by the user)                                                                                                                                                                                                                                                                                                                          |
-| `fieldOverrides`              | object              | `{}`                           | Override field properties like `hidden` or `backgroundColor`                                                                                                                                                                                                                                                                                                                      |
+| `fieldOverrides`              | object              | `{}`                           | Override field properties like `hidden` or `backgroundColor`. On a public template, a submission from anyone but your own account keeps only `hidden`, `required` and `backgroundColor`                                                                                                                                                                                           |
 | `redirectURL`                 | string              | `null`                         | Redirect to this URL after submitting the form                                                                                                                                                                                                                                                                                                                                    |
 | `redirectURLQueryParams`      | boolean             | `true`                         | Add `submission_id`, `template_id`, and `template_name` query params to the redirect URL                                                                                                                                                                                                                                                                                          |
 | `waitForPDF`                  | boolean             | `true`                         | Set to `false` to show the thank-you title as soon as the form is saved, without the PDF processing message. The Download PDF button still appears when the PDF is ready, and the form still waits for the PDF before redirecting                                                                                                                                                 |
@@ -122,16 +122,14 @@ Customize the titles and messages shown in the form. These options can be either
   ignore them, and show the default titles and messages and no footer.
 </Aside>
 
-| Option                          | Function Arguments                                         | Description                                |
-| ------------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
-| `pdfProcessingTitle`            | `template` (object)                                        | Title when PDF is being processed          |
-| `pdfProcessingMessage`          | `template` (object)                                        | Message when PDF is being processed        |
-| `waitingForDataRequestsTitle`   | `remainingDataRequestsCount` (number), `template` (object) | Title when waiting for data requests       |
-| `waitingForDataRequestsMessage` | `remainingDataRequestsCount` (number), `template` (object) | Message when waiting for data requests     |
-| `completedTitle`                | `template` (object), `downloadURL` (string)                | Title when PDF is ready for download       |
-| `completedTitleNoDownload`      | `template` (object)                                        | Title when form is submitted (no download) |
-| `pdfProcessedMessage`           | `template` (object), `downloadURL` (string)                | Message when PDF is ready                  |
-| `footerHTML`                    | `template` (object)                                        | Custom HTML for the footer                 |
+| Option                     | Function Arguments                          | Description                                |
+| -------------------------- | ------------------------------------------- | ------------------------------------------ |
+| `pdfProcessingTitle`       | `template` (object)                         | Title when PDF is being processed          |
+| `pdfProcessingMessage`     | `template` (object)                         | Message when PDF is being processed        |
+| `completedTitle`           | `template` (object), `downloadURL` (string) | Title when PDF is ready for download       |
+| `completedTitleNoDownload` | `template` (object)                         | Title when form is submitted (no download) |
+| `pdfProcessedMessage`      | `template` (object), `downloadURL` (string) | Message when PDF is ready                  |
+| `footerHTML`               | `template` (object)                         | Custom HTML for the footer                 |
 
 ### Callbacks
 
@@ -197,6 +195,10 @@ These global functions allow you to interact with the form. Note that only one D
     }
 
 })`} lang="javascript" title="Pre-filled form data" />
+
+A field that is **Static** in the template always shows the template's value, which the PDF prints: the form ignores
+its values in `defaultFormData` and `staticFormData`. If the template allows additional properties, the form keeps those
+values and submits them.
 
 ### Custom Configuration
 

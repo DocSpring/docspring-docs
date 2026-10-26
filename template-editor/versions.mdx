@@ -57,12 +57,11 @@ When an API endpoint supports a template version parameter, you can pass the fol
 
 ### Generate PDF API
 
-When generating PDFs, use the `version` parameter to specify which template version to use:
+When generating PDFs, use the `version` query parameter to specify which template version to use:
 
 ```bash
-POST /api/v1/templates/<TEMPLATE_ID>/submissions
+POST /api/v2/templates/<TEMPLATE_ID>/submissions?version=1.2.3
 {
-  "version": "1.2.3",  # Specific version
   "data": { ... }
 }
 ```
@@ -70,10 +69,13 @@ POST /api/v1/templates/<TEMPLATE_ID>/submissions
 Version parameter options:
 
 - Omit parameter: Uses latest published version (or draft if none published)
-- `"version": "1.2.3"`: Uses a specific version
-- `"version": "1.2"`: Uses the latest `1.2.x` version
-- `"version": "latest"`: Uses latest published version (or draft, if no versions have been published)
-- `"version": "draft"`: Uses the draft version
+- `version=1.2.3`: Uses a specific version
+- `version=1.2`: Uses the latest `1.2.x` version
+- `version=1`: Uses the latest `1.x.x` version
+- `version=latest`: Uses latest published version (or draft, if no versions have been published)
+- `version=draft`: Uses the draft version
+
+In a batch, the same values go in `template_version`, for the whole batch or for each submission.
 
 ### Web Forms
 

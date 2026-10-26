@@ -5,7 +5,7 @@ description: Core documentation for visual PDF forms - both hosted and embedded
 
 import { LinkCard, Aside, Code, Icon } from "@astrojs/starlight/components";
 
-Visual Forms allow you to embed a PDF form filling interface directly on your website. Unlike [Data Requests](/docs/forms/data-requests/), visual forms do not include compliance features like audit trails or authentication tracking - they're simply a visual component for filling out PDF templates.
+Visual Forms allow you to embed a PDF form filling interface directly on your website. Unlike [signature requests](/docs/forms/signature-requests/), visual forms do not include compliance features like audit trails or authentication tracking - they're simply a visual component for filling out PDF templates.
 
 <Aside type="tip">
   Use Visual Forms when you need a simple form filling interface. Use Data
@@ -32,7 +32,7 @@ Visual Forms allow you to embed a PDF form filling interface directly on your we
 <LinkCard
   title="See the difference between visual forms and other types of forms"
   href="/docs/forms/compare-docspring-forms/"
-  description="Compare web forms, visual forms, and data requests"
+  description="Compare web forms, visual forms, and signature requests"
 />
 
 ## Template Configuration
@@ -67,7 +67,7 @@ the form, which overrides the template setting either way. Embedded visual forms
 
 ### Required Field Color
 
-Visual forms and data requests highlight every field the user can fill in with the same translucent blue, and mark
+Visual forms and signature requests highlight every field the user can fill in with the same translucent blue, and mark
 required fields with an asterisk. To make required fields stand out, open the template's settings in the template
 editor and pick a **Required Field Color** under **Visual Form Defaults**, in the sidebar on the right. Required fields
 are then highlighted in that color instead, including fields that
@@ -102,7 +102,7 @@ any time.
 
 ## Keyboard
 
-Visual forms and data requests can be filled in without a mouse:
+Visual forms and signature requests can be filled in without a mouse:
 
 - **Tab** moves to the next field and **Shift+Tab** to the previous one, selecting the field's text so that typing
   replaces it. A group of radio buttons counts as one field.

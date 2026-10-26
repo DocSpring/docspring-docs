@@ -14,7 +14,7 @@ import {
 } from "@astrojs/starlight/components";
 
 Webhooks let DocSpring notify your application in real time when something happens
-in your account — for example, when a PDF finishes generating, a data request is
+in your account — for example, when a PDF finishes generating, a signature request is
 completed, or a submission fails. Instead of polling the API, you register an HTTPS
 endpoint and DocSpring sends it a `POST` request for each event you subscribe to.
 
@@ -50,10 +50,11 @@ In the dashboard, go to **Webhooks → Create Webhook** and fill in:
 - **Webhook URL**: the HTTPS endpoint that will receive events.
 - **Mode**: limit the webhook to test submissions, live submissions, or both.
 - **Webhook Version**: the payload format for submission events. Use v3 (the
-  default); v1 and v2 are legacy formats. See
-  [Webhook versions](/docs/webhooks/payloads/#webhook-versions).
-- **Include submission data**: whether to include the submitted form data in the
-  payload. See [Webhook Payloads](/docs/webhooks/payloads/).
+  default); v1 and v2 are legacy formats. Webhooks you create with API v2 are
+  version 4. See [Webhook versions](/docs/webhooks/payloads/#webhook-versions).
+- **Include submission data**: whether to include the submitted form data, and each
+  signer's values, IP address and user agent, in the payload. See
+  [Include submission data](/docs/webhooks/payloads/#include-submission-data).
 - **Enabled**: uncheck to stop deliveries without deleting the webhook.
 - **Send failure notification emails**: whether DocSpring emails you when this
   webhook is failing. See

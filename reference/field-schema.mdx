@@ -27,7 +27,7 @@ All other properties are optional and will use the [default values](/docs/refere
 
 ## Field Schema
 
-The following schema is extracted from the DocSpring OpenAPI specification. It shows all available field properties, their types, and validation rules.
+The following schema is extracted from the API v1 OpenAPI specification, where you add fields to a template with the [add fields](/docs/api/v1/#tag/templates/put/templates/{template_id}/add_fields) endpoint. API v2 doesn't add fields to templates yet. It shows all available field properties, their types, and validation rules. API v2 names field settings in snake_case (`font_size` instead of `fontSize`), in template `defaults` and a submission's `field_overrides`.
 
 export const fieldSchema = openapi.paths[
   "/templates/{template_id}/add_fields"

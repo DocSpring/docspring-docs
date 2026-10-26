@@ -9,7 +9,7 @@ Predefined fields let you give embedded template editor users a controlled list 
 
 ## Template Configuration
 
-Set `predefined_fields` when creating or updating a template through the API:
+Set `predefined_fields` when creating or updating a template with API v1. API v2 doesn't set predefined fields yet, so use API v1's [update template](/docs/api/v1/#tag/templates/put/templates/{template_id}) endpoint for this call:
 
 <Code
   code={`{
@@ -62,9 +62,9 @@ defaults to `true`. Set it to `false` to hide the checkbox, so that fields keep
 the `field_required` value from their predefined field.
 
 <LinkCard
-  title="API Reference: Update a Template"
-  href="/docs/api/#tag/templates/put/templates/{template_id}"
-  description="Set predefined_fields and other template attributes via the API"
+  title="API v1 Reference: Update a Template"
+  href="/docs/api/v1/#tag/templates/put/templates/{template_id}"
+  description="Set predefined_fields and other template attributes with API v1"
 />
 
 ## Field Names

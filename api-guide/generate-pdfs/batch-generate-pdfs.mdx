@@ -12,18 +12,18 @@ Batch submission requests let you create multiple PDFs in parallel with a single
 ## Endpoint
 
 ```
-POST /api/v1/submissions/batches
+POST /api/v2/submissions/batches
 ```
 
 <LinkCard
-  title="API Reference: Batch Generate PDFs"
-  href="/docs/api/#tag/submission-batches/post/submissions/batches"
+  title="API Reference: Create a Submission Batch"
+  href="/docs/api/#tag/submissions/post/submissions/batches"
   description="View all parameters, example requests/responses, and code samples"
 />
 
 ## Request Structure
 
-Provide an array of `submissions`. Each entry accepts `template_id`, `template_version`, `test`, `data` and `metadata` (plus `html` and `css` for HTML templates). Batch entries don't support the other options of a single submission request, such as `data_requests`, `editable`, `expires_in` or `field_overrides`.
+Provide an array of `submissions`. Each entry takes the properties of a single submission request (`test`, `editable`, `data`, `metadata`, `password`, `expires_in`, `field_overrides`, and `html` and `css` for HTML templates), plus `template_id` and `template_version`. Batch entries can't have `signature_requests`.
 
 You can also set `template_id`, `template_version` (default `latest`) and `test` at the top level of the request. They apply to every entry that doesn't set its own value. A top-level `metadata` object is saved on the batch itself.
 
@@ -31,13 +31,13 @@ You can also set `template_id`, `template_version` (default `latest`) and `test`
 {
   "submissions": [
     {
-      "template_id": "tpl_contract",
+      "template_id": "tpl_1234567890abcdef01",
       "data": { "name": "John Smith" },
       "test": true,
       "metadata": { "pdf_filename": "contract_draft_john_smith" }
     },
     {
-      "template_id": "tpl_invoice",
+      "template_id": "tpl_1234567890abcdef02",
       "data": { "name": "Acme Corp" },
       "test": false
     }
@@ -52,65 +52,83 @@ You can also set `template_id`, `template_version` (default `latest`) and `test`
 
 ## Response Format
 
-By default, the API waits until every PDF in the batch has been processed. The response includes the `submission_batch` and a `submissions` array with one submission for each entry, in the same order as your request:
+By default, the API waits until every PDF in the batch has been processed. The response is the batch, with a `submissions` array that has one submission for each entry, in the same order as your request:
 
 ```json
 {
-  "status": "success",
-  "submission_batch": {
-    "id": "sbb_1234567890abcdef01",
-    "state": "processed",
-    "metadata": {},
-    "processed_at": "2024-02-01T12:00:05Z",
-    "total_count": 2,
-    "pending_count": 0,
-    "error_count": 0,
-    "completion_percentage": 100
-  },
+  "id": "sbb_1234567890abcdef01",
+  "state": "processed",
+  "metadata": {},
+  "total_count": 2,
+  "pending_count": 0,
+  "error_count": 0,
+  "completion_percentage": 100,
   "submissions": [
     {
       "id": "sub_1234567890abcdef01",
       "state": "processed",
-      "download_url": "https://..."
+      "data": null,
+      "files": {
+        "pdf": {
+          "state": "processed",
+          "error_message": null,
+          "download_url": "https://...",
+          "permanent_url": "https://app.docspring.com/submissions/sub_1234567890abcdef01/files/pdf",
+          "filename": "contract_draft_john_smith.pdf",
+          "content_type": "application/pdf",
+          "size": 4911,
+          "sha256": "0622971147486e1900037eff229d921d14f5b51aac7171729b2b66f81cdf6585"
+        }
+      }
     },
     {
       "id": "sub_1234567890abcdef02",
       "state": "processed",
-      "download_url": "https://..."
+      "data": null,
+      "files": { "pdf": { "download_url": "https://..." } }
     }
-  ]
+  ],
+  "processed_at": "2024-02-01T12:00:05Z",
+  "created_at": "2024-02-01T12:00:00Z",
+  "updated_at": "2024-02-01T12:00:05Z"
 }
 ```
 
-_(Other submission fields are left out here.)_
+_(Other submission fields are left out here.)_ Each submission's `data` is `null` in batch responses, unless you get the batch with `include_data=true`.
 
-When you add `?wait=false` to the request URL, the API responds straight away, and each item in `submissions` wraps the submission with its own `status`:
+When you add `?wait=false` to the request URL, the API responds straight away with the same shape, while the batch and its submissions are still `pending`. You can then get the batch with `GET /api/v2/submissions/batches/{submission_batch_id}` until its `processed_at` is set, or listen for the batch webhooks. DocSpring sends `submission_batch.processed` when every PDF has been generated, or `submission_batch.failed` instead if any of them failed.
+
+If any entry is invalid, DocSpring doesn't generate any of the PDFs in the batch, and the API responds straight away with a 422. Entries whose data doesn't match their template's fields are saved as `invalid_data` submissions, so you can find them in DocSpring. The error is `invalid_data`, with the batch's `submission_batch_id` and one detail for each problem, naming the entry (`/submissions/1/data/last_name`) and its `submission_id`:
 
 ```json
 {
-  "status": "success",
-  "submission_batch": { "id": "sbb_1234567890abcdef01", "state": "pending" },
-  "submissions": [
-    {
-      "status": "success",
-      "submission": { "id": "sub_1234567890abcdef01", "state": "pending" }
-    }
-  ]
+  "error": {
+    "code": "invalid_data",
+    "message": "No PDFs were generated: 1 of 2 submissions are invalid: /submissions/1/data/last_name is required",
+    "details": [
+      {
+        "code": "required",
+        "message": "is required",
+        "pointer": "/submissions/1/data/last_name",
+        "submission_id": "sub_1234567890abcdef02"
+      }
+    ],
+    "request_id": "req_1234567890abcdef01",
+    "submission_batch_id": "sbb_1234567890abcdef01"
+  }
 }
 ```
 
-You can then check the batch with `GET /api/v1/submissions/batches/{submission_batch_id}?include_submissions=true` until its `pending_count` is `0`, or listen for the batch webhooks. DocSpring sends `submission_batch.processed` when every PDF has been generated, or `submission_batch.failed` instead if any of them failed.
+The valid entries aren't saved, so fix the invalid entries, then send the whole batch again.
 
-If any entry fails validation, DocSpring doesn't generate any of the PDFs in the batch. The API responds straight away with HTTP status `200` and `"status": "error"`, using the same wrapped items. Valid entries have `"status": "valid_but_not_saved"`, and invalid entries have `"status": "error"` with a list of `errors`. A live entry your credit balance couldn't cover also has `"status": "error"`, with an `error` saying it wasn't saved. Nothing in the batch is saved, so fix the invalid entries (and add credits if any entry needed them), then send the whole batch again.
-
-Some problems are reported with a `4xx` status and a single `error` message instead, such as more than 50 entries, an unknown template ID, or an entry without a `data` object.
+Problems with the request itself, such as more than 50 entries, an unknown template ID or an unknown property, are a 422 `validation_failed` error, and nothing is saved.
 
 ## Limits & Best Practices
 
 - **Up to 50 submissions** per batch request.
 - **Mix templates freely** – each item can target a different template.
 - **Test vs. live mode** – set `test` per submission.
-- **Credits** – live PDFs use [credits](/docs/billing/how-credits-work/). If your balance runs out partway, the batch returns `402` and the blocked submissions wait for credits, then resume automatically. Don't resend the batch: check each submission's `state` instead ([Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
+- **Credits** – live PDFs use [credits](/docs/billing/how-credits-work/). If your balance runs out partway, the batch returns a 402 `insufficient_credits` error with its `submission_batch_id`, and the blocked submissions wait in the `insufficient_credits` state for credits, then resume automatically. Don't resend the batch: check each submission's `state` instead ([Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/)).
 - **Back pressure** – prefer batch requests when generating many documents to avoid hitting rate limits with individual calls.
 - **Webhooks** – enable webhooks if you need to know when asynchronous submissions finish processing.
 

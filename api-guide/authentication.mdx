@@ -37,6 +37,10 @@ export DOCSPRING_REGION="EU" # US or EU (defaults to US)
 export DOCSPRING_HOST="docspring.yourcompany.com" # For on-premise deployments
 ```
 
+Credentials and a host that you pass to the client take precedence over these variables, and an empty value counts as
+not set. `DOCSPRING_HOST` takes precedence over `DOCSPRING_REGION`. Without credentials, requests fail with a 401
+`unauthorized` error.
+
 Then initialize the client without passing credentials:
 
 <Tabs syncKey="language">
@@ -118,7 +122,7 @@ Some tools such as `curl` can create the `Authorization` header for you:
 
 ```bash
 curl -u API_TOKEN_ID:API_TOKEN_SECRET \
-  https://sync.api.docspring.com/api/v1/authentication
+  https://sync.api.docspring.com/api/v2/authentication
 ```
 
 Or you can create the Base64 encoded string manually:
@@ -128,7 +132,7 @@ Or you can create the Base64 encoded string manually:
 QVBJX1RPS0VOX0lEOkFQSV9UT0tFTl9TRUNSRVQ=
 
 curl -H "Authorization: Basic QVBJX1RPS0VOX0lEOkFQSV9UT0tFTl9TRUNSRVQ=" \
-  https://sync.api.docspring.com/api/v1/authentication
+  https://sync.api.docspring.com/api/v2/authentication
 ```
 
 ### API tokens and team members

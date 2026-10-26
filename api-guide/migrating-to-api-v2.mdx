@@ -1,0 +1,305 @@
+---
+title: Migrating to API v2
+description: What changes between API v1 and API v2, and how to move an integration from the 3.x SDKs to 4.x.
+sidebar:
+  order: 10
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+API v2 is the current version of the DocSpring API. Our 4.x [API clients](/docs/api-guide/install-api-client/)
+call it, and the 3.x clients call API v1. API v1 keeps working, so you can move one integration at a time: an API
+token works with both.
+
+This page lists everything that changes. The [API v2 reference](/docs/api/) documents each endpoint, and the
+[API v1 reference](/docs/api/v1/) is still there for comparison.
+
+## The base URL
+
+Send requests to `/api/v2` on the same hosts:
+
+```text
+https://sync.api.docspring.com/api/v2      (US)
+https://sync.api-eu.docspring.com/api/v2   (EU)
+```
+
+The 4.x clients use these by default. The Go client's module path is `github.com/docspring/docspring-go/v4`. If you
+set the full base URL in your client's configuration, change `/api/v1` in it to `/api/v2`: the clients only pick the
+version in the URLs they build from a region or host.
+
+## Operations
+
+Most operations keep their path. They're named after the resource they act on, so several SDK methods have new names:
+
+| API v1 (3.x clients)                                | API v2 (4.x clients)                                                      |
+| --------------------------------------------------- | ------------------------------------------------------------------------- |
+| `generatePdf`                                       | `createSubmission`                                                        |
+| `batchGeneratePdfs`                                 | `createSubmissionBatch`                                                   |
+| `generatePreview`                                   | `generateSubmissionPreview`                                               |
+| `combinePdfs` (`POST /combined_submissions`)        | `createCombinedPdf` (`POST /combined_pdfs`)                               |
+| `getCombinedSubmission`, `listCombinedSubmissions`  | `getCombinedPdf`, `listCombinedPdfs` (`/combined_pdfs`)                   |
+| `expireCombinedSubmission`                          | `expireCombinedPdf` (`DELETE /combined_pdfs/{combined_pdf_id}`)           |
+| `createHtmlTemplate`, `createPdfTemplateFromUpload` | `createTemplate`, with a `template_type` of `html` or `pdf`               |
+| `createPdfTemplate` (a multipart PDF upload)        | `uploadTemplate` (`POST /templates/upload`)                               |
+| `getTemplate`                                       | `getTemplate`; lists return summaries                                     |
+| `getFullTemplate` (`?full=true`)                    | `getTemplate`, without the template's fields for now                      |
+| `updateTemplateDocumentFromUpload`                  | `updateTemplateDocument` (`PUT /templates/{template_id}/document`)        |
+| `updateTemplateDocument` (a multipart PDF upload)   | `uploadTemplateDocument` (`PUT /templates/{template_id}/document/upload`) |
+| `moveTemplateToFolder`                              | `moveTemplate`                                                            |
+| `moveFolderToFolder`                                | `moveFolder`                                                              |
+| `getDataRequest`, `updateDataRequest`               | `getSignatureRequest`, `updateSignatureRequest` (`/signature_requests`)   |
+| `createDataRequestToken`, `createDataRequestEvent`  | `createSignatureRequestToken`, `createSignatureRequestEvent`              |
+
+API v2 also has `getFolder`, `listCustomFiles`, `getCustomFile` and `deleteCustomFile`.
+
+<Aside type="note" title="Not in API v2 yet">
+  A template's fields (`fields`, `shared_field_data` and `field_order` from
+  `getFullTemplate`), adding fields (`addFieldsToTemplate`), predefined fields
+  and per-field conditional rules are only in API v1 for now. Use the [API v1
+  reference](/docs/api/v1/) for them, with the same API token. API v2's
+  `getTemplateSchema` returns the JSON schema of a template's fields.
+</Aside>
+
+## Requests
+
+- **Bodies are flat.** v1 wrapped some bodies in a key (`{"template": {...}}`, `{"folder": {...}}`); v2 takes the
+  properties at the top level.
+- **Validation is strict.** A property or query parameter the endpoint doesn't have, a value of the wrong type or a
+  value outside an enum is a `422` with a `validation_failed` error. v1 ignored unknown properties.
+- **The 4.x SDKs check each request before sending it**, against the same request schemas the API uses. A request the
+  API would reject fails straight away with the SDK's validation error, which has the details the `422` would have.
+  Each SDK's README names the error and the setting that turns the check off.
+- **Bodies are JSON.** Send `Content-Type: application/json`: any other content type is a `415`. (v1 read form-encoded
+  and plain-text bodies as JSON.) Only the PDF uploads (`uploadTemplate` and `uploadTemplateDocument`) take
+  `multipart/form-data`.
+- **Text is UTF-8.** A JSON body or query string that isn't valid UTF-8 is a `400` with an `invalid_request` error.
+  v1 replaced the bytes it couldn't read with `�`, so a name sent as Latin-1 printed as `Jos�` instead of `José`.
+- **Bodies have a size limit:** 50 MB to create a submission, 100 MB for a PDF upload, and 10 MB for everything else. A
+  larger body is a `413` with a `request_too_large` error. Send images as URLs instead of base64 data.
+- **Query parameters:** `version` (the template version to use) and `wait` are query parameters, not body properties.
+  The submission lists take `test` (`true` or `false`) instead of `type`. `getSubmission` always returns the data, and
+  `getSubmissionBatch` always returns the submissions (`include_data` adds their data), so they have no `include_data`
+  or `include_submissions`. `createSignatureRequestToken` takes its `type` in the body.
+- **Lists use cursors.** Send `limit` (1 to 100, default 50), and pass the response's `next_cursor` as `cursor` to get
+  the next page. `page` and `per_page` are gone.
+- **Every name is snake_case**, including the settings that v1 took in camelCase: template `defaults` (`font_size`,
+  `date_format`), `html_engine_options` (`margin_top`, `print_background`), a field dependency condition's `range_max`,
+  and the field settings in a submission's `field_overrides`.
+- **Templates need a `template_type`.** v1 created a PDF template with no PDF when it was left out.
+- **A test API token can't create live submissions.** `test: false` with a test token is a `422`.
+- **Authentication** is an API token in the `Authorization` header (HTTP Basic). API v2 doesn't accept the
+  unauthenticated requests that v1 allowed for templates with public submissions, or signature request tokens.
+
+### Submission data
+
+v2 checks submission data more strictly:
+
+- An empty `data` is checked against the template's fields like any other.
+- Date fields take `YYYY-MM-DD` dates. When a PDF template's `parse_dates_using_template_date_format` is on, they also
+  take NN/NN/YYYY dates in the order of the template's date format. v1 accepted any string and read numeric dates day
+  first.
+- Email fields take an email address, such as `name@example.com`, or an empty string. v1 accepted any string.
+- A value for a field shown as a barcode or QR code must be one it can show: the right number of digits for an EAN or
+  UPC barcode, only ASCII characters for Code 128, not too long for a QR code. v1 accepted it and the submission
+  failed when the PDF was generated.
+- Each signature request needs `fields` and an `auth_type`, and each field can be in only one signature request. A
+  field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
+  error, unless the signature request sets `ignore_unknown_fields`.
+- Only the signers can sign a submission that has signature requests. A value for a signature or initials field, in
+  `data` or in a field override's `default`, makes it an `invalid_data` submission. `editable: true`, on the submission
+  or in `field_overrides`, is a `422`, because signed PDFs are always static. v1 also makes the submission
+  `invalid_data` for signature values, and makes the signed PDF static whatever `editable` says.
+- A [formula](/docs/template-editor/formulas/) or [condition](/docs/template-editor/conditional-logic/) can only use
+  your `data` and the fields of the signer who fills in its field. A formula field that no signature request asks for
+  counts as the field of the one signer whose fields it uses, so leave a calculated total out of `fields` to keep it
+  calculated. A signature request whose field another signer's formula or condition uses is a `422` naming the field,
+  and so is each signer's field in a formula that no signature request asks for and that uses more than one signer's
+  fields: otherwise one signer's values could change what another signer saw and signed. v1 accepted it.
+- Each field in `field_overrides` takes an object of field settings, checked against that field. These are a `422`:
+  a setting that fields don't have (such as `fontSize` instead of `font_size`), a value the field can't take (such
+  as a typeface the editor doesn't offer, or a color that isn't 6 hex digits), a setting for another kind of field
+  (such as `check_character` on a field displayed as text), and a setting that only the template sets (such as
+  `type` or `description`). v1 ignored them, or failed the PDF.
+
+Data that doesn't match the template is still saved as an `invalid_data` submission, as in v1, so you can find it in
+DocSpring. The response is a `422` with an `invalid_data` error that names the submission:
+
+```json
+{
+  "error": {
+    "code": "invalid_data",
+    "message": "The data doesn't match the template's fields: /data/last_name is required",
+    "details": [
+      {
+        "code": "required",
+        "message": "is required",
+        "pointer": "/data/last_name"
+      }
+    ],
+    "request_id": "req_1234567890abcdef01",
+    "submission_id": "sub_1234567890abcdef01"
+  }
+}
+```
+
+## Responses
+
+**A response is the resource itself.** API v1 wrapped it with a `status`:
+
+```json
+{
+  "status": "success",
+  "submission": { "id": "sub_1234567890abcdef01", "state": "processed" }
+}
+```
+
+API v2 returns the submission:
+
+```json
+{ "id": "sub_1234567890abcdef01", "state": "processed" }
+```
+
+- Creates return `201`, and other successful requests `200`. `DELETE` returns the resource as it was deleted.
+- Lists return `{"data": [...], "next_cursor": "..."}`. `next_cursor` is `null` on the last page.
+- Submissions, batches, combined PDFs, signature requests, templates, folders, custom files and webhooks all have
+  `created_at` and `updated_at`.
+- A resource in another account is a `404`, like one that doesn't exist.
+- Renamed: a submission's `json_schema_errors` is `data_errors`, and a template's `last_changed_by_type`,
+  `last_changed_by_id` and `last_changed_by_external_*` are one `last_changed_by` object.
+- Gone: a template's `demo`, `first_template`, `template_schema_version` and `external_predefined_fields_template_*`, a
+  submission's `referrer`, a signature request's `order` (use `sort_order`), a combined PDF's `submission_ids` (its
+  `source_pdfs` list them) and `expires_in`.
+
+### Errors
+
+Every error, from every endpoint, has one shape:
+
+```json
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "Invalid request: /colour isn't a documented property",
+    "details": [
+      {
+        "code": "unknown_property",
+        "message": "isn't a documented property",
+        "pointer": "/colour"
+      }
+    ],
+    "request_id": "req_1234567890abcdef01"
+  }
+}
+```
+
+`code` says what went wrong (`validation_failed`, `invalid_data`, `not_found`, `insufficient_credits`,
+`upgrade_required`, `rate_limited`, `polling_timeout` and others). Each detail's `pointer` is a JSON pointer to the
+body value it's about, and a detail about a query parameter has its name in `parameter` instead. A detail about the
+request as a whole has neither. `details` is always a list. When the error is about a record that was saved (an
+`invalid_data` submission, a submission waiting for credits, or a record still being processed after a `504`), its ID
+is in `submission_id`, `submission_batch_id`, `combined_pdf_id` or `template_id`. v1's `status`, `error` string and
+`errors` list are gone.
+
+### Files
+
+A submission's or combined PDF's files are in `files`:
+
+```json
+"files": {
+  "pdf": {
+    "state": "processed",
+    "error_message": null,
+    "download_url": "https://downloads.docspring.com/store/...pdf?Expires=...&Signature=...&Key-Pair-Id=...&Hash-Algorithm=SHA256",
+    "permanent_url": "https://app.docspring.com/submissions/sub_1234567890abcdef01/files/pdf",
+    "filename": "sub_1234567890abcdef01.pdf",
+    "content_type": "application/pdf",
+    "size": 21843,
+    "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+  }
+}
+```
+
+`files.pdf` replaces `download_url`, `permanent_download_url` and `pdf_hash` (now `sha256`). A submission's `files` also
+has the `audit_trail` of its signature requests (v1's `audit_trail_download_url`) and its `preview` PDF (v1's
+`preview_download_url`), with the same properties. Each file is left out until it exists, and `files` is empty once the
+submission has expired. A file made after its submission was processed is listed while it's being made, so check its
+`state` (`pending`, `processed` or `error`, with `error_message`) before using its links. A template's PDF has its
+temporary link in `document.download_url` (v1's `document_url`), and a custom file in `download_url` (v1's `url`).
+
+### Templates
+
+- `ready` says whether the template can generate PDFs: HTML templates always can, PDF templates once their PDF is
+  processed. A PDF template's `document` has the PDF's `filename`, `state`, `page_count`, `page_dimensions` and links.
+  They replace `document_processed`, `document_state`, `document_parse_error` and the other `document_*` and `page_*`
+  fields. AI field setup's progress is in `document` too: `page_processing_statuses` and `field_logic_status` (as in
+  v1), and `has_fillable_fields` (v1's `has_acroform_fields`). Templates don't return `detect_fields`: send it when you
+  create a template, with `field_source`, `field_naming` and `field_logic` (see
+  [Automatic field detection](/docs/template-editor/automatic-field-detection/#api)).
+- Lists return template summaries; `getTemplate` returns the template with its `defaults`, `field_dependencies`, HTML
+  and versions, but not its fields yet (see [Operations](#operations)).
+- Templates have no `webhook_url` or `webhook_options`. Create a [webhook](/docs/webhooks/overview/) with
+  `template_ids` instead.
+- `embed_domains` is a list (v1's comma-separated string), and each entry is checked: a host such as `app.example.com`,
+  with an optional leading `*.`, port and `http` or `https` scheme.
+- `copyTemplate` with `parent_folder_id: null` puts the copy at the root, as `moveTemplate` does. Leave
+  `parent_folder_id` out to put it in the template's own folder (v1 did that for `null` too).
+- `getTemplateSchema` and `getTemplateModelCode` describe the version that submissions use by default (the latest
+  published version, or the draft when none has been published), where v1 described the draft. Pass `version` for
+  another one.
+- A `field_dependencies` condition takes only what its `operator` uses: `present` and `blank` take no `value`, `equals`
+  and `not_equals` take a string, number or boolean, `in` takes a list of them, `gt`, `gte`, `lt` and `lte` take a
+  number (or a number as a string) and only work on a number field, and `range` takes `value`, `range_max` or both. API
+  v1 saved any of them, and conditional logic skipped the conditions it couldn't use; API v2 returns a `422`. Templates
+  return their conditions in this shape.
+
+### Secrets
+
+Secrets are write-only. A submission's or combined PDF's `password`, and a template's `encrypt_pdfs_password` and
+`slack_webhook_url`, aren't returned. `has_password`, `has_encrypt_pdfs_password` and `has_slack_webhook_url` say
+whether one is set.
+
+### Combined PDFs
+
+Combined submissions are called combined PDFs. Their sources are always `source_pdfs`, each with a `type`
+(`submission`, `combined_pdf`, `template`, `custom_file` or `url`). A template source uses the template's processed PDF
+unless you set `processed: false`. Each source takes only its type's properties: `id` for a submission, combined PDF,
+template or custom file, `url` for a URL, and `template_version` and `processed` for a template. Any other is a `422`.
+
+### Signature requests
+
+Data requests are called signature requests: the `/signature_requests` endpoints, a submission's `signature_requests`
+(also in the body that creates it), the `SignatureRequest` models in the 4.x clients and the `signature_request.*`
+webhook events. A submission waiting for them is in the `waiting_for_signature_requests` state, and the template
+setting `add_data_request_submission_id_footers` is `add_signature_request_submission_id_footers`. They're the same
+records in both versions, so an ID from API v1 works in API v2. New ones get IDs that start with `srq_` instead of
+`drq_`, whichever version creates them.
+
+A signature request's `data` holds only the values its own signer filled in.
+
+A token's link opens the signing form for 24 hours, or 7 days for an `email` token, and a form that opened in time
+keeps working for 7 more days. Create a token each time you open the form or send a link.
+
+To leave a signer out, give each signature request its `role` (`Signer 1`, `Signer 2` and so on: `Signer 1` fills the
+template's `@@signature_requests/0` fields) and leave that signer's out. v1's `skipped` placeholders are gone, and so are
+`fields` and `auth_type`'s exemption for them: every signature request needs both.
+
+## Waiting for PDFs
+
+Requests to `sync.api.docspring.com` that create a submission, batch, combined PDF or template PDF wait until it's
+processed, then return it in its final state. A failed PDF is a `201` with a failure `state` (`error`, `syntax_error`,
+`image_download_failed` or `image_processing_failed`) and an `error_message`. `GET` requests don't wait. If the PDF
+isn't ready in time, the response is a `504` with a `polling_timeout` error and the record's ID. See
+[Synchronous Requests](/docs/api-guide/synchronous-requests/).
+
+## Webhooks
+
+Webhooks you create with API v2 send [version 4](/docs/webhooks/payloads/#version-4) payloads: each event's `data` is
+the resource as API v2 returns it, and events use API v2's names (`signature_request.completed`,
+`combined_pdf.processed`).
+Webhooks you created with API v1 or in the dashboard keep their version, so you can move your webhook endpoint
+separately.
+
+<LinkCard
+  title="API v2 Reference"
+  href="/docs/api/"
+  description="Every endpoint, with examples and code samples for each API client"
+/>

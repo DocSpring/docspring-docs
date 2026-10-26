@@ -1,6 +1,6 @@
 ---
-title: Data Requests JS Library
-description: Changelog and version history for the Data Requests JavaScript library
+title: Signature Requests JS Library
+description: Changelog and version history for the Signature Requests JavaScript library
 sidebar:
   order: 1
 ---
@@ -10,19 +10,82 @@ import { Aside, Badge, LinkCard } from "@astrojs/starlight/components";
 This client-side JavaScript library allows you to embed a signing form on your own website
 to collect legally binding electronic signatures and generate signed PDFs.
 
+<Aside type="note" title="Renamed from Data Requests JS">
+  Data Requests JS became Signature Requests JS in version 3.0.0, which renames
+  its function and options (see 3.0.0 below). Versions up to 2.6.0 stay at
+  `https://cdn.docspring.com/embed/data_request.v<version>.js`, and pages that
+  load them keep working.
+</Aside>
+
 <LinkCard
-  title="Embedded Data Requests Guide"
-  href="/docs/guides/embedded-forms/embedded-data-requests/"
+  title="Embedded Signature Requests Guide"
+  href="/docs/guides/embedded-forms/embedded-signature-requests/"
   description="Learn how to embed an e-signature workflow on your website"
 />
 
-You can also [get these release notes by email](https://app.docspring.com/email/subscribe?list=data_request).
+You can also [get these release notes by email](https://app.docspring.com/email/subscribe?list=signature_request).
 They include changes to the Visual Forms library, which shows the signing form
-inside the Data Requests iframe.
+inside the Signature Requests iframe.
 
 ## Changelog
 
-### 2.6.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 3.0.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 26, 2026
+</div>
+
+Data Requests JS is now Signature Requests JS, at
+`https://cdn.docspring.com/embed/signature_request.v3.0.0.js`. To upgrade from
+2.x, rename:
+
+| 2.x (Data Requests JS)                             | 3.0.0 (Signature Requests JS)            |
+| -------------------------------------------------- | ---------------------------------------- |
+| `DocSpring.createVisualForm()` (or `createForm()`) | `DocSpring.createSignatureRequestForm()` |
+| `dataRequestId`                                    | `signatureRequestId`                     |
+| `dataRequestURL`                                   | `signatureRequestURL`                    |
+| `onRemainingDataRequests`                          | `onRemainingSignatureRequests`           |
+| `waitingForDataRequestsTitle`                      | `waitingForSignatureRequestsTitle`       |
+| `waitingForDataRequestsMessage`                    | `waitingForSignatureRequestsMessage`     |
+| The iframe's `name="dsp-data-request"`             | `name="dsp-signature-request"`           |
+| The iframe's `data-data-request-id` attribute      | `data-signature-request-id`              |
+
+- An option with its old name throws an error that gives the new name.
+- The signing form opens at `/signature_requests/` instead of
+  `/data_requests/`. The old links still work.
+- Sends messages to the signing form only while the form is on DocSpring's
+  page.
+- Follows a redirect from the signing form only to an `http` or `https` URL.
+
+Removed:
+
+- `DocSpring.setField()`, `DocSpring.submitForm()`, and the `defaultFormData`
+  and `staticFormData` options. A signature request's values come only from its
+  submission: send them when you create the signature request. The options
+  throw an error.
+- The `domainVerification` option, which throws an error. A live signature
+  request only loads on the sites in the template's **Embed Domains** setting:
+  DocSpring tells the browser which sites may show it, and the browser refuses
+  to show it anywhere else. A test signature request loads on any site. This
+  applies to pages that load 2.x too: `domainVerification: false` no longer
+  lets them show a live signature request on a site that isn't listed.
+
+`onError` always gets an object with an `error` code and a `message` (see
+[Errors](/docs/forms/js-libraries/signature-requests-js/#errors)):
+
+- An expired signing link calls it with `token_expired`, and the other errors
+  from the signing form have their own codes (`invalid_token`,
+  `signature_request_completed`, ...). 2.x passed the message as a string.
+- A failed save or decline: `save_failed` or `decline_failed`, with the HTTP
+  `status`. 2.x passed the error as a string.
+- A PDF that couldn't be generated: `processing_failed`. A PDF that takes more
+  than a minute: `processing_timeout`, once, while the form keeps waiting.
+  2.x passed nothing, every second after the first minute.
+- A signing form the browser refused to show: `frame_blocked`, a few seconds
+  after the iframe loads, instead of `load_timeout` after 30 seconds.
+- Anything else: `unknown_error`.
+
+### 2.6.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 20, 2026
@@ -85,7 +148,7 @@ inside the Data Requests iframe.
   instead of signing. Declining cancels the whole submission: no PDF is
   generated, and DocSpring sends the `submission_data_request.declined` and
   `submission.declined` webhook events. See [Declining to
-  Sign](/docs/forms/data-requests/#declining-to-sign).
+  Sign](/docs/forms/signature-requests/#declining-to-sign).
   - `showDecline: false` hides the button.
   - `declineButtonLabel` changes its label (for example, `"Cancel - Do Not Sign"`).
   - `onDecline` is called when the signer declines.

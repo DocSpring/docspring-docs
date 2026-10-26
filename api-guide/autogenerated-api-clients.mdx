@@ -23,7 +23,7 @@ Follow [the installation instructions](https://github.com/OpenAPITools/openapi-g
 
 <Code
   code={`openapi-generator-cli generate \\
-    --input-spec "https://docspring.com/api-docs/v1/openapi.json" \\
+    --input-spec "https://docspring.com/api-docs/v2/openapi.json" \\
     --generator-name scala-sttp \\
     --output "./docspring-scala"`}
   lang="bash"
@@ -31,11 +31,11 @@ Follow [the installation instructions](https://github.com/OpenAPITools/openapi-g
 
 <Aside type="caution">
   We add new fields and enum values to API responses without releasing a new API
-  version (see [API changes](/docs/api-guide/openapi-schema/#api-changes)). Our
-  schema lists each enum's current values, and some generated clients reject a
-  value they don't know: by default, OpenAPI Generator's C#, Java, PHP, Python
-  and Ruby clients do. Make sure your client accepts unknown enum values, or use
-  one of our [official API clients](/docs/api-guide/install-api-client/).
+  version (see [API changes](/docs/api-guide/openapi-schema/#api-changes)).
+  Response enums are strings in the schema, so generated clients accept new
+  values, but objects nested inside a response are closed. Make sure your client
+  accepts new fields in them, or use one of our [official API
+  clients](/docs/api-guide/install-api-client/).
 </Aside>
 
 ## Supported Languages

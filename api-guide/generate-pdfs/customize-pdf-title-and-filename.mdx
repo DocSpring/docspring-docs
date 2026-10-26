@@ -23,10 +23,11 @@ For example, if you set `pdf_title` to `Custom PDF Title`, then PDF reader appli
 
 You can customize the PDF filename by setting the `pdf_filename` key in the submission metadata. DocSpring will add the `.pdf` extension automatically.
 
-For example, if you set `pdf_filename` to `custom_pdf_file123`, the PDF URL will end with: `/submissions/<submission_id>/custom_pdf_file123.pdf`
+For example, if you set `pdf_filename` to `custom_pdf_file123`, the submission's `files.pdf.filename` is `custom_pdf_file123.pdf`, and the path of its `files.pdf.download_url` ends with `/submissions/<submission_id>/custom_pdf_file123.pdf`.
 
 <Aside type="note">
-  By default, the PDF URL will end with `/submissions/<submission_id>.pdf`
+  By default, the filename is `<submission_id>.pdf`, and the path of the download
+  URL ends with `/submissions/<submission_id>.pdf`.
 </Aside>
 
 <Aside type="tip">

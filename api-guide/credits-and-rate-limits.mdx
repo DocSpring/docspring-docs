@@ -21,32 +21,32 @@ credit rules described here apply to the current plans.
 A **live** document is admitted only when your available balance covers its
 smallest possible charge: one unit of it (20 credits for a filled PDF form, 4
 for a PDF from an HTML template or a combined PDF), plus 60 credits for each
-data request that asks for a signature, or 4 for each source PDF of a combined
+signature request that asks for a signature, or 4 for each source PDF of a combined
 PDF. When your balance can't cover that, or storage credits have been due for
 more than seven days, requests that would generate a live document return
 `402 Payment Required`:
 
 ```json
 {
-  "status": "error",
-  "error": "Insufficient credits. This submission will be processed automatically once you add credits in Billing. If it's still waiting after 30 days, it won't be processed.",
-  "code": "insufficient_credits",
-  "submission": {
-    "id": "sub_000000000000000001",
-    "state": "insufficient_credits",
-    "...": "..."
+  "error": {
+    "code": "insufficient_credits",
+    "message": "Insufficient credits. This submission will be processed automatically once you add credits in Billing. If it's still waiting after 30 days, it won't be processed.",
+    "details": [],
+    "request_id": "req_1234567890abcdef01",
+    "submission_id": "sub_1234567890abcdef01"
   }
 }
 ```
 
 Key points for your integration:
 
-- **The submission is saved.** It's held in the `insufficient_credits` state
-  and **automatically resumes** once enough credits are available, so you don't
-  need to resubmit. If support has turned off automatic resumption for your
-  account, the `error` says so: add credits and send a new request; the saved
-  request won't resume.
-- If storage credits are overdue, the `error` says so ("Live processing is
+- **The submission is saved.** The error's `submission_id` (`combined_pdf_id`
+  for a combined PDF, `submission_batch_id` for a batch) is its ID. It's held in
+  the `insufficient_credits` state and **automatically resumes** once enough
+  credits are available, so you don't need to resubmit. If support has turned
+  off automatic resumption for your account, the `message` says so: add credits
+  and send a new request; the saved request won't resume.
+- If storage credits are overdue, the `message` says so ("Live processing is
   paused because 20 storage credits are due. Add credits in Billing to resume.
   Your stored PDFs remain available.") and the submission waits the same way.
   Adding credits pays the storage charge first, then resumes waiting work.
@@ -54,44 +54,48 @@ Key points for your integration:
   rely on webhooks, poll submissions that haven't finished, or watch for the
   alert on the **Billing** page.
 - **Waiting submissions are not kept forever.** A submission or combined
-  submission that is still waiting for credits 30 days after it first ran out
+  PDF that is still waiting for credits 30 days after it first ran out
   of credits moves to the `error` state ("Not processed: this request waited 30 days for
-  credits."), and DocSpring sends the `submission.failed` (or
-  `combined_submission.failed`) webhook with the reason in `error_message`. You
+  credits."), and DocSpring sends the `submission.failed` webhook (or, for a
+  combined PDF, `combined_submission.failed`, which version 4 webhooks receive
+  as `combined_pdf.failed`) with the reason in `error_message`. You
   can also discard waiting work yourself, all at once from the **Billing** page
   or one at a time from the submission's page. Through the API, expire a waiting
-  [submission](/docs/api/#tag/pdf-submissions/delete/submissions/{submission_id})
-  or [combined submission](/docs/api/#tag/combine-pdfs/delete/combined_submissions/{combined_submission_id})
+  [submission](/docs/api/#tag/submissions/delete/submissions/{submission_id})
+  or [combined PDF](/docs/api/#tag/combined-pdfs/delete/combined_pdfs/{combined_pdf_id})
   to discard it. Discarded submissions move to `error` the same way.
-- Batch endpoints return `402` when any submission in the batch is blocked;
-  each blocked submission is reported in the response with its error message.
-  Other submissions in the same batch may already be processed and charged, so
-  check each submission's `state` and don't resubmit the whole batch. The
-  blocked submissions resume automatically.
+- [Creating a batch](/docs/api/#tag/submissions/post/submissions/batches) returns
+  `402` when any submission in the batch is blocked, with the batch's ID in
+  `submission_batch_id`. Other submissions in the same batch may already be
+  processed and charged, so
+  [get the batch](/docs/api/#tag/submissions/get/submissions/batches/{submission_batch_id})
+  and check each submission's `state` and `error_message` rather than resubmitting
+  the whole batch. The blocked submissions resume automatically.
 - A batch stays `pending` while any of its submissions are waiting for credits
   (they are counted in `pending_count`), so a client polling the batch keeps
   waiting until those submissions resume. Check the submissions' `state` to see
   which ones are blocked.
 - [Combined PDF](/docs/api-guide/combine-pdfs/) requests behave the same way:
-  the combined submission is created in the `insufficient_credits` state and
+  the combined PDF is created in the `insufficient_credits` state and
   resumes automatically after you add credits. Combined jobs
   have no test mode and consume credits even with a test API token or
   watermarked source PDFs.
 - A submission can also enter `insufficient_credits` after being accepted, if
   the balance runs out while it's in the queue. If you poll for results,
-  handle this state alongside `processed` and `error`.
-- Synchronous requests return `402` if processing encounters insufficient
-  credits before the response is returned. Preserve the response body and saved
-  submission ID even when your HTTP client raises for a non-2xx response.
+  handle this state alongside `processed` and the failure states such as `error`.
+- [Synchronous requests](/docs/api-guide/synchronous-requests/) return `402` if
+  processing runs out of credits before the response is returned, with the same
+  error and record ID. Keep the ID even when your HTTP client raises for a
+  non-2xx response.
 - The `402` on creation is a best-effort check against the balance at that
   moment; it does not reserve credits. A batch, or several requests sent close
   together, can all be accepted and some may still enter `insufficient_credits`
   once the earlier ones consume the balance. Always check each submission's
   `state` rather than relying on the creation status alone.
-- Data requests can be created without credits. Credit admission happens when
+- Signature requests can be created without credits. Credit admission happens when
   the signers finish and the live PDF is ready to render. The final charge
-  includes the PDF's own cost plus 60 credits for each data request that asks
-  its signer to sign or initial. Data requests that only collect values add
+  includes the PDF's own cost plus 60 credits for each signature request that asks
+  its signer to sign or initial. Signature requests that only collect values add
   nothing to the PDF's cost.
 - **Test submissions never consume credits** and are not blocked by a low
   credit balance. They remain subject to API request limits.
@@ -101,16 +105,18 @@ To avoid hitting `402` in production, enable
 
 ## Plan features (HTTP 403)
 
-Some features depend on your plan: the number of templates and users, live data
-requests and e-signatures, and the embedded template editor (see
-[Plans](/docs/billing/#plans)). A request that needs a higher plan returns
+Some features depend on your plan: the number of templates and users, and the
+embedded template editor (see [Plans](/docs/billing/#plans)). A request that needs a higher plan returns
 `403 Forbidden` before anything is created:
 
 ```json
 {
-  "status": "error",
-  "error": "Your Developer plan includes 10 templates. Upgrade to Starter or higher to add more.",
-  "code": "upgrade_required"
+  "error": {
+    "code": "upgrade_required",
+    "message": "Your Developer plan includes 10 templates. Upgrade to Starter or higher to add more.",
+    "details": [],
+    "request_id": "req_1234567890abcdef01"
+  }
 }
 ```
 
@@ -119,7 +125,9 @@ Unlike `402`, nothing is queued: upgrade the plan, then send the request again.
 Only accounts on a plan purchased before prepaid credits can be suspended. A
 suspended account gets the same `403` with `"code": "account_suspended"` when it
 tries to create submissions, batches or combined PDFs. Nothing is stored, and
-reading existing submissions still works. Reactivating it from the **Billing**
+reading existing submissions still works. Submissions and combined PDFs that
+were already saved wait in the `account_suspended` state and are generated if
+the account is reactivated within 30 days. Reactivating it from the **Billing**
 page moves it to the free Developer plan (the earlier plan can't be restored);
 subscribe to a paid plan there for more credits and higher limits.
 
@@ -162,7 +170,8 @@ so you can slow down before you reach the limit:
 | `RateLimit-Reset`     | Seconds until the limit has refilled to full capacity |
 
 Requests over the limit receive `429 Too Many Requests` with a `Retry-After`
-header containing the minimum delay in seconds. These requests have not reached
+header containing the minimum delay in seconds, and an error with the code
+`rate_limited`. These requests have not reached
 the API action and are safe to retry. Wait at least that long and use exponential
 backoff with jitter if retries are also limited. Spread large workloads with
 the [batch endpoint](/docs/api-guide/generate-pdfs/batch-generate-pdfs/),
