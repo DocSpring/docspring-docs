@@ -5,20 +5,23 @@ sidebar:
   order: 2
 ---
 
-You can click the "Settings" button in the header to configure your template settings.
+Click **Settings** in the template editor's top bar to change a template's settings. They're in tabs: **General**,
+**PDF output**, **Forms**, **Submissions**, **Embedding**, **Webhooks**, **Field defaults** and **Advanced**. Each
+setting below says which tab it's on.
 
-Configure default values for field options in the sidebar on the right.
+The **Field defaults** tab sets the typeface, colors, date formats and other options that fields use when they don't
+set their own.
 
 ## Locked
 
-Locked templates cannot be changed or deleted. See [Locked Templates](/docs/template-editor/locked-templates/).
+_On the General tab._ Locked templates cannot be changed or deleted. See [Locked Templates](/docs/template-editor/locked-templates/).
 
 ## Expire Submissions
 
-The _Expire Submissions_ setting allows you to configure a data retention policy for your submissions.
+_On the Submissions tab._ The _Expire submissions_ setting allows you to configure a data retention policy for your submissions.
 
-- If _Expire Submissions_ is **unchecked** (the default), we will store all submission data and generated PDFs indefinitely. (Nothing will ever be deleted automatically.)
-- If _Expire Submissions_ is **checked**, we will automatically delete all submission data and metadata, generated PDFs, any uploaded images, and the submitter's IP address, browser and location after a certain period of time. The expiration time can be configured in the template settings (_5 minutes_, _24 hours_, _7 days_, etc.)
+- If _Expire submissions_ is **unchecked** (the default), we will store all submission data and generated PDFs indefinitely. (Nothing will ever be deleted automatically.)
+- If _Expire submissions_ is **checked**, we will automatically delete all submission data and metadata, generated PDFs, any uploaded images, and the submitter's IP address, browser and location after a certain period of time. The expiration time is set beside it (_5 minutes_, _24 hours_, _7 days_, etc.)
 
 A submission that fails (for example, with invalid data) is kept for at least 48 hours before it expires, even if the expiration time is shorter, so that you can see what went wrong and a retry still has its data.
 
@@ -28,55 +31,58 @@ You can also [make an API request](/docs/api/#tag/submissions/delete/submissions
 
 ## Allow Additional Properties
 
-By default, the data that you submit must exactly match the JSON schema. Any additional properties will cause a validation error. This guarantees that you haven't forgotten to add any fields to your template, and it also guards against accidental field deletion.
+_On the Submissions tab._ By default, the data that you submit must exactly match the JSON schema. Any additional properties will cause a validation error. This guarantees that you haven't forgotten to add any fields to your template, and it also guards against accidental field deletion.
 
-When the **Allow Additional Properties in JSON Data** setting is enabled, additional properties in your data will be silently ignored. This can be useful when you don't have full control over the JSON data (e.g. a webhook integration with a third-party service.)
+When the **Allow additional properties in JSON data** setting is enabled, additional properties in your data will be silently ignored. This can be useful when you don't have full control over the JSON data (e.g. a webhook integration with a third-party service.)
 
 ## Encrypt PDFs with a Password
 
-When **Encrypt PDFs with a Password** is checked, generated PDFs are encrypted with the **PDF Password**, and can only be opened by entering that password. (This is called a "user password".)
+_On the PDF output tab._ When **Encrypt PDFs with a password** is checked, generated PDFs are encrypted with the
+**PDF password**, and can only be opened by entering that password. (This is called a "user password".)
 
 ## Merge Audit Trail With Signature Request PDFs
 
-_PDF templates only._ When checked, audit trail pages are appended to the generated PDF when a submission has signature requests. When unchecked, the audit trail PDF can be downloaded separately.
+_On the PDF output tab, for PDF templates only._ When checked, audit trail pages are appended to the generated PDF when a submission has signature requests. When unchecked, the audit trail PDF can be downloaded separately.
 
 ## Add Submission ID Footers to Signature Requests
 
-_PDF templates only._ When checked, the submission ID is added to the bottom right corner of each page when a submission has signature requests.
+_On the PDF output tab, for PDF templates only._ When checked, the submission ID is added to the bottom right corner of each page when a submission has signature requests.
 
 ## Parse Dates Using the Template's Date Format
 
-_PDF templates only._ This setting is in the sidebar on the right, under the default date formats (**Parse Dates**).
+_On the Field defaults tab, for PDF templates only._ This setting is under the default date formats (**Parse dates
+using format**).
 
 We recommend sending date values as `YYYY-MM-DD` (see [Date](/docs/reference/field-data-types/#date)). Dates sent as numbers like `05/07/2024` (with slashes, dashes or dots) are read day first by default, so `05/07/2024` is July 5, and a date like `05/13/2024` can't be read and is left blank.
 
-When **Parse Dates** is checked, these dates are read in the same order as the template's default **Date** format: month first for `%m/%d/%Y`, and day first for `%d/%m/%Y`. Fields that include a time use the default **Date/Time** format. Dates sent as `YYYY-MM-DD` are read the same way either way.
+When **Parse dates using format** is checked, these dates are read in the same order as the template's default **Date** format: month first for `%m/%d/%Y`, and day first for `%d/%m/%Y`. Fields that include a time use the default **Date/time** format. Dates sent as `YYYY-MM-DD` are read the same way either way.
 
 Each template version keeps its own setting. If your template has published versions, publish a new version after changing it: API submissions use the latest published version by default (see [Template Versions](/docs/template-editor/versions/)).
 
-You can also set this for new templates in your account's template settings, and change it with the `parse_dates_using_template_date_format` option in the [templates API](/docs/api/#tag/templates).
+You can also set this for new templates on your account's **Template defaults** page, and change it with the `parse_dates_using_template_date_format` option in the [templates API](/docs/api/#tag/templates).
 
 ## HTML Page Settings
 
-HTML templates have **Page Format**, **Page Size**, **Page Margins**, and **Print Background** settings. See [Page Settings](/docs/html-templates/overview/#page-settings).
+_On the PDF output tab._ HTML templates have **Page format**, **Landscape**, **Width**, **Height**, margin and
+**Print background** settings. See [Page Settings](/docs/html-templates/overview/#page-settings).
 
 ## Online Form Privacy
 
-Set this to **Public** to allow anyone to fill out the online form if they have the URL.
+_On the Forms tab._ Set this to **Public** to allow anyone to fill out the online form if they have the URL.
 
 ## Online Form
 
-Which form a PDF template's online form link opens: the **web form** (questions on a page), the **visual form** (fields
+_On the Forms tab, as **Form type**._ Which form a PDF template's online form link opens: the **web form** (questions on a page), the **visual form** (fields
 filled in on the PDF), or **both**, in two tabs. A `mode` parameter in the link overrides it (see
 [Web Form, Visual Form or Both](/docs/forms/web-forms/#web-form-visual-form-or-both)). HTML templates don't have this
 setting: they have no visual form, so they always show the web form.
 
-You can also set this in your account's template settings, for new templates and, with **Update Templates**, for
-existing ones. HTML templates stay on the web form either way.
+You can also set this on your account's **Template defaults** page, for new templates and, with **Update Templates**,
+for existing ones. HTML templates stay on the web form either way.
 
 ## Show Continue Once Required Fields Are Filled In
 
-_PDF templates only._ Visual forms and signature requests have a **Next** button that takes the user through each field in
+_On the Forms tab, for PDF templates only._ Visual forms and signature requests have a **Next** button that takes the user through each field in
 turn. By default, while the user is in a field, the **Continue** button only replaces it once every field has a value
 or has been visited. Check
 this setting to show **Continue** as soon as every required field is filled in, so users can skip the optional
@@ -85,7 +91,7 @@ fields. The `allowSkippingOptionalFields` option of [Visual Forms JS](/docs/form
 
 ## Submission Privacy
 
-Set this to **Public** to allow anyone to view submission data and download their PDF if they have the URL.
+_On the Submissions tab._ Set this to **Public** to allow anyone to view submission data and download their PDF if they have the URL.
 
 This is useful when you have added a [@@data_url QR code to the PDF](/docs/template-editor/field-names/#special-field-names).
 (`@@data_url` is a URL where the submission data can be viewed or downloaded.)
@@ -94,11 +100,11 @@ This is useful when you have added a [@@data_url QR code to the PDF](/docs/templ
 
 Configure webhooks on the [Webhooks page](https://app.docspring.com/webhooks). See [Webhooks Overview](/docs/webhooks/overview/).
 
-Existing legacy webhook URLs on templates and API tokens (shown as **Legacy Webhook URL**) keep working until they are migrated to the new webhooks system.
+Existing legacy webhook URLs on templates and API tokens (shown on the **Webhooks** tab as **Legacy webhook URL**) keep working until they are migrated to the new webhooks system.
 
 ## Slack Webhook URL
 
-Posts a message to a Slack channel whenever this template generates a PDF. Each message links to the PDF and to its
+_On the Webhooks tab._ Posts a message to a Slack channel whenever this template generates a PDF. Each message links to the PDF and to its
 submission. Test PDFs and combined PDFs don't post a message.
 
 To get a URL, create a Slack app with an incoming webhook for the channel
@@ -107,26 +113,28 @@ into this field. Messages show your Slack app's name and icon.
 
 ## Redirect URL
 
-We'll redirect users to this URL whenever they fill out the online form to generate a PDF.
+_On the Forms tab._ We'll redirect users to this URL whenever they fill out the online form to generate a PDF.
 This applies to online forms hosted on [docspring.com](https://docspring.com),
 and [embedded forms on your own website](/docs/guides/embedded-forms/embedded-web-forms/).
 The submission ID, template ID, and template name will be appended to the URL as query params.
 
 ## Template Description
 
-The template description is shown under the template's name at the top of its [online form](/docs/forms/web-forms/), in
+_On the General tab._ The template description is shown under the template's name at the top of its [online form](/docs/forms/web-forms/), in
 every mode, and is the page's meta description. It is not shown on embedded forms or signature requests.
 
 ## Embedded Template Editor Settings
 
-- **Embed Domains**: Not shown in the embedded editor. A comma-separated list of domains where you embed the template editor or signature request forms. The template editor accepts wildcards such as `*.example.com` and isn't restricted when the list is blank (see [Embed Domains](/docs/guides/embedded-template-editor/#embed-domains)). Live [embedded signature requests](/docs/guides/embedded-forms/embedded-signature-requests/) only load on the listed sites, accept the same wildcards and ports, and don't load on any site when the list is blank; test signature requests load anywhere.
-- **Embed Edit Token**: Not shown in the embedded editor. The token you use with `template_editor.js` to embed this template editor. You can show or regenerate it. See [Embed Edit Token](/docs/guides/embedded-template-editor/#embed-edit-token).
-- **Embedded Editor Permissions**: Not shown in the embedded editor. Allow embedded editor users to change template settings, to publish, restore, and delete versions, or to replace the PDF document. By default they can only edit fields and layout. See [Security](/docs/guides/embedded-template-editor/#security).
-- **Predefined Fields**: _PDF templates only._ The field names that embedded editor users can add. See [Use Predefined Fields](/docs/guides/embedded-template-editor/use-predefined-fields/).
+These are on the **Embedding** tab.
+
+- **Embed domains**: Not shown in the embedded editor. A comma-separated list of domains where you embed the template editor or signature request forms. The template editor accepts wildcards such as `*.example.com` and isn't restricted when the list is blank (see [Embed Domains](/docs/guides/embedded-template-editor/#embed-domains)). Live [embedded signature requests](/docs/guides/embedded-forms/embedded-signature-requests/) only load on the listed sites, accept the same wildcards and ports, and don't load on any site when the list is blank; test signature requests load anywhere.
+- **Embed edit token**: Not shown in the embedded editor. The token you use with `template_editor.js` to embed this template editor. You can show or regenerate it. See [Embed Edit Token](/docs/guides/embedded-template-editor/#embed-edit-token).
+- **Embedded editor permissions**: Not shown in the embedded editor. Allow embedded editor users to change template settings, to publish, restore, and delete versions, or to replace the PDF document. By default they can only edit fields and layout. See [Security](/docs/guides/embedded-template-editor/#security).
+- **Predefined fields**: _PDF templates only._ The field names that embedded editor users can add. See [Use Predefined Fields](/docs/guides/embedded-template-editor/use-predefined-fields/).
 
 ## Template PDF
 
-_PDF templates only._ Shows the template's PDF file. Drop a new PDF onto the upload area to replace it. The template
+_On the General tab, for PDF templates only._ Shows the template's PDF file. Drop a new PDF onto the upload area to replace it. The template
 keeps its fields.
 
 To replace the fields too, check **Re-import fields from the new PDF** before you drop the new PDF. When the PDF has

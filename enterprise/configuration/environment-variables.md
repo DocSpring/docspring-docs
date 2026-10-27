@@ -729,13 +729,6 @@ Hides the "Forgot password?" link on the sign-in page.
 - Type: on/off
 - Formerly: `SESSIONS_REMOVE_FORGOT_PASSWORD`
 
-### DOCSPRING_SIMPLIFY_TEMPLATE_EDITOR_UI
-
-Simplifies the app for people who only edit templates: hides the getting started guide, most navigation, the help widgets, the footer and some template options, and simplifies the template editor.
-
-- Type: on/off
-- Formerly: `SIMPLIFY_TEMPLATE_EDITOR_UI`
-
 ### DOCSPRING_SUPPORT_URL
 
 The page the template editor's help button opens. Defaults to DocSpring's template editor docs.

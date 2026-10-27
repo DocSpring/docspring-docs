@@ -88,7 +88,7 @@ the Bedrock console.
 ## Settings and limits
 
 - Your users choose the field name language and whether AI sets up conditional
-  logic on the **Template Settings** page, and when they run Set Up Fields in
+  logic on the **Template defaults** page, and when they run Set Up Fields in
   the template editor.
 - AI field setup can run 5 times an hour on each template.
 - `DOCSPRING_AI_FIELD_NAMING_BATCH_SIZE` sets how many fields go to the model in
