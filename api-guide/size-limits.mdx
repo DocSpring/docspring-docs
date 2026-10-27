@@ -1,0 +1,82 @@
+---
+title: Size Limits
+description: The maximum sizes of the names, settings and metadata you send to DocSpring, and the error you get for a value over its limit.
+sidebar:
+  order: 7
+---
+
+Every value you send to DocSpring has a maximum size. The limits are well above
+anything a normal integration sends. A request with a value over its limit is
+rejected with a `422 Unprocessable Content` response that names the value and
+its limit, and nothing is saved:
+
+```json
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "Invalid request: /metadata has too many keys (51, the maximum is 50)",
+    "details": [
+      {
+        "code": "json_too_many_keys",
+        "message": "has too many keys (51, the maximum is 50)",
+        "pointer": "/metadata"
+      }
+    ],
+    "request_id": "req_1234567890abcdef01"
+  }
+}
+```
+
+The request body has a limit of its own, which is checked first: 50 MB to
+create a submission, 100 MB for a PDF upload, and 10 MB for everything else,
+batches included. A larger body is rejected with a `413` response and a
+`request_too_large` error. Send images as URLs instead of Base64 data.
+
+## Templates
+
+| Value                                                 | Limit             |
+| ----------------------------------------------------- | ----------------- |
+| Template name                                         | 512 characters    |
+| Template description                                  | 5,000 characters  |
+| Version description                                   | 500 characters    |
+| All of a template's fields                            | 16 MB as JSON     |
+| Each name, title and other text in a field's settings | 65,536 characters |
+| HTML of an HTML template                              | 50 MB             |
+| Header HTML, footer HTML and SCSS                     | 5 MB each         |
+| Allowed embed domains, all together                   | 5,000 characters  |
+| Webhook URL and redirect URL                          | 2,048 characters  |
+| PDF password                                          | 512 characters    |
+
+16 MB of fields is about 10,000 fields. For a document that needs more, split
+its pages into several templates, generate a PDF from each one, and
+[combine the PDFs](/docs/api-guide/combine-pdfs/).
+
+## Submissions, signature requests and combined PDFs
+
+| Value                                                                | Limit                                        |
+| -------------------------------------------------------------------- | -------------------------------------------- |
+| `data` of a submission or signature request, Base64 images included  | 128 MB as JSON                               |
+| `metadata` of a submission, batch, signature request or combined PDF | 64 KB as JSON, 50 keys, nested 5 levels deep |
+| `field_overrides` of a submission                                    | 1 MB as JSON                                 |
+| `html` of a submission                                               | 50 MB                                        |
+| `css` of a submission                                                | 5 MB                                         |
+| Signature request `name`                                             | 255 characters                               |
+| Signature request `email`                                            | 254 characters                               |
+| Signature request `fields`                                           | 256 KB as JSON                               |
+| `password` of a submission or combined PDF                           | 512 characters                               |
+
+Metadata counts every key, including the keys of nested objects.
+
+The text that doesn't fit a submission's fields, returned as
+[`truncated_text`](/docs/api-guide/generate-pdfs/handle-truncated-text/), can be
+up to 2 MB as JSON. A submission with more fails with an error.
+
+## Webhooks, folders and API tokens
+
+| Value           | Limit                     |
+| --------------- | ------------------------- |
+| Webhook name    | 512 characters            |
+| Webhook URL     | 2,048 characters          |
+| Webhook headers | 64 KB as JSON, 50 headers |
+| Folder name     | 255 characters            |
+| API token name  | 512 characters            |

@@ -93,5 +93,11 @@ Webhooks page in the dashboard. Each log entry includes the event type, the requ
 and response headers and bodies, the HTTP status code, the response latency, the
 attempt number, and any error message. Logs are kept for 90 days.
 
-Use the logs to confirm that events are being delivered, inspect exactly what your
-endpoint received, and debug failures.
+A log keeps the first 10,000 characters of the request body, with Base64 data such as
+images replaced by a note of its size, and the first 1,000 characters of your
+endpoint's response. When a submission or a combined PDF expires or is deleted, the
+request and response bodies of its logs are cleared too, and for a submission also
+those of its signature requests' and its batch's logs.
+
+Use the logs to confirm that events are being delivered, see what your endpoint
+received, and debug failures.

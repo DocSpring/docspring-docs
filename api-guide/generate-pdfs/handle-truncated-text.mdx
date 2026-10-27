@@ -36,6 +36,10 @@ Every key in the `truncated_text` object is a field name, and each value is an a
   truncated strings from each individual field.
 </Aside>
 
+A submission's truncated text can be up to 2 MB as JSON. If the text that doesn't
+fit its fields adds up to more, the submission fails with an error instead of
+returning only part of it.
+
 ## Use Case: Addendum Pages
 
 Some government and immigration forms have an optional addendum page that can be attached if any text is too long to fit in one of the fields.

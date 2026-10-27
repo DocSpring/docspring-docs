@@ -310,7 +310,10 @@ You can use the `pageNumber` and `totalPages` classes to show the current page n
 
 - **Generated PDF:** up to 500 MB. Photos embedded at full camera resolution can go over this. Resize images to the
   size they are displayed at.
-- **HTML:** up to 128 MB in total for the body, header and footer HTML, including any images embedded in it as base64.
+- **Template HTML:** up to 50 MB for the body HTML, and 5 MB each for the header HTML, the footer HTML and the SCSS.
+  The other limits are in [Size limits](/docs/api-guide/size-limits/).
+- **Rendered HTML:** up to 128 MB in total for the body, header and footer HTML once your data is filled in, including
+  any images embedded in it as base64.
 - **Header and footer images:** up to 25 MB each. They are embedded into the header or footer HTML.
 - **[Image field](/docs/reference/field-data-types/#image) values given as a URL:** up to 100 MB each.
 
