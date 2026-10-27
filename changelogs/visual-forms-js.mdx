@@ -28,7 +28,29 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.18.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.18.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 27, 2026
+</div>
+
+- [Conditional logic](/docs/template-editor/conditional-logic/) now runs on the
+  same rule engine as web forms and PDF generation, so a rule shows, hides and
+  requires the same fields everywhere.
+- A rule that targets a group or a list by its name (which the API allows) now
+  shows and hides every field in it, and a group or list that a rule requires
+  needs a value in at least one of its fields. Earlier versions ignored these
+  rules.
+- A rule that also targets a field inside a list's rows, which isn't supported
+  yet, now still shows and hides its other fields, as the PDF does.
+- A group whose fields are all numbered (`phones/0`, `phones/1`) is a list, as
+  in the API's schema: a rule can target the list, but not the fields in it.
+- Number conditions read only decimal numbers, such as `5`, `-1.5` or `1e3`, as
+  numbers: a field's value `0x10` isn't 16. A Greater or Less rule with a bound
+  like `0x10` is ignored, In Range treats it as an open bound, and Equals
+  compares it as text.
+
+### 2.18.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 26, 2026

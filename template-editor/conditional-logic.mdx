@@ -105,6 +105,11 @@ or optional, which you can **Undo**.
   data is not modified — only the rendered output.
 - **Conditions can be chained.** A condition's source field can itself be
   conditionally shown. A hidden source field always counts as blank.
+- **Default values count.** When the data leaves out a field that has a
+  default value, a condition on that field reads the default, as the forms do
+  when they fill it in. This applies to generated PDFs and to the JSON schema
+  that validates API submissions. A number default counts to 8 decimal places,
+  as the visual form shows it.
 - **Conditions can use formulas.** [Formulas](/docs/template-editor/formulas/)
   are calculated before conditions are checked, so a condition can use a
   formula field's result. A formula field that a condition hides isn't printed.
@@ -261,8 +266,8 @@ A rule applies to every field with the same name, and `null` removes it:
   `lt`, `lte`, or `range` (use `value` for the lower bound and `range_max` for
   the upper bound). The numeric operators (`gt`, `gte`, `lt`, `lte`, `range`)
   are only valid when the source field is a _Number_ field, and require
-  numeric values (`range` needs at least one bound; a missing bound makes the
-  range open-ended).
+  decimal numbers such as `5`, `-1.5` or `1e3` (`range` needs at least one
+  bound; a missing bound makes the range open-ended).
 - Field names use the same `a/b/c` path syntax as
   [nested field names](/docs/template-editor/field-names/)
 - `group` (optional) marks a rule as authored on a field group in the template
@@ -270,14 +275,21 @@ A rule applies to every field with the same name, and `null` removes it:
   the group's fields: when the template is saved, targets outside `<group>/`
   (or that conditional logic cannot apply to, such as static fields) are
   removed from the rule, and the rule itself is removed once the group has
-  no fields. Rules without `group` are stored as given (the fields they name
-  must exist for the rule to take effect).
+  no fields. Rules without `group` are stored as given.
+- `targets` can name fields, object groups and arrays. Naming a group or an
+  array shows or hides all of its fields. A target that doesn't exist, or a
+  field inside an array, is skipped, and the rule still applies to its other
+  targets.
+- A condition's `field` must be a field: a condition on an object group or an
+  array makes the rule invalid.
 
 <Aside type="caution">
   Invalid rules are ignored. This includes conditions whose field paths cross
-  arrays, reference deleted fields, or use numeric operators on non-number
-  fields. When a rule is ignored, its target fields behave as if the rule did
-  not exist (including keeping their own _Required_ setting).
+  arrays, reference deleted fields or groups, or use numeric operators on
+  non-number fields, and rules that show fields in a loop (each one depending on
+  a field that another one shows). When a rule is ignored, its target fields
+  behave as if the rule did not exist (including keeping their own _Required_
+  setting).
 </Aside>
 
 <LinkCard
