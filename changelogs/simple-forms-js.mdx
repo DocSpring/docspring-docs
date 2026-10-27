@@ -20,7 +20,21 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.7.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.7.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 27, 2026
+</div>
+
+- Fixed forms for templates with an initials field, which failed to load with
+  "Unable to find field class for type: initials". Initials fields now show a
+  pad to draw initials, like signature fields. Earlier versions load these
+  forms again too, with a signature pad for each initials field.
+- A date the date picker rejects no longer reaches your page's
+  `window.onerror` handler, so your error tracker no longer reports it as a
+  JavaScript error.
+
+### 2.7.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 27, 2026
