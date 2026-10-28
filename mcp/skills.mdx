@@ -1,0 +1,79 @@
+---
+title: Agent Skills and Plugin
+description: Install DocSpring's agent skills and plugin, which teach AI coding agents DocSpring's workflows and connect them to DocSpring's MCP server
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+DocSpring's [agent skills](https://agentskills.io) teach an AI agent how to work with DocSpring: which tools to use for
+a task, in what order, and the rules that keep your account safe, such as making test PDFs and publishing a template only
+when you agree. The DocSpring plugin installs the skills together with [DocSpring's MCP server](/docs/mcp/), so the
+agent can use them in your account. The skills are open source:
+[github.com/DocSpring/skills](https://github.com/DocSpring/skills).
+
+| Skill                          | What it does                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `docspring`                    | Connects to DocSpring, finds and fills your templates, makes test PDFs, and picks the right skill below |
+| `docspring-pdf-templates`      | Turns a PDF form into a template: AI field detection, checking fields against the pages, versions       |
+| `docspring-html-templates`     | Designs and fixes HTML/CSS templates, rendering a test PDF after each change to check the pages         |
+| `docspring-api-integration`    | Writes app code with DocSpring's API clients: typed models, generating PDFs, webhooks, errors           |
+| `docspring-signature-requests` | Sends templates for signature, makes signing links and embeds signing in your app                       |
+| `docspring-embedded-forms`     | Embeds DocSpring forms and the template editor in your web app                                          |
+
+## Install the plugin
+
+The plugin adds the skills and the MCP server in one step.
+
+### Claude Code
+
+```sh
+claude plugin marketplace add DocSpring/skills
+claude plugin install docspring@docspring
+```
+
+### Codex
+
+```sh
+codex plugin marketplace add DocSpring/skills
+codex plugin add docspring@docspring
+```
+
+### GitHub Copilot CLI and VS Code
+
+In a Copilot CLI session or VS Code's chat:
+
+```text
+/plugin marketplace add DocSpring/skills
+/plugin install docspring@docspring
+```
+
+### Gemini CLI
+
+```sh
+gemini extensions install https://github.com/DocSpring/skills
+```
+
+### Sign in
+
+The plugin lists both of DocSpring's MCP servers: `docspring` for accounts in the US and `docspring-eu` for accounts in
+the EU. Sign in to the one for your account's region (for example, select it in Claude Code's `/mcp`) and leave the
+other one disconnected. When you sign in, you choose what the agent can do: see [Access](/docs/mcp/#access).
+
+## Install only the skills
+
+The [skills CLI](https://github.com/vercel-labs/skills) installs the skills into Cursor, Windsurf, OpenCode and about 80
+other agents:
+
+```sh
+npx skills add DocSpring/skills
+```
+
+It installs the skills from docspring.com too: `npx skills add https://docspring.com`. Then
+[connect the MCP server](/docs/mcp/#connect-your-assistant) to your agent, or give the agent an API token so that it can
+call the [REST API](/docs/api-guide/authentication/) instead.
+
+<Aside>
+  The skills CLI doesn't update skills on its own. Run `npx skills update` to
+  get new versions. Plugins update through their marketplace, for example
+  `claude plugin update docspring@docspring`.
+</Aside>

@@ -164,7 +164,7 @@ What `data` holds for each event:
 | `signature_request.*` | The [signature request](/docs/api/#tag/signature-requests/get/signature_requests/{signature_request_id})                                   |
 | `combined_pdf.*`      | The [combined PDF](/docs/api/#tag/combined-pdfs/get/combined_pdfs/{combined_pdf_id})                                                       |
 | `submission_batch.*`  | The [submission batch](/docs/api/#tag/submissions/get/submissions/batches/{submission_batch_id}), with its submissions' `data` always null |
-| `template.*`          | The template summary, as [listing templates](/docs/api/#tag/templates/get/templates) returns it                                            |
+| `template.*`          | The [template](/docs/api/#tag/templates/get/templates/{template_id}), without its `embed_edit_token`                                       |
 | `webhook.*`           | The [webhook](/docs/api/#tag/webhooks/get/webhooks/{webhook_id}), without its `secret` and `headers`                                       |
 | `custom_file.*`       | The [custom file](/docs/api/#tag/custom-files/get/custom_files/{custom_file_id})                                                           |
 | `folder.*`            | The [folder](/docs/api/#tag/folders/get/folders/{folder_id})                                                                               |

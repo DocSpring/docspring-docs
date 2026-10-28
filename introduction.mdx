@@ -33,12 +33,12 @@ You can generate PDFs by [posting data to our API](/docs/api/#tag/submissions/po
 
 ## Synchronous API
 
-The DocSpring API supports both synchronous and asynchronous requests.
+The DocSpring API supports both synchronous and asynchronous requests. Send your requests to the synchronous host, as our API clients do:
 
 - Requests to `sync.api.docspring.com` are **synchronous** by default. _(We wait up to 95 seconds for the PDF to be processed before returning a response.)_
-  - _Use `sync.api-eu.docspring.com` for the EU region._
+  - _Accounts in our EU region use `sync.api-eu.docspring.com`._
 - Requests to `api.docspring.com` are **asynchronous** by default. _(Pending PDF is returned immediately.)_
-  - _Use `api-eu.docspring.com` for the EU region._
+  - _Accounts in our EU region use `api-eu.docspring.com`._
 
 <LinkCard
   title="Synchronous vs. Asynchronous API requests"

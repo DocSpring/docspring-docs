@@ -8,9 +8,9 @@ import { LinkCard, Aside, Code, Icon } from "@astrojs/starlight/components";
 Visual Forms allow you to embed a PDF form filling interface directly on your website. Unlike [signature requests](/docs/forms/signature-requests/), visual forms do not include compliance features like audit trails or authentication tracking - they're simply a visual component for filling out PDF templates.
 
 <Aside type="tip">
-  Use Visual Forms when you need a simple form filling interface. Use Data
-  Requests when you need legally binding electronic signatures with UETA/ESIGN
-  compliance.
+  Use Visual Forms when you need a simple form filling interface. Use [signature
+  requests](/docs/forms/signature-requests/) when you need legally binding
+  electronic signatures with UETA/ESIGN compliance.
 </Aside>
 
 ## How Visual Forms Work
@@ -47,6 +47,27 @@ Set "Online Form Privacy" to **Public** so that users who aren't signed in to Do
 
 - **Public**: PDFs can be downloaded immediately after generation
 - **Private**: Requires authentication to download the generated PDF
+
+### Private Submissions and API Tokens
+
+Never put an API token in a page. Anyone who opens the page can read it and use it to call the API as your account:
+read every submission, change templates, and generate PDFs that use your credits.
+
+Visual Forms JS used to accept `apiTokenId` and `apiTokenSecret` options, so the form could download a private
+submission's PDF. Pages that pass them keep working, but from version 2.19.0 the form logs a warning in the browser
+console. If your page passes them, remove them, then create a new API token and revoke the old one on the
+[API Tokens page](https://app.docspring.com/api_tokens): the old token's secret has been public.
+
+To get the PDF of a private submission, use your server:
+
+1. In the page, send the submission ID that `onSave` gives you to your server.
+2. On your server, [get the submission](/docs/api/#tag/submissions/get/submissions/{submission_id}) with your API
+   token, check that its `template_id` is your template, and download the PDF from `files.pdf` once it's processed.
+   Or use the `submission.processed` [webhook](/docs/webhooks/events/), which needs no submission ID from the page.
+
+When the data comes from your server, or the person needs to sign, use a
+[signature request](/docs/guides/embedded-forms/embedded-signature-requests/) instead. Your server creates it with
+your API token, and the page gets an authentication token that opens only that signature request.
 
 ### Redirect URL
 

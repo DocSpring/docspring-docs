@@ -29,7 +29,22 @@ inside the Signature Requests iframe.
 
 ## Changelog
 
-### 3.0.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 3.0.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 29, 2026
+</div>
+
+- Works on a page whose Content-Security-Policy doesn't allow inline styles
+  (no `'unsafe-inline'` in `style-src`). The form's iframe no longer has a
+  `style` attribute, and the modal's CSS is no longer a `<style>` element. See
+  [Content Security Policy](/docs/forms/js-libraries/content-security-policy/).
+- No longer logs a Content-Security-Policy error in Chrome on a page whose
+  `script-src` doesn't allow `'unsafe-inline'`. The jQuery it includes tested
+  for an old Internet Explorer event by setting an `onfocusin` attribute, which
+  the policy blocked, and the page sent a report for it if it collects them.
+
+### 3.0.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 26, 2026

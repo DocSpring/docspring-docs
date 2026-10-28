@@ -20,7 +20,18 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.7.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.7.3 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 29, 2026
+</div>
+
+- No longer logs a Content-Security-Policy error in Chrome on a page whose
+  `script-src` doesn't allow `'unsafe-inline'`. The jQuery it includes tested
+  for an old Internet Explorer event by setting an `onfocusin` attribute, which
+  the policy blocked, and the page sent a report for it if it collects them.
+
+### 2.7.2
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 27, 2026

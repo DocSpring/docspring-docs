@@ -1,0 +1,56 @@
+---
+title: Content Security Policy
+description: The Content-Security-Policy a page needs to embed DocSpring forms, signature requests and the template editor
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+If your page sends a `Content-Security-Policy` header, it needs to allow DocSpring's hosts. The JavaScript libraries
+don't need `'unsafe-inline'` or `'unsafe-eval'` in `script-src`, and only Web Forms JS needs inline styles.
+
+## Directives
+
+For an account in the US region:
+
+| Directive     | Sources                                                     | For                                                                                                  |
+| ------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `script-src`  | `https://cdn.docspring.com`                                 | The libraries                                                                                        |
+| `style-src`   | `https://cdn.docspring.com https://fonts.googleapis.com`    | The visual form's and web form's stylesheets, which import Google Fonts                              |
+| `font-src`    | `https://cdn.docspring.com https://fonts.gstatic.com`       | The fonts those stylesheets load                                                                     |
+| `connect-src` | `https://app.docspring.com https://api.docspring.com`       | Visual Forms JS and Web Forms JS, which load the template and save the submission                    |
+| `img-src`     | `https://cdn.docspring.com https://app.docspring.com data:` | The visual form's page images and the loading spinner, plus the storage host page images redirect to |
+| `frame-src`   | `https://app.docspring.com`                                 | Signature Requests JS and Template Editor JS, which open their forms in an iframe                    |
+
+For an account in the EU region, use `app-eu.docspring.com` and `api-eu.docspring.com` instead of
+`app.docspring.com` and `api.docspring.com`. Enterprise deployments use their own DocSpring domain for all of these,
+and for the scripts and stylesheets too when they load them from it instead of the CDN.
+
+The script on your page that calls `DocSpring.createVisualForm()` (or one of the other functions) is your own: allow it
+as you allow your other scripts, for example with a nonce. When the browser blocks something, its console names the
+directive and the host to add.
+
+## Inline styles
+
+The libraries add their CSS without inline styles, so they work when `style-src` has no `'unsafe-inline'`:
+
+- **Signature Requests JS** (3.0.1 and above) and **Template Editor JS** (0.1.3 and above) size the iframe and style
+  the modal through the CSS object model and a constructed stylesheet, which a Content-Security-Policy doesn't block.
+- **Visual Forms JS** (2.19.0 and above) has its CSS in its stylesheet. Its dropdowns and signature font picker add
+  their rules to a constructed stylesheet.
+- **Web Forms JS** renders some of its controls, such as the date picker, with `style` attributes. Allow them with
+  `style-src-attr 'unsafe-inline'`, which allows style attributes but not `<style>` elements. Without it, the form
+  works, but the browser logs a violation and a few controls lose some styling.
+
+<Aside type="note">
+  Browsers without constructed stylesheets (Safari before 16.4) get the CSS in
+  a `<style>` element instead. It carries the nonce of the `<script>` tag that
+  loaded the library, so give that tag a nonce your `style-src` allows, or
+  these browsers show the forms without some of their styles.
+</Aside>
+
+## Globals
+
+The libraries add `window.DocSpring`. Signature Requests JS, Template Editor JS and Web Forms JS also include jQuery
+1.12 and set `window.jQuery` and `window.$`, replacing any jQuery your page loaded before them. Web Forms JS also sets
+globals for the libraries it includes, such as `Handlebars`, `moment` and `Alpaca`. Visual Forms JS keeps its own copy
+of jQuery to itself.

@@ -1,6 +1,6 @@
 ---
 title: Integrations Overview
-description: Connect DocSpring to AWS S3, Google Drive, Dropbox, Box, Bubble, Zapier, Make, n8n, Node-RED, Parabola, and OttoKit
+description: Connect DocSpring to AI assistants, AWS S3, Google Drive, Dropbox, Box, Bubble, Zapier, Make, n8n, Node-RED, Parabola, and OttoKit
 sidebar:
   label: Overview
   order: 1
@@ -12,7 +12,7 @@ Connect DocSpring to your apps and automation workflows to generate PDFs, collec
 
 ## Getting started
 
-For third-party apps, create a DocSpring API token and enter its token ID and secret in the app's connection settings. Cloud storage (AWS S3 and S3-compatible storage, Google Drive, Dropbox and Box) is configured in DocSpring, under **Integrations**.
+For third-party apps, create a DocSpring API token and enter its token ID and secret in the app's connection settings. Cloud storage (AWS S3 and S3-compatible storage, Google Drive, Dropbox and Box) is configured in DocSpring, under **Integrations**. AI assistants connect to [DocSpring's MCP server](/docs/mcp/) and sign in to DocSpring instead of using an API token.
 
 <CardGrid>
   <LinkCard
@@ -99,6 +99,43 @@ For third-party apps, create a DocSpring API token and enter its token ID and se
     title="Slack"
     href="/docs/template-editor/settings/#slack-webhook-url"
     description="Post a message to a Slack channel whenever a template generates a PDF"
+  />
+</CardGrid>
+
+## AI assistants
+
+These assistants connect to [DocSpring's MCP server](/docs/mcp/). Each card goes to its setup steps.
+
+<CardGrid>
+  <LinkCard
+    title="Claude"
+    href="/docs/mcp/#claude"
+    description="Set up templates, fill them in and create signature requests from Claude.ai, Claude Desktop and Claude's mobile apps"
+  />
+  <LinkCard
+    title="ChatGPT"
+    href="/docs/mcp/#chatgpt"
+    description="Fill PDF templates and create signature requests from ChatGPT in Business, Enterprise and Edu workspaces"
+  />
+  <LinkCard
+    title="Claude Code"
+    href="/docs/mcp/#claude-code"
+    description="Set up templates, generate types for their data and make test PDFs while Claude Code writes your integration"
+  />
+  <LinkCard
+    title="Codex"
+    href="/docs/mcp/#codex"
+    description="Set up templates, generate types for their data and make test PDFs while Codex builds your integration"
+  />
+  <LinkCard
+    title="Cursor"
+    href="/docs/mcp/#cursor"
+    description="Add DocSpring to Cursor in one click and give its agent DocSpring's tools"
+  />
+  <LinkCard
+    title="VS Code"
+    href="/docs/mcp/#vs-code"
+    description="Add DocSpring to VS Code in one click and give its agent DocSpring's tools"
   />
 </CardGrid>
 

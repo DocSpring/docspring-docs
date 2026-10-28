@@ -33,7 +33,7 @@ You can also [make an API request](/docs/api/#tag/submissions/delete/submissions
 
 _On the Submissions tab._ By default, the data that you submit must exactly match the JSON schema. Any additional properties will cause a validation error. This guarantees that you haven't forgotten to add any fields to your template, and it also guards against accidental field deletion.
 
-When the **Allow additional properties in JSON data** setting is enabled, additional properties in your data will be silently ignored. This can be useful when you don't have full control over the JSON data (e.g. a webhook integration with a third-party service.)
+When the **Allow additional properties in JSON data** setting is enabled, additional properties in your data will be silently ignored. This can be useful when you don't have full control over the JSON data (e.g. a webhook integration with a third-party service.) A misspelled field name is ignored too: its field is left blank, or the submission fails if that field is required.
 
 ## Encrypt PDFs with a Password
 
@@ -144,8 +144,9 @@ The default typeface, font size, bold and color are taken from the new PDF's fie
 are kept. Click **Undo** in the message that appears to put the previous fields and defaults back. If the new PDF has no
 fillable fields, the template keeps its fields.
 
-With the API, set `reimport_fields` to `true` when you
-[update the template](/docs/api/#tag/templates/put/templates/{template_id}) with a new `document`. Without a new
-`document`, the fields are re-imported from the template's current PDF. In our API clients, use the "Update a
-template's document with a cached S3 file upload" operation (`updateTemplateDocumentFromUpload`), which has the
-`reimport_fields` option. A re-import isn't allowed on a locked template.
+With the API, send the new PDF with `reimport_fields` set to `true`:
+[`PUT /templates/{template_id}/document`](/docs/api/#tag/templates/put/templates/{template_id}/document) takes a
+`document_url`, `document_base64` or an uploaded `cache_id`, and
+[`PUT /templates/{template_id}/document/upload`](/docs/api/#tag/templates/put/templates/{template_id}/document/upload)
+takes a multipart upload. In our API clients, these are `updateTemplateDocument` and `uploadTemplateDocument`. A
+re-import isn't allowed on a locked template.

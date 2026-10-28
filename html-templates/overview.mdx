@@ -48,6 +48,26 @@ Use a dot to access nested fields, and square brackets for arrays:
 <h2>{{ names[2] }}</h2>
 ```
 
+### HTML Escaping
+
+The template's **Escape HTML in Data** setting decides how values are printed. It's on for new templates. Templates
+created before October 2026, or with API v1, have it off. Change it in the template's settings, or with
+`html_escape_data` when you [update the template](/docs/api/#tag/templates/put/templates/{template_id}).
+
+When it's on, `{{ value }}` prints a value as text: a `<` or `&` in it shows as that character, and can't add HTML to
+the page. Use the `raw` filter for a value that holds HTML you trust:
+
+```html
+<p>{{ customer_notes }}</p>
+<div>{{ terms_html | raw }}</div>
+```
+
+Put `raw` last: a filter after it escapes what it adds. The `escape` and `newline_to_br` filters work as before and
+never escape a value twice, so `{{ notes | escape | newline_to_br }}` prints the same with the setting on or off.
+
+When it's off, every value is printed as HTML, as it is. Use `{{ value | escape }}` for text that could contain `<` or
+`&`. Before you turn the setting on for a template, add `| raw` to the values that hold HTML.
+
 ### Liquid Filters
 
 When you upload an existing PDF, our template editor includes features such as date formatting,
@@ -256,7 +276,8 @@ Click the "Settings" button in the header to set up the pages of an HTML/CSS tem
 - _Print Background_: Renders backgrounds that your CSS sets (unchecked by default). Backgrounds aren't drawn over the
   page margins.
 
-Sizes and margins can use `px` (pixels), `in` (inches), `cm` (centimeters), or `mm` (millimeters).
+Sizes and margins can use `px` (pixels), `in` (inches), `cm` (centimeters), or `mm` (millimeters). Give each one a
+unit, such as `1in` or `20mm`: only `0` can go without one.
 
 ## Page Breaks
 
@@ -306,6 +327,11 @@ You can use the `pageNumber` and `totalPages` classes to show the current page n
   1 of 2".
 </Aside>
 
+Headers and footers can't load anything from the network. A header or footer with a stylesheet (a `<link>` tag or an
+`@import`), a font from a URL, or a typed signature (which loads a Google Font) fails with "The header or footer
+couldn't be printed". Put their CSS in a `<style>` tag, use a font that's installed or embedded as a `data:` URL, and
+keep signatures in the body.
+
 ## Limits
 
 - **Generated PDF:** up to 500 MB. Photos embedded at full camera resolution can go over this. Resize images to the
@@ -320,6 +346,10 @@ You can use the `pageNumber` and `totalPages` classes to show the current page n
 A document over one of these limits fails with an error that names the limit, and isn't retried. A very large
 document can also take too long to render, and often does before its PDF reaches 500 MB. A render that runs out of
 time is retried a few times before it fails.
+
+## Previewing with Data
+
+A [preview](/docs/api/#tag/templates/post/templates/{template_id}/previews) returns PNG images of a template's pages printed with the data you send, not a PDF, so you can check how the template prints with your data before you publish it or send live data. DocSpring renders the template's draft (or a published version) with the data and returns an image of each page. A preview makes no submission and uses no credits, and its pages are watermarked like a test PDF's. Previews work for PDF templates too. The [MCP server](/docs/mcp/)'s `preview_template` tool does the same for AI agents.
 
 ## Generating PDFs
 

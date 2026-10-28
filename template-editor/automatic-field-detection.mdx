@@ -22,7 +22,7 @@ If the checkbox is enabled:
 
 Along with names and types, the AI sets each field's title, description, whether it's required, decimal places, and read-only fields. It recognizes repeated rows as arrays and groups of checkboxes where several can be checked. Segmented fields, such as SSN boxes, are set up as [comb fields](/docs/template-editor/ssn-fields/).
 
-If the checkbox is disabled, DocSpring imports a fillable PDF's form fields with their original names and doesn't detect or rename anything.
+If the checkbox is disabled, DocSpring imports a fillable PDF's form fields without AI, converting their names to DocSpring's format (lowercase snake_case, with a `/` for each `.`, so `form1.name` becomes `form1/name`). It doesn't detect fields on a flat PDF.
 
 The **Set up conditional logic with AI** checkbox runs one more step after the fields are named. The AI reads the whole form and adds conditional logic (fields that only apply in some situations, such as "if married"), required fields and formulas. The editor shows a summary of what it added, and you can see and change every rule with the **Logic** button in the editor header. See [Conditional Logic](/docs/template-editor/conditional-logic/).
 

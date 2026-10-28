@@ -28,7 +28,28 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.18.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.19.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 29, 2026
+</div>
+
+- Logs a deprecation warning in the browser console when the page passes the
+  `apiTokenId` and `apiTokenSecret` options. They put an API token in the
+  page, where anyone can read it and use your account. They still work: remove
+  them, replace the token, and get private submissions' PDFs on your server
+  ([Private Submissions and API
+  Tokens](/docs/forms/visual-forms/#private-submissions-and-api-tokens)).
+- Works on a page whose Content-Security-Policy doesn't allow inline styles
+  (no `'unsafe-inline'` in `style-src`). The tooltips' CSS is now in the
+  form's stylesheet, and the dropdowns and the signature font picker no longer
+  add `<style>` elements. See
+  [Content Security Policy](/docs/forms/js-libraries/content-security-policy/).
+- A form with a signature field now loads in a container without the
+  `dsp-form` class, whatever selector you pass to `createVisualForm`. Earlier
+  versions stopped with "No elements were found for selector .dsp-form".
+
+### 2.18.2
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 27, 2026

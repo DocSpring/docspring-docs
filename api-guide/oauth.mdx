@@ -1,0 +1,241 @@
+---
+title: OAuth for Apps and Integrations
+description: Connect your app to a user's DocSpring account with OAuth 2.0 instead of an API token
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+Apps can connect to a DocSpring account with OAuth 2.0 instead of asking users to copy an API token.
+The user signs in to DocSpring, chooses what the app can access, and can disconnect it at any time from the
+Integrations page. DocSpring supports the authorization code flow with PKCE, which is the flow MCP clients use.
+
+## Endpoints
+
+Each region is a separate authorization server. Use the issuer of the region the user's account is in.
+
+| Region | Issuer                         | API                                        |
+| ------ | ------------------------------ | ------------------------------------------ |
+| US     | `https://app.docspring.com`    | `https://sync.api.docspring.com/api/v2`    |
+| EU     | `https://app-eu.docspring.com` | `https://sync.api-eu.docspring.com/api/v2` |
+
+The OAuth endpoints are paths on the issuer:
+
+| Endpoint                   | Path                                      |
+| -------------------------- | ----------------------------------------- |
+| Server metadata (RFC 8414) | `/.well-known/oauth-authorization-server` |
+| Authorization              | `/oauth/authorize`                        |
+| Token                      | `/oauth/token`                            |
+| Revocation (RFC 7009)      | `/oauth/revoke`                           |
+| Client registration        | `/oauth/register`                         |
+
+The token, revocation, registration and metadata endpoints allow cross-origin requests, so apps that run in a
+browser can call them.
+
+## Scopes
+
+| Scope      | Access                                                                   |
+| ---------- | ------------------------------------------------------------------------ |
+| `read`     | See templates, folders, submissions and their PDFs                       |
+| `write`    | Create and edit templates, generate PDFs, and send signature requests    |
+| `delete`   | Delete templates, versions, folders and files, and expire submissions    |
+| `webhooks` | Create webhooks, and see, update and delete the webhooks the app created |
+
+`read` is the default when a request has no `scope`. Combining PDFs with `delete_custom_files: true` also needs
+`delete`, because it deletes the custom files.
+
+Apps can also ask for `offline_access`, as many MCP clients do. Every app gets a refresh token anyway, so it changes
+nothing, but the token's `scope` includes it.
+
+When an app asks for every scope, the user chooses one of three levels on the consent screen: **Read only**
+(`read`), **Read and write** (`read write`) or **Full access** (all four). The token can then have fewer scopes than
+the app asked for, so check `scope` in the token response. An app that asks for some of the scopes gets those, and
+always `read`.
+
+## Register your app
+
+Every app needs a client ID. There are three ways to get one.
+
+### Client ID metadata document
+
+Use an `https` URL that serves your app's metadata as its client ID. This is the method the MCP authorization
+specification prefers, and there's nothing to register in advance. DocSpring fetches the document the first time a
+user connects, and again when someone connects more than 24 hours after the last fetch.
+
+```json
+{
+  "client_id": "https://example.com/oauth/client-metadata.json",
+  "client_name": "Example App",
+  "redirect_uris": ["https://example.com/oauth/callback"]
+}
+```
+
+- `client_id` must be the URL the document is served from.
+- The URL needs a path, and no fragment or credentials.
+- The document can be at most 5 KB. Only its first 10 `redirect_uris` are used.
+- Apps registered this way are public clients, without a client secret.
+
+### Dynamic client registration
+
+Send your app's metadata to the registration endpoint (RFC 7591):
+
+```bash
+curl https://app.docspring.com/oauth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_name": "Example App",
+    "redirect_uris": ["http://127.0.0.1/callback"],
+    "grant_types": ["authorization_code", "refresh_token"],
+    "response_types": ["code"],
+    "token_endpoint_auth_method": "none"
+  }'
+```
+
+The response includes your `client_id`.
+
+- Set `token_endpoint_auth_method` to `none` for apps that can't keep a secret, such as desktop and command-line
+  tools.
+- If you leave it out, it defaults to `client_secret_basic`. The response then includes a `client_secret`. It's only
+  shown once.
+- `client_secret_post` is also supported.
+- If you send `scope`, the app can only ask for those scopes, and always gets `read`.
+- A registered app that nobody connects within a day is deleted.
+
+### Integrations listed by DocSpring
+
+If you're building an integration for many DocSpring customers and want it shown as verified on the consent screen,
+[contact us](https://docspring.com/contact/). We'll create the app for you and send you its client ID and secret.
+
+### Redirect URIs
+
+- Use `https`.
+- `http` is only allowed for loopback addresses (`127.0.0.1`, `[::1]` and `localhost`). Loopback redirect URIs match
+  on any port, for command-line tools that pick a port when they start.
+- Native apps can use a custom scheme, such as `example-app://oauth/callback`.
+- Redirect URIs can't have a fragment. An app can have at most 10.
+
+Apps registered by a client ID metadata document or dynamic registration are shown with a generic icon and "This app
+hasn't been reviewed by DocSpring". A few well-known clients, such as Claude and ChatGPT, are shown as verified
+instead, and an app whose name looks like one of theirs gets a warning. DocSpring doesn't use the `logo_uri` an app
+sends.
+
+## Connect a user's account
+
+### 1. Send the user to the authorization endpoint
+
+PKCE with `S256` is required. Create a random `code_verifier`, and send its SHA-256 hash, base64url-encoded, as the
+`code_challenge`.
+
+```
+https://app.docspring.com/oauth/authorize
+  ?response_type=code
+  &client_id=YOUR_CLIENT_ID
+  &redirect_uri=https%3A%2F%2Fexample.com%2Foauth%2Fcallback
+  &scope=read%20write
+  &state=RANDOM_STATE
+  &code_challenge=CODE_CHALLENGE
+  &code_challenge_method=S256
+```
+
+If you send `resource` (RFC 8707), use the API URL of the region, such as
+`https://sync.api.docspring.com/api/v2`.
+
+The user signs in if they need to, then chooses whether to connect your app. DocSpring then redirects to your
+`redirect_uri` with:
+
+- `code` and `state` when the user connects the app;
+- `error=access_denied` and `state` when they cancel;
+- `iss`, the issuer. Check that it matches the issuer you sent the user to.
+
+If the client ID or redirect URI is invalid, DocSpring shows an error instead of redirecting.
+
+### 2. Exchange the code for tokens
+
+Codes expire after 10 minutes and work once.
+
+```bash
+curl https://app.docspring.com/oauth/token \
+  -d grant_type=authorization_code \
+  -d code=AUTHORIZATION_CODE \
+  -d redirect_uri=https://example.com/oauth/callback \
+  -d client_id=YOUR_CLIENT_ID \
+  -d code_verifier=CODE_VERIFIER
+```
+
+Confidential clients also authenticate with their client secret, with HTTP Basic auth or a `client_secret` parameter.
+
+```json
+{
+  "access_token": "...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "...",
+  "scope": "read write",
+  "created_at": 1760000000
+}
+```
+
+### 3. Call the API
+
+Send the access token in the `Authorization` header:
+
+```bash
+curl https://sync.api.docspring.com/api/v2/authentication \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Access tokens work with API v2 (the `/api/v2` endpoints), and only in the `Authorization` header. API v1 doesn't
+accept them. They also open the `permanent_url` of a submission's or combined PDF's files, which is the only link to
+a PDF when the account has turned off signed download links. An account's connected apps share the account's rate
+limit.
+
+An app can only see and change the webhooks it created. They stop and are deleted when the app is disconnected, or
+connected again without the `webhooks` scope. Apps can't set a template's `slack_webhook_url`: use the webhooks API instead.
+A template's `embed_edit_token` is null for apps.
+
+<LinkCard
+  title="API Reference"
+  href="/docs/api/"
+  description="Every endpoint, with example requests and responses"
+/>
+
+## Refresh tokens
+
+Access tokens expire after an hour. Use the refresh token to get a new one:
+
+```bash
+curl https://app.docspring.com/oauth/token \
+  -d grant_type=refresh_token \
+  -d refresh_token=REFRESH_TOKEN \
+  -d client_id=YOUR_CLIENT_ID
+```
+
+- Each refresh returns a new refresh token. Store it, and use it for the next refresh. The old refresh token stops
+  working once you use the new access token.
+- If an old refresh token is used again after it was replaced, DocSpring revokes the tokens that replaced it, in case
+  it was stolen. The user then has to connect the app again. Other sessions with the same app keep working.
+- A refresh token that isn't used for 90 days expires.
+
+## Revoking tokens and disconnecting
+
+An app can revoke its own tokens, for example when the user signs out of it:
+
+```bash
+curl https://app.docspring.com/oauth/revoke \
+  -d token=REFRESH_TOKEN \
+  -d client_id=YOUR_CLIENT_ID
+```
+
+Revoking an access token or its refresh token ends that session. The app stays connected, and the webhooks it created
+keep working.
+
+Anyone in the account can disconnect an app from the Integrations page. All of its tokens stop working straight
+away, and the webhooks it created are deleted.
+
+## Errors
+
+| Status | `WWW-Authenticate` error | What to do                                                                                    |
+| ------ | ------------------------ | --------------------------------------------------------------------------------------------- |
+| 401    | `invalid_token`          | The token expired, was revoked, or the app was disconnected. Refresh it, or connect again.    |
+| 403    | `insufficient_scope`     | The token doesn't have the scope in the header's `scope` value. Connect again and ask for it. |
+
+The response body has API v2's error format. API v1 returns a 401 that says to use API v2.

@@ -1,0 +1,181 @@
+---
+title: MCP Server
+description: Connect Claude, ChatGPT, Cursor, VS Code and other AI assistants to your DocSpring account with DocSpring's MCP server
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+import McpInstallButtons from "@components/McpInstallButtons.astro";
+
+DocSpring's MCP server lets an AI assistant work in your DocSpring account. It can find your templates, fill them in
+and generate PDFs, edit fields and publish versions, set up signature requests and manage folders and webhooks. It's
+a remote server that uses the [Model Context Protocol](https://modelcontextprotocol.io): you add its URL to your
+assistant and sign in to DocSpring. There's no API token to copy.
+
+| Region | MCP server URL                     |
+| ------ | ---------------------------------- |
+| US     | `https://mcp.docspring.com/mcp`    |
+| EU     | `https://mcp-eu.docspring.com/mcp` |
+
+Use the URL of the region your account is in. If you sign in to DocSpring at `app-eu.docspring.com`, your account is
+in the EU. The examples below use the US URL.
+
+For coding agents (Claude Code, Codex, Copilot, Gemini CLI), the [DocSpring plugin](/docs/mcp/skills/) adds the MCP
+server together with DocSpring's agent skills, which teach the agent DocSpring's workflows.
+
+## Connect your assistant
+
+Add the URL to your assistant, then sign in to DocSpring in your browser and choose what the assistant can do (see
+[Access](#access)).
+
+### Claude
+
+Claude.ai, Claude Desktop and Claude's mobile apps share the same connectors. These buttons open Claude's "Add custom
+connector" dialog with DocSpring's URL filled in:
+
+<McpInstallButtons client="claude" label="Add to Claude" />
+
+To add it by hand, go to **Customize > Connectors**, click **+ Add**, then **Add custom connector**. Enter `DocSpring`
+as the name and the MCP server URL, then click **Add** and sign in. In a chat, turn DocSpring on from the **+** menu
+under **Connectors**.
+
+Custom connectors work on every Claude plan (the Free plan allows one). On Team and Enterprise plans, an owner adds the
+connector in **Organization settings > Connectors**, then each member connects it from **Customize > Connectors**.
+
+### Claude Code
+
+```sh
+claude mcp add --transport http --scope user docspring https://mcp.docspring.com/mcp
+```
+
+Then run `/mcp` in Claude Code, select `docspring` and sign in. `--scope user` adds the server for all of your
+projects. If you're signed in to Claude Code with a Claude subscription, a DocSpring connector you added in Claude is
+already there.
+
+### ChatGPT
+
+Adding an MCP server to ChatGPT needs a Business, Enterprise or Edu workspace, and only works on the web. In a Business
+workspace, an admin or owner adds it. ChatGPT Pro can add it with read-only tools.
+
+1. Open [Plugins](https://chatgpt.com/plugins), click **+**, then **Add custom MCP server**.
+2. Enter `DocSpring` as the name, the MCP server URL as the connection, and choose OAuth for authentication.
+3. Confirm, click **Create as a plugin**, and sign in to DocSpring.
+
+In a chat, type `@` and choose DocSpring.
+
+### Codex
+
+```sh
+codex mcp add docspring --url https://mcp.docspring.com/mcp
+codex mcp login docspring
+```
+
+The Codex CLI, its IDE extension and the ChatGPT desktop app share this configuration.
+
+### Cursor
+
+<McpInstallButtons client="cursor" label="Add to Cursor" />
+
+Or add the server to `~/.cursor/mcp.json` (every project) or `.cursor/mcp.json` (one project):
+
+```json title="~/.cursor/mcp.json"
+{
+  "mcpServers": {
+    "docspring": { "url": "https://mcp.docspring.com/mcp" }
+  }
+}
+```
+
+Cursor asks you to sign in once it has added the server.
+
+### VS Code
+
+<McpInstallButtons client="vscode" label="Add to VS Code" />
+
+Or run **MCP: Add Server** from the Command Palette and choose **HTTP**, or add the server to `.vscode/mcp.json`:
+
+```json title=".vscode/mcp.json"
+{
+  "servers": {
+    "docspring": { "type": "http", "url": "https://mcp.docspring.com/mcp" }
+  }
+}
+```
+
+VS Code opens your browser to sign in the first time it connects.
+
+### Other assistants
+
+Any MCP client that supports remote servers (Streamable HTTP) with OAuth sign-in can connect: Gemini CLI, Zed, Goose
+and others. Add the MCP server URL as a remote or HTTP server, and the client opens DocSpring's sign-in when it first
+connects. For example, in Gemini CLI:
+
+```sh
+gemini mcp add --scope user --transport http docspring https://mcp.docspring.com/mcp
+```
+
+## Access
+
+When you sign in, DocSpring asks you to choose what the assistant can do. **Read and write** is selected until you
+choose another:
+
+| Access             | What the assistant can do                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| **Read only**      | See your templates, folders, submissions and their PDFs, and check data against a template                               |
+| **Read and write** | Also create and edit templates and their fields, publish versions, generate PDFs, and create signature requests          |
+| **Full access**    | Also delete templates, versions and folders, expire submissions, and create webhooks that send your submissions to a URL |
+
+If an assistant asks for less than full access when it signs in, DocSpring lists what it asked for instead, and you
+connect it with that access or cancel.
+
+The assistant only sees the tools that its access allows. [MCP Server Tools](/docs/mcp/tools/) lists them.
+
+Each connected assistant is listed under **Connected apps** on the **Integrations** page in DocSpring. Anyone in the
+account can disconnect it there, and its access stops straight away. To change an assistant's access, disconnect it
+and sign in again.
+
+Live PDFs use your account's credits, as they do through the API. Test PDFs are free and have a watermark, and the
+tools ask the assistant to make test PDFs unless you ask for a real document. Setting up a new template's fields
+automatically uses your account's free AI pages for the month, then credits, as it does in the template editor.
+
+## Example prompts
+
+In a chat assistant:
+
+- "List my DocSpring templates and show me the fields on the rental agreement."
+- "Create a template from https://example.com/form.pdf, set up its fields, then show me the first page."
+- "Generate a test PDF of the invoice template for Acme Corp, with three line items of your choice."
+- "Rename the `name` field on the contract template to `full_name`, then publish a new version."
+- "Set up a signature request on the NDA template for two signers and give me their signing links."
+- "Move every template with 'Draft' in its name into a new folder called Drafts."
+
+In a coding agent, working in your app's repository:
+
+- "Create a DocSpring template from `forms/application.pdf`, set up its fields, and generate TypeScript types for its
+  data."
+- "Write the code that fills our onboarding template from a customer record with the DocSpring SDK, then generate a
+  test PDF to check it."
+- "Make a test PDF of the lease template for each customer in `fixtures/customers.csv`."
+
+## Security
+
+- An assistant with access can read your submissions' data, which can include personal data. Connect only assistants
+  your organization allows to handle it.
+- Text that an assistant reads, such as a PDF from the web or a submission's data, can contain instructions meant to
+  make it misuse its tools. Most assistants ask before they call a tool that changes something, and the tools that
+  delete or expire data are marked as destructive, so clients ask you to confirm each call. Choose **Read only** when the
+  assistant only needs to look.
+- The webhooks an assistant creates send your submissions' data to a URL. An assistant can only see and change the
+  webhooks it created, and they're deleted when you disconnect it. It doesn't see the webhooks you set up in DocSpring
+  or with an API token.
+
+<Aside type="note">
+  DocSpring's MCP server uses the same OAuth sign-in as other apps that connect
+  to DocSpring. If you're building your own app, see [OAuth for Apps and
+  Integrations](/docs/api-guide/oauth/).
+</Aside>
+
+<LinkCard
+  title="MCP Server Tools"
+  href="/docs/mcp/tools/"
+  description="Every tool, and the access it needs"
+/>

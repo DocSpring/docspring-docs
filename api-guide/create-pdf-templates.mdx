@@ -224,6 +224,11 @@ A template that was never published is compared with a new template, so `from_ve
 is `null` and every field is added. Send `?version=1.2.0` to see what a published
 version changed.
 
+To see how the draft prints with your data before you publish it,
+[preview the template](/docs/api/#tag/templates/post/templates/{template_id}/previews).
+A preview returns PNG images of the filled pages, not a PDF, and makes no submission.
+Get the preview until its `state` is `processed`.
+
 ## 5. Publish a version
 
 Submissions use the latest published version of a template (or its draft, until a

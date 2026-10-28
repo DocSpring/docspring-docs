@@ -1,0 +1,42 @@
+---
+title: MCP Server Tools
+description: The tools that DocSpring's MCP server gives AI assistants, and the access each one needs
+---
+
+import McpToolTable from "@components/McpToolTable.astro";
+
+An assistant connected to [DocSpring's MCP server](/docs/mcp/) sees the tools that its access allows. You choose the
+access when you sign in: **Read only**, **Read and write** or **Full access**.
+
+Tools that make PDFs or set up templates wait until DocSpring has finished, like the
+[synchronous API](/docs/api-guide/synchronous-requests/). When that takes longer than about 50 seconds, the tool
+returns the record's ID with the state `processing`, and the assistant checks it again with `get_submission` or
+`get_template`.
+
+## Read only
+
+Every connection has these tools.
+
+<McpToolTable scope="read" />
+
+## Read and write
+
+<McpToolTable scope="write" />
+
+## Full access
+
+Full access adds the tools that delete things and the webhook tools.
+
+### Delete
+
+These tools can't be undone, so clients ask you to confirm each call.
+
+<McpToolTable scope="delete" />
+
+### Webhooks
+
+An assistant only sees and changes the webhooks it created. They're deleted when you disconnect the assistant.
+Webhooks you set up in DocSpring or with an API token aren't listed, so `list_webhooks` can be empty when your account
+has webhooks.
+
+<McpToolTable scope="webhooks" />
