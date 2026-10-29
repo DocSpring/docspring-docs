@@ -618,6 +618,13 @@ The user name for your SMTP server.
 
 ## PDF generation
 
+### DOCSPRING_DOCUMENT_TOOLS_LAMBDA_FUNCTION
+
+The AWS Lambda function (a name or ARN) that runs the tools that read customers' PDFs and images: PDFBox, qpdf, pdftk, ImageMagick and librsvg. When it's set, DocSpring sends each file to the function as a presigned URL instead of running the tools in its own workers. When it isn't, the workers run them (the Docker image has them). DocSpring's hosted service always uses the function: contact us to set one up.
+
+- Type: text
+- Example: `arn:aws:lambda:us-east-1:123456789012:function:document-tools:live`
+
 ### DOCSPRING_HTML_PDF_GENERATION_TIMEOUT
 
 How long, in seconds, an HTML template can take to render to a PDF: from 30 to 120.
@@ -1082,7 +1089,7 @@ Set by EKS Pod Identity. When it's set, DocSpring uses the pod's IAM role for AW
 
 ### AWS_REGION
 
-The default AWS region for the AWS SDK. Required for the `lambda` HTML-to-PDF renderer.
+The default AWS region for the AWS SDK. Required for the `lambda` HTML-to-PDF renderer and the document tools and outbound HTTP Lambda functions.
 
 - Type: text
 - Example: `us-east-1`
@@ -1162,6 +1169,13 @@ An ipinfo.io API key, for locating IP addresses when the GeoLite2 database isn't
 - Type: text
 - Formerly: `IPINFO_IO_API_KEY`
 
+### DOCSPRING_OUTBOUND_HTTP_LAMBDA_FUNCTION
+
+The AWS Lambda function (a name or ARN) that sends requests to URLs customers give DocSpring: webhooks, Slack messages, and the images and PDFs that submissions, merges and templates download. When it's set, the requests leave from the function, outside your network. When it isn't, DocSpring's workers send them.
+
+- Type: text
+- Example: `arn:aws:lambda:us-east-1:123456789012:function:outbound-http:live`
+
 ### DOCSPRING_RESTRICTED_PATH
 
 The `PATH` that app processes switch to once they've booted, so they can only run the commands DocSpring needs. The Docker image sets it. Used with `DOCSPRING_SHOULD_RESTRICT_PATH`.
@@ -1183,6 +1197,13 @@ Switches app processes to `DOCSPRING_RESTRICTED_PATH` once they've booted, in pr
 
 - Type: on/off
 - Formerly: `SHOULD_RESTRICT_PATH`
+
+### DOCSPRING_SIDEKIQ_CONCURRENCY
+
+How many jobs each Sidekiq worker process runs at once. Each job holds a database connection, so keep it within the database pool.
+
+- Type: whole number
+- Default: `3`
 
 ### DOCSPRING_TIMEZONE
 
