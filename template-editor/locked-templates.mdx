@@ -12,7 +12,7 @@ import unlockTemplateOption from "@images/template_editor/unlock_template_option
 You can lock a template to prevent any updates. A locked template cannot be changed or deleted through the template editor or the API. You can unlock it at any time.
 However, you can still use a locked template to generate PDFs.
 
-To make changes without affecting your existing integrations, use [Template Versions](/docs/template-editor/versions/): edit the draft, publish a new version, and choose which version your API requests use.
+To change a template's PDF or fields without affecting your existing integrations, use [Template Versions](/docs/template-editor/versions/): edit the draft, publish a new version, and choose which version your API requests use. Locking applies to every version: when you lock or unlock the template, all of its versions are locked or unlocked with it.
 
 The "Lock" and "Unlock" options can be found [in the "..." menu on the Templates page](https://app.docspring.com/templates). You can also use the **Locked** checkbox in the template editor's [Settings](/docs/template-editor/settings/), or set `locked` with the [Update Template](/docs/api/#tag/templates/put/templates/{template_id}) API endpoint.
 

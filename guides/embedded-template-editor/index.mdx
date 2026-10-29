@@ -237,11 +237,11 @@ The embed edit token is a **per-template edit credential**, not a read-only key.
 
 By default the token can only edit template **content** — fields, field layout, name, defaults, predefined fields, and HTML/SCSS. Three per-template capability flags (all default `false`) widen what an embed may do. They are enforced on the server, so they are the real boundary; the `features` options only control which controls are shown.
 
-| Capability                              | Default | Allows the embed to…                                                                                              |
-| --------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
-| `embed_edit_allow_settings`             | `false` | Edit template settings such as the webhook URL, redirect URL, encryption password, public access, and expiration. |
-| `embed_edit_allow_versioning`           | `false` | Publish, restore, and delete versions, and view version history.                                                  |
-| `embed_edit_allow_document_replacement` | `false` | Upload a replacement PDF document.                                                                                |
+| Capability                              | Default | Allows the embed to…                                                                                                                                                               |
+| --------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embed_edit_allow_settings`             | `false` | Edit template settings such as the webhook URL, redirect URL, encryption password, public access, and expiration. These settings apply to every published version of the template. |
+| `embed_edit_allow_versioning`           | `false` | Publish, restore, and delete versions, and view version history.                                                                                                                   |
+| `embed_edit_allow_document_replacement` | `false` | Upload a replacement PDF document.                                                                                                                                                 |
 
 Set these with the authenticated API or in the dashboard. The matching `features` switches (`showSettings`, `showVersions`, `allowPdfReplacement`) are forced off when their capability is disabled, so a host cannot re-enable a disabled capability from the browser.
 

@@ -16,8 +16,35 @@ DocSpring supports template versioning to help you manage changes to your templa
 - **Draft Version**: Every template starts with a draft version that you can freely edit
 - **Published Versions**: When ready, publish your draft as a numbered version (e.g., `1.2.3`)
   - Published versions are read-only and cannot be modified
-  - You can still make changes to your draft without affecting published versions
+  - Changes to your draft's PDF, fields and the other things [a version keeps](#what-a-version-keeps) don't affect
+    published versions. The template's other settings apply to every version as soon as you change them on the draft
   - API calls default to using the latest published version
+
+### What a Version Keeps
+
+A published version keeps everything that decides what its PDFs and forms contain:
+
+- The template's PDF, or for an HTML template its HTML, SCSS, header, footer and page settings
+- The fields, with their order, conditions, formulas and default values, and the template's **Field defaults**
+- The template's name and description
+- **Allow Additional Properties**, **Merge Audit Trail With Signature Request PDFs**, **Add Submission ID Footers to
+  Signature Requests** and **Parse Dates Using the Template's Date Format**, and whether its PDFs are editable
+
+The other [settings](/docs/template-editor/settings/) belong to the template, not to one version. When you change one on
+the draft, every version uses the new value straight away: **Locked**, **Online Form**, **Online Form Privacy**, **Show
+Continue Once Required Fields Are Filled In**, **Redirect URL**, **Expire Submissions**, **Submission Privacy**,
+**Encrypt PDFs with a Password**, **Webhook URL**, **Slack Webhook URL** and **Embed Domains**.
+
+### Signature Requests Sent From the Draft
+
+A signature request sent from the draft keeps the template as it was when you sent it, so you can keep editing the
+draft while the request waits for its signers. The signers see that template, and their signed PDF is made from it.
+The submission still has the template's ID and is listed with its submissions, and its page opens the template **as
+sent**, read-only. Like a published version, it takes the template's other settings from the draft.
+
+If the draft's PDF is still processing, or AI field setup is still adding its fields, when you send the request, the
+request keeps the template as it is when that finishes. If it hasn't finished after 20 minutes, or the signers finish
+first, the signed PDF is made from the draft as it is then.
 
 ### Version Numbers
 

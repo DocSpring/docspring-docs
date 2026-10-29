@@ -73,6 +73,8 @@ The request body must be a JSON object with the following properties:
 
 You can also send the other parameters of a standard PDF generation request, such as the `version` query parameter, `expires_in` and `password`. See [Generate PDFs via API](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/).
 
+A request sent from the template's draft keeps the template as it was when you sent it, so editing the draft afterwards doesn't change what the signers see or their signed PDF. See [Signature requests sent from the draft](/docs/template-editor/versions/#signature-requests-sent-from-the-draft).
+
 Only the signers can sign a submission that has signature requests, and its signed PDF is always static:
 
 - A value for a signature or initials field, in `data` or in a field override's `default`, saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. Image fields can still take values.
