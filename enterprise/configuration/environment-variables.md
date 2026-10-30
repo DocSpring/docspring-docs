@@ -90,7 +90,7 @@ Sends the Content Security Policy in report-only mode: browsers report violation
 
 ### DOCSPRING_CSP_REPORT_URI
 
-A URL that browsers send Content Security Policy violation reports to. Needs `DOCSPRING_ENABLE_CSP_HEADERS`.
+Where Content Security Policy violation reports go. Needs `DOCSPRING_ENABLE_CSP_HEADERS`. Browsers send them to the app's `/csp_reports`, and a background job forwards each one to this URL without the query strings, fragments and tokens in its URLs, and without reports caused by browser extensions or Google Translate. A path instead of a URL is used as the policy's `report-uri` as it is.
 
 - Type: text
 - Example: `https://csp-reports.example.com/report`
