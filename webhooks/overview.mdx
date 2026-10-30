@@ -107,6 +107,13 @@ DocSpring will also **automatically disable** a webhook after it has been failin
 continuously for three days. See
 [Delivery, Retries & Failures](/docs/webhooks/delivery-and-retries/).
 
+On the free Developer plan, each enabled webhook is one of the account's 2
+[active integrations](/docs/billing/#plans), along with storage destinations
+and Slack notifications. Zapier, Make and n8n create a webhook for each
+trigger. At the limit, creating or enabling a webhook returns `403` with
+`"code": "upgrade_required"`; disable or delete another integration, or upgrade.
+Paid plans have no limit.
+
 <Aside type="note" title="Upgrading from legacy template webhooks">
   DocSpring previously supported a single **Webhook URL** per template and per
   API token. Those legacy webhook URLs keep working, but the new webhooks system

@@ -84,6 +84,12 @@ existing pricing and API rate limits.
 - Requests that need a higher plan (adding templates over your plan's limit,
   live data requests, the embedded template editor) return `403 Forbidden` with
   `"code": "upgrade_required"`. Nothing is saved.
+- On the Developer plan, creating or turning on a webhook when the account
+  already has 2 active integrations (storage destinations, webhooks and Slack
+  notifications) returns `403 Forbidden` with `"code": "upgrade_required"`.
+  Editing, turning off and deleting webhooks keep working. Setting a template's
+  `slack_webhook_url` (or, in API v1, `webhook_url`) to a new URL over the limit
+  returns `422` with the same message.
 - Creating submissions, batches or combined PDFs on a suspended account returns
   `403 Forbidden` with `"code": "account_suspended"`. Nothing is saved.
 - Submissions and combined submissions that were already saved when an account

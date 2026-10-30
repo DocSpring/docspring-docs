@@ -105,9 +105,9 @@ To avoid hitting `402` in production, enable
 
 ## Plan features (HTTP 403)
 
-Some features depend on your plan: the number of templates and users, and the
-embedded template editor (see [Plans](/docs/billing/#plans)). A request that needs a higher plan returns
-`403 Forbidden` before anything is created:
+Some features depend on your plan: the number of templates, users and active
+integrations, and the embedded template editor (see [Plans](/docs/billing/#plans)). A request that needs a
+higher plan returns `403 Forbidden` before anything is created:
 
 ```json
 {
@@ -121,6 +121,11 @@ embedded template editor (see [Plans](/docs/billing/#plans)). A request that nee
 ```
 
 Unlike `402`, nothing is queued: upgrade the plan, then send the request again.
+
+Setting a template's `slack_webhook_url` (or, in API v1, its legacy
+`webhook_url`) to a new URL that would go over the limit on active integrations
+is a `422` validation error instead, with the same message in its details. The
+template editor shows it the same way.
 
 Only accounts on a plan purchased before prepaid credits can be suspended. A
 suspended account gets the same `403` with `"code": "account_suspended"` when it

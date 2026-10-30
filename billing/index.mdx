@@ -29,6 +29,7 @@ features:
 | ----------------------------------------- | ------------------ | ------------------- | --------------------- | ------------------------ |
 | Templates                                 | 10                 | 25                  | Unlimited             | Unlimited                |
 | Users                                     | 2                  | 10                  | Unlimited             | Unlimited                |
+| Active integrations                       | 2                  | Unlimited           | Unlimited             | Unlimited                |
 | Signature requests                        | Yes                | Yes                 | Yes                   | Yes                      |
 | Embedded template editor                  | No                 | Yes                 | Yes                   | Yes                      |
 | Hosted forms                              | DocSpring branding | Unbranded           | Unbranded             | Unbranded                |
@@ -39,10 +40,21 @@ features:
 
 Pending invitations count toward the user limit.
 
+Active integrations are the storage destinations (S3 and S3-compatible storage,
+Google Drive, Dropbox and Box), webhooks and Slack notifications that are turned
+on. Each webhook counts, including the one Zapier, Make or n8n creates for each
+trigger. A Slack or legacy webhook URL counts once, however many templates use
+it, whether it's set on templates, in the template defaults or on an API token.
+Turning an integration off frees its place. API tokens and AI assistants
+connected to the [MCP server](/docs/mcp/) aren't integrations themselves, but
+the webhooks an assistant creates count.
+
 If your account moves to a plan with lower limits (for example after a
-downgrade), your existing templates and users keep working; you can't add more
-until you're within the new limits. API requests for a feature your plan
-doesn't include return `403 Forbidden` with `"code": "upgrade_required"`.
+downgrade), your existing templates, users and integrations keep working; you
+can't add more until you're within the new limits. API requests for a feature
+your plan doesn't include return `403 Forbidden` with
+`"code": "upgrade_required"`. A template's new Slack webhook URL over the limit
+on active integrations is a `422` validation error with the same message.
 
 | Plan          | Monthly credits      | Live API rate limit | Test API rate limit |
 | ------------- | -------------------- | ------------------- | ------------------- |
@@ -69,14 +81,13 @@ watermarked source PDFs; combined jobs have no test mode.
 You start on the free Developer plan with 200 credits per month, enough for 10
 filled PDF forms. The plan has no time limit.
 
-You can try a paid plan's features (more templates and team members, live data
-requests and e-signatures, the embedded template editor and unbranded hosted
-forms) free for 14 days, without a card. A trial keeps the Developer plan's
+You can try a paid plan's features (more templates, team members and integrations, the
+embedded template editor and unbranded hosted forms) free for 14 days, without a card. A trial keeps the Developer plan's
 credits. It starts when you choose a paid plan at signup, or from **Choose a
 plan** on the **Billing** page. Each account gets one trial, and an account
 that has had a paid plan can't start one. When it
 ends, your account has the Developer plan's features again: nothing is deleted,
-and templates or team members over its limits keep working, but you can't add
+and templates, team members or integrations over its limits keep working, but you can't add
 more until you subscribe.
 
 When you're ready for more credits, subscribe to a paid plan from the
