@@ -3,7 +3,7 @@ title: TypeScript API Client
 description: Changelog and version history for the DocSpring TypeScript API client
 editUrl: false
 sidebar:
-  order: 18
+  order: 19
 ---
 
 <!-- Generated from api_clients/changelogs/CHANGELOG.typescript.md in the DocSpring repo. Don't edit this page: change the changelog, then run scripts/generate_api_client_changelog_pages. -->

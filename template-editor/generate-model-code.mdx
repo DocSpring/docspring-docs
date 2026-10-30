@@ -24,7 +24,7 @@ The **Schema** button shows the raw JSON Schema for your template's fields. The 
 
 ## Languages
 
-Choose a language from the dropdown: TypeScript, JavaScript, Ruby, Python, PHP, Java, C#, Elixir or Go.
+Choose a language from the dropdown: TypeScript, JavaScript, Ruby, Python, PHP, Java, C#, Elixir, Go or Rust.
 
 TypeScript is selected by default, and your choice is remembered the next time you open the generator. Use **Copy Code** to copy the result, or **Download** to save it to a file named after your template.
 
@@ -39,12 +39,23 @@ For languages that support it, the generated types are wrapped in a namespace or
 | Ruby                                | `DocSpring::Templates::<TemplateName>::Template` |
 | C#, Elixir                          | `DocSpring.Templates.<TemplateName>.Template`    |
 | Go, Java                            | `Template` in the package `<templatename>`       |
+| Rust                                | `<TemplateName>` in the module `<template_name>` |
 | TypeScript, JavaScript, Python, PHP | `<TemplateName>` (not wrapped)                   |
 
 <Aside type="note">
   Java needs one file per class, so the Java code lists every class under a `//
   ClassName.java` comment. Save each section as its own file in the package's
   directory.
+</Aside>
+
+<Aside type="note">
+  A Rust file is a module of your crate: save the code as
+  `src/<template_name>.rs` and add `mod <template_name>;`, as the comment at
+  its top says. The structs derive serde's `Serialize` and `Deserialize`. A
+  field that's `None` is left out of the JSON, so it prints its default, where
+  the other languages send `null`, which prints a blank. To blank a text field
+  that has a default, set it to an empty string. Turn a model into submission
+  data with `serde_json::from_value(serde_json::to_value(&model)?)?`.
 </Aside>
 
 ## Using the generated model

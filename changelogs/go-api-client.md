@@ -14,6 +14,14 @@ New versions of the DocSpring Go API client. To install it, see
 
 ## Changelog
 
+### 4.3.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Oct 30, 2026</div>
+
+- New: get_template_model_code takes `rust` as its `lang`, for Rust structs that serde reads and writes.
+- Fixed: `NewClientWithRegion` used its region even when `DOCSPRING_HOST` was set. `DOCSPRING_HOST` now wins, as a
+  host wins over a region in every DocSpring SDK.
+
 ### 4.2.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Oct 29, 2026</div>

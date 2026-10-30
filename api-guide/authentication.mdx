@@ -38,8 +38,8 @@ export DOCSPRING_HOST="docspring.yourcompany.com" # For on-premise deployments
 ```
 
 Credentials and a host that you pass to the client take precedence over these variables, and an empty value counts as
-not set. `DOCSPRING_HOST` takes precedence over `DOCSPRING_REGION`. Without credentials, requests fail with a 401
-`unauthorized` error.
+not set. A host, passed in or from `DOCSPRING_HOST`, takes precedence over a region, even one you pass to the client.
+Without credentials, requests fail with a 401 `unauthorized` error.
 
 Then initialize the client without passing credentials:
 
@@ -108,6 +108,13 @@ apiClient := client.NewClient("", "")
 
 ```elixir
 conn = Docspring.Connection.new()
+```
+
+</TabItem>
+<TabItem label="Rust">
+
+```rust
+let client = docspring::Client::from_env()?;
 ```
 
 </TabItem>
