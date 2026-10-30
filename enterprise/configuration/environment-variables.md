@@ -103,6 +103,12 @@ Turns off the admin dashboard's "Become User" feature, which lets an admin sign 
 - Type: on/off
 - Formerly: `DISABLE_BECOME_USER`
 
+### DOCSPRING_DISABLE_CSRF_ORIGIN_CHECK
+
+Turns off the check that a form or request came from one of this install's own pages (its `Origin` header names this install's host). Only set it if forms, sign-in (including Google, GitHub and OpenID) or signing out fail behind a proxy that changes the `Host` header, and the log says "HTTP Origin header (...) didn't match request.base_url (...)". Fix the proxy instead when you can.
+
+- Type: on/off
+
 ### DOCSPRING_DISABLE_PWNED_PASSWORD_CHECK
 
 Turns off the check that rejects new passwords found in known data breaches ([Pwned Passwords](https://haveibeenpwned.com/Passwords)). It allows weak passwords, so only turn it off on a test server or an install without internet access.
