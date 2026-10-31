@@ -1,13 +1,13 @@
 ---
 title: AWS S3 Integration
-description: Automatically upload generated PDFs to your own S3 bucket, on Amazon S3 or S3-compatible storage
+description: Automatically upload generated PDFs and Word documents to your own S3 bucket, on Amazon S3 or S3-compatible storage
 sidebar:
   order: 2
 ---
 
 import { Aside, LinkCard, CardGrid } from "@astrojs/starlight/components";
 
-DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bucket in your own AWS account, giving you full control over your document storage. It also works with [S3-compatible storage](#s3-compatible-storage) such as Cloudflare R2, Google Cloud Storage, Backblaze B2, Wasabi, DigitalOcean Spaces and MinIO.
+DocSpring's AWS S3 integration automatically copies generated PDFs and Word documents into an S3 bucket in your own AWS account, giving you full control over your document storage. It also works with [S3-compatible storage](#s3-compatible-storage) such as Cloudflare R2, Google Cloud Storage, Backblaze B2, Wasabi, DigitalOcean Spaces and MinIO.
 
 <LinkCard
   title="Step-by-Step Implementation Guide"
@@ -19,7 +19,7 @@ DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bu
 
 - **Automatic uploads** - PDFs are uploaded immediately after generation
 - **Flexible path templates** - Organize PDFs using custom folder structures
-- **Selective uploads** - Choose which PDFs to upload based on submission type, template, folder or API token, and skip combined PDFs
+- **Selective uploads** - Choose what to upload based on submission type, template, folder or API token, upload PDFs, Word documents or both, and skip combined PDFs
 - **Secure authentication** - Support for both access keys and IAM roles
 - **No vendor lock-in** - Keep your own copy of all generated documents
 
@@ -45,7 +45,7 @@ DocSpring's AWS S3 integration automatically copies generated PDFs into an S3 bu
 
 ### Upload Filtering
 
-Control which PDFs are uploaded to your bucket:
+Control what is uploaded to your bucket:
 
 - **Submission Type**
   - Only Live (default) - Production PDFs without watermarks
@@ -64,24 +64,36 @@ Control which PDFs are uploaded to your bucket:
   - Leave both blank to upload submissions for every template
   - Combined PDFs aren't filtered by template or folder
 
+- **File Formats**
+  - PDFs, Word documents, or PDFs and Word documents (default)
+  - A [Word template](/docs/word-templates/overview/)'s submission has a Word document, an OpenDocument file (.odt)
+    or both, and a PDF too when the template makes one. Word documents include OpenDocument files.
+  - Combined PDFs are uploaded unless you choose Word documents only
+  - An integration created before this setting was added uploads PDFs only, so its object keys ending in `.pdf` stay
+    right: add `{{ extension }}` to its object key templates before you change it
+
 - **Object key templates**
   - Leave an object key template blank to skip that kind of upload: for example, clear "Object Key Template for
     Combined PDFs" to upload submissions but not combined PDFs
 
 ### Path Templates
 
-Organize your PDFs using Liquid template variables:
+Organize your files using Liquid template variables:
 
 ```liquid
 # Default templates
-live/templates/{{ template_id }}/{{ submission_id }}.pdf
-test/templates/{{ template_id }}/{{ submission_id }}.pdf
-combined_submissions/{{ combined_submission_id }}.pdf
+live/templates/{{ template_id }}/{{ submission_id }}.{{ extension }}
+test/templates/{{ template_id }}/{{ submission_id }}.{{ extension }}
+combined_submissions/{{ combined_submission_id }}.{{ extension }}
 
 # Custom examples
-{{ year }}/{{ month }}/{{ template_name }}/{{ submission_id }}.pdf
+{{ year }}/{{ month }}/{{ template_name }}/{{ submission_id }}.{{ extension }}
 clients/{{ metadata.client_id }}/invoices/{{ submission_id }}.pdf
 ```
+
+`{{ extension }}` is each file's extension, `pdf`, `docx` or `odt`. When **File Formats** includes Word documents, the
+submission templates need it, so a submission's files each get their own key. (To upload only Word documents, a
+template can end in `.docx` instead: an OpenDocument file's key then ends in `.odt`.)
 
 <LinkCard
   title="Available Variables"
@@ -183,7 +195,7 @@ No. DocSpring will only delete our own copy of the PDF when a submission expires
 
 One thing to be aware of is that the submission state will change to processed as soon as our copy of the PDF is ready, but it might take a few seconds before the PDF is uploaded into your custom S3 bucket. The AWS integration upload happens after the initial processing is completed.
 
-If you need to know when the PDF is available in your own S3 bucket, you can check the `actions` array in the API response. This array will be empty before the submission is processed. As soon as the submission is processed, it will contain an entry for the `aws_s3_upload` action. This action's `state` will be `pending` until the file has been uploaded into your S3 bucket, and then it will change to `processed`. If an upload fails because of your bucket or the integration's settings, the `state` changes to `failed` and `error_message` explains why. Uploads that fail because your bucket or role policy denies access are retried automatically, so they go through once you fix the policy. Uploads that fail because of a wrong access key, bucket name, or region are not retried. An `error` state means the upload failed because of a problem at DocSpring, which we retry.
+If you need to know when the files are available in your own S3 bucket, you can check the `actions` array in the API response. This array will be empty before the submission is processed. As soon as the submission is processed, it will contain an entry for the `aws_s3_upload` action. This action's `state` will be `pending` until the file has been uploaded into your S3 bucket, and then it will change to `processed`. When a Word document is uploaded, the action's `result_data` has its `docx_s3_key` and `docx_s3_url` as well as `s3_key` and `s3_url`, which are the PDF's (or, when no PDF is uploaded, the Word document's, or the OpenDocument file's when it's the only file), and an OpenDocument file's are `odt_s3_key` and `odt_s3_url`. If a Word template's PDF, Word document or OpenDocument file is made after the submission is processed (for example with [Generate More Files](/docs/word-templates/overview/#output-format)), it's uploaded when it's ready, in an action of its own. If an upload fails because of your bucket or the integration's settings, the `state` changes to `failed` and `error_message` explains why. Uploads that fail because your bucket or role policy denies access are retried automatically, so they go through once you fix the policy. Uploads that fail because of a wrong access key, bucket name, or region are not retried. An `error` state means the upload failed because of a problem at DocSpring, which we retry.
 
 If uploads keep failing, DocSpring emails you and eventually disables the integration. See [When an integration fails](/docs/integrations/overview/#when-an-integration-fails).
 

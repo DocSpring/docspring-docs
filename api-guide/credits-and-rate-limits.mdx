@@ -19,11 +19,12 @@ credit rules described here apply to the current plans.
 ## Insufficient credits (HTTP 402)
 
 A **live** document is admitted only when your available balance covers its
-smallest possible charge: one unit of it (20 credits for a filled PDF form, 4
-for a PDF from an HTML template or a combined PDF), plus 60 credits for each
-signature request that asks for a signature, or 4 for each source PDF of a combined
-PDF. When your balance can't cover that, or storage credits have been due for
-more than seven days, requests that would generate a live document return
+smallest possible charge: one unit of it (20 credits for a filled PDF form or a
+Word document, 4 for a PDF from an HTML template or a combined PDF), plus 60
+credits for each signature request that asks for a signature, or 4 for each
+source PDF of a combined PDF. When your balance can't cover that, or storage
+credits have been due for more than seven days, requests that would generate a
+live document return
 `402 Payment Required`:
 
 ```json
@@ -48,7 +49,7 @@ Key points for your integration:
   and send a new request; the saved request won't resume.
 - If storage credits are overdue, the `message` says so ("Live processing is
   paused because 20 storage credits are due. Add credits in Billing to resume.
-  Your stored PDFs remain available.") and the submission waits the same way.
+  Your stored documents remain available.") and the submission waits the same way.
   Adding credits pays the storage charge first, then resumes waiting work.
 - **No webhook is sent when a submission starts waiting for credits.** If you
   rely on webhooks, poll submissions that haven't finished, or watch for the

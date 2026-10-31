@@ -8,10 +8,11 @@ sidebar:
 
 import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
-DocSpring supports two different kinds of templates:
+DocSpring supports three kinds of templates:
 
 - **PDF templates**: Upload an existing PDF and add fields using the template editor.
 - **HTML/CSS templates**: Create a new template from scratch using HTML and CSS.
+- **[Word templates](/docs/word-templates/overview/)**: Upload a Word document with tags in it.
 
 ## SASS
 
@@ -22,6 +23,25 @@ This means that you can paste in any CSS, and it will Just Work&trade;.
 SCSS also supports some powerful features, including variables and nested rules.
 Take a look at the [SASS Guide](http://sass-lang.com/guide#topic-2) to learn more.
 
+Liquid works anywhere in your SCSS. It runs before the SCSS compiles, so a field's value can set a variable or a
+property, and a condition can add rules:
+
+```scss
+$brand: {{ brand_color | default: "#1a56db" }};
+
+.title { color: $brand; }
+
+{% if paid %}
+.stamp { color: darken($brand, 10%); }
+{% endif %}
+```
+
+Values are inserted as text: a value with quotes, semicolons or braces in it stays inside the string or property it's
+in.
+
+The template editor's preview fills each field with sample text, which an SCSS function such as `darken()` can't use as
+a color. Give a field that a function uses a default value, and the preview uses that instead.
+
 ## Liquid
 
 HTML templates use the [Liquid markup language](https://shopify.github.io/liquid/basics/introduction/).
@@ -30,6 +50,10 @@ such as [conditions](https://shopify.github.io/liquid/tags/control-flow/) and
 [loops](https://shopify.github.io/liquid/tags/iteration/).
 
 [Learn more about Liquid](https://shopify.github.io/liquid/basics/introduction/).
+
+In the template editor, your Liquid tags are highlighted, and typing `{{` or `{%` suggests your fields' names. Click a
+`{{ }}` tag to change what it prints. Problems with your Liquid, such as an `{% if %}` that's never closed, are listed
+above the code with their line numbers: click one to go to its line.
 
 ### Referencing Fields
 
@@ -264,6 +288,24 @@ You can use the `template` tag to access data about your template:
 <h2>{% template version_published_at %}</h2>
 ```
 
+## Fields
+
+When you save your code in the template editor, DocSpring adds a field for each new value its tags use, in the HTML,
+the header and footer HTML, and the SCSS. Fields stay when you delete their tags, so delete a field you no longer need
+in the field list. The editor only removes a field it added while you were still typing, such as `discount_ra` on the
+way to `discount_rate`, if you haven't changed the field.
+
+- `{{ customer.name }}` adds a `customer` object with a `name` field.
+- `{% for item in line_items %}` adds a `line_items` list, and `{{ item.price }}` inside the loop adds a `price` field
+  to each item.
+
+Each new field's type comes from how the tags use it: a value formatted with the `date` filter becomes a date field,
+and one used with `currency` or `times` a number field. Other values are text fields. New fields are required. Click a
+field to change its type, make it optional or set a default value. Optional fields that aren't in the submission data
+are blank, so you can check them with `{% if %}`.
+
+Renaming a field in the editor renames its tags in your code too, and **Undo** takes back both.
+
 ## Page Settings
 
 Click the "Settings" button in the header to set up the pages of an HTML/CSS template:
@@ -342,6 +384,9 @@ keep signatures in the body.
   any images embedded in it as base64.
 - **Header and footer images:** up to 25 MB each. They are embedded into the header or footer HTML.
 - **[Image field](/docs/reference/field-data-types/#image) values given as a URL:** up to 100 MB each.
+- **Liquid and SCSS:** 5 seconds in total to fill in a document's Liquid and compile its SCSS, and 128 MB of memory for
+  each of its HTML parts and its SCSS, on top of the size of your data. A loop that repeats far more often than it
+  needs to is the usual cause of a template that goes over.
 
 A document over one of these limits fails with an error that names the limit, and isn't retried. A very large
 document can also take too long to render, and often does before its PDF reaches 500 MB. A render that runs out of

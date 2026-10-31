@@ -25,18 +25,18 @@ plan, contact [support@docspring.com](mailto:support@docspring.com).
 Plans differ in monthly credits, API rate limits, support level, and a few
 features:
 
-| Feature                                   | Developer          | Starter             | Growth                | Scale                    |
-| ----------------------------------------- | ------------------ | ------------------- | --------------------- | ------------------------ |
-| Templates                                 | 10                 | 25                  | Unlimited             | Unlimited                |
-| Users                                     | 2                  | 10                  | Unlimited             | Unlimited                |
-| Active integrations                       | 2                  | Unlimited           | Unlimited             | Unlimited                |
-| Signature requests                        | Yes                | Yes                 | Yes                   | Yes                      |
-| Embedded template editor                  | No                 | Yes                 | Yes                   | Yes                      |
-| Hosted forms                              | DocSpring branding | Unbranded           | Unbranded             | Unbranded                |
-| Embedded forms, HTML templates, test PDFs | Yes                | Yes                 | Yes                   | Yes                      |
-| HIPAA Business Associate Agreement (BAA)  | No                 | Yes                 | Yes                   | Yes                      |
-| Unused credits                            | Reset monthly      | Roll over 12 months | Roll over 12 months   | Roll over 12 months      |
-| Support                                   | Documentation      | Email & chat        | Priority email & chat | Slack channel & priority |
+| Feature                                                 | Developer          | Starter             | Growth                | Scale                    |
+| ------------------------------------------------------- | ------------------ | ------------------- | --------------------- | ------------------------ |
+| Templates                                               | 10                 | 25                  | Unlimited             | Unlimited                |
+| Users                                                   | 2                  | 10                  | Unlimited             | Unlimited                |
+| Active integrations                                     | 2                  | Unlimited           | Unlimited             | Unlimited                |
+| Signature requests                                      | Yes                | Yes                 | Yes                   | Yes                      |
+| Embedded template editor                                | No                 | Yes                 | Yes                   | Yes                      |
+| Hosted forms                                            | DocSpring branding | Unbranded           | Unbranded             | Unbranded                |
+| Embedded forms, HTML and Word templates, test documents | Yes                | Yes                 | Yes                   | Yes                      |
+| HIPAA Business Associate Agreement (BAA)                | No                 | Yes                 | Yes                   | Yes                      |
+| Unused credits                                          | Reset monthly      | Roll over 12 months | Roll over 12 months   | Roll over 12 months      |
+| Support                                                 | Documentation      | Email & chat        | Priority email & chat | Slack channel & priority |
 
 Pending invitations count toward the user limit.
 
@@ -63,8 +63,8 @@ on active integrations is a `422` validation error with the same message.
 | **Growth**    | 50,000 or 100,000    | 120/min (burst 240) | 5/min (burst 15)    |
 | **Scale**     | 200,000 – 10,000,000 | 300/min (burst 600) | 5/min (burst 15)    |
 
-See [What each PDF costs](https://docspring.com/pricing/#pdf-prices) for each
-plan's and pack's price per PDF.
+See [What each document costs](https://docspring.com/pricing/#pdf-prices) for
+each plan's and pack's price per document.
 Each paid plan offers a choice of credit tiers, so you can pick the monthly
 allowance that matches your volume.
 
@@ -144,14 +144,14 @@ The **Billing** page has four tabs:
   set up [automatic top-ups](/docs/billing/credit-packs-and-auto-topup/#automatic-top-ups)
   from here.
 - **Usage**: the monthly [credit usage report](#credit-usage-reports), upcoming
-  credit expiry dates and stored PDFs.
+  credit expiry dates and stored documents.
 - **Invoices**: every payment, with links to view or download each invoice.
 - **Billing settings**: payment methods, your business billing address and
   VAT / tax ID for invoices, your billing email (the address that receives
   invoices and billing emails; the account owner's email unless you set
   another), cancelling your subscription, and deleting your account. To stop
   paying without losing anything, cancel your subscription: your account moves
-  to the free Developer plan and keeps its templates, PDFs and unexpired
+  to the free Developer plan and keeps its templates, documents and unexpired
   credits. Deleting your account removes access and forfeits unused credits.
 
 Problems that need attention, such as a failed payment, an unpaid purchase or
@@ -159,17 +159,17 @@ work waiting for credits, appear at the top of every tab and on your dashboard.
 Team members can see the Overview and Usage tabs; only the account owner can
 make changes.
 
-## Stored PDFs
+## Stored documents
 
-Every PDF includes 30 days of storage. After that, monthly storage costs the
-greater of 1 credit per 50 MiB-month or 1 credit per 50 PDF-months, prorated for
+Every document includes 30 days of storage. After that, monthly storage costs
+the greater of 1 credit per 50 MiB-month or 1 credit per 50 document-months, prorated for
 time stored and rounded up once per account per UTC calendar month. These rates
 also apply on Developer. Storage uses your credit balance independently of
 subscription renewals.
 
 <LinkCard
   title="Storage charges and payment grace period"
-  href="/docs/billing/how-credits-work/#stored-pdfs"
+  href="/docs/billing/how-credits-work/#stored-documents"
   description="See the storage calculation, included retention, examples, and what happens when credits are due."
 />
 
@@ -191,5 +191,5 @@ A storage debit appears in credit activity when those credits are actually
 collected, which can be in the following month. An unpaid assessment is not
 counted as credits already spent.
 
-Stored-PDF totals update daily. Credit activity updates in the background as
+Stored-document totals update daily. Credit activity updates in the background as
 credits are added or spent; recent activity can take a short time to appear.

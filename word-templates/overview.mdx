@@ -1,0 +1,198 @@
+---
+title: Word Templates
+description: Fill in a Word document with your data and get a Word document, an OpenDocument file or a PDF
+sidebar:
+  order: 1
+  label: Overview
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+A Word template is a Word document (.docx) with tags in it, such as `{{ customer.name }}`. DocSpring fills in the tags
+with your submission data and makes a Word document, an OpenDocument file (.odt) or a PDF.
+
+Write the document in Word as you normally would, or start with a blank document and write it in DocSpring. Headings,
+tables, headers and footers, page numbers and pictures all stay as they are. Type a tag wherever a value should go.
+
+```
+Dear {{ customer.name }},
+
+Your order {{ order.number }} ships on {{ ship_date | date: "%B %-d, %Y" }}.
+```
+
+## Create a Word Template
+
+Click **Create Template**, then either:
+
+- Drop your .docx file (up to 50 MB) on the upload area, which takes a PDF or a Word document. The template is named
+  after the file, and DocSpring adds a field for each tag it finds. An OpenDocument text file (.odt) from LibreOffice
+  works too: DocSpring converts it to a Word document, and the template opens in the editor once it has been
+  converted.
+- Click **Word document** under **Or start from a blank page** to write a new document in the template editor. It's US
+  Letter with 1 inch margins, and has a header and a footer.
+
+A new Word template makes a Word document for each submission, or an OpenDocument file when you created it from one.
+To make PDFs instead, choose **PDF** in **Settings > Output**. You can rename the template in **Settings** too.
+
+Word templates are created with API v2, too: send the .docx to POST /templates/upload, or create the template with
+POST /templates and one of:
+
+- `cache_id`: a file you uploaded with the presigned upload.
+- `document_url`: an `https://` link to the .docx. DocSpring downloads it after responding: the template's
+  `document.state` is `downloading` until then, and `ready` is false. If it can't be downloaded, the state is
+  `download_failed` and `document.error_message` says why.
+- `document_base64`: the .docx encoded as base64 (up to 7 MB before it's encoded).
+
+Each of these takes an .odt too. While it's converted to a Word document, the template's `document.state` is
+`converting` and `ready` is false. If it can't be converted, the state is `conversion_failed` and
+`document.error_message` says why.
+
+Set `output_format` to `docx`, `odt` or `pdf`.
+
+<LinkCard
+  title="API Reference: Create a Template from an Upload"
+  href="/docs/api/#tag/templates/post/templates/upload"
+  description="Create a Word template from a .docx sent with the request"
+/>
+
+### Preparing your document
+
+- Save it as a Word Document (.docx), or as an OpenDocument Text file (.odt) in LibreOffice. Older .doc files and
+  macro-enabled .docm files can't be used. An .odt is converted to a Word document with LibreOffice, without running
+  its macros, and the template keeps that Word document: to change it later, download it from **Settings** or upload a
+  new .odt.
+- A picture the document links to by web address (for example with **Insert > Pictures > Link to File**) is downloaded
+  when you upload the document and stored in it, so every submission shows the same picture. A picture linked from a
+  file on your computer or network can't be downloaded: insert it into the document instead.
+- Fields that bring in another file's text or picture (`INCLUDETEXT`, `INCLUDEPICTURE`, `LINK`) are replaced with what
+  they last showed, as Word's **Unlink Field** does, so pictures pasted from web pages stay in the document.
+- Accept or reject tracked changes before you upload, so you can edit those paragraphs in DocSpring.
+- Type each tag in one go. Word's AutoCorrect turns quotes into curly quotes, and DocSpring reads those as straight
+  quotes inside tags, so `{{ date | date: “%Y” }}` works.
+
+## Edit the Document in DocSpring
+
+The template editor shows the document as a page that you can edit, with its headers and footers. Changes are saved as
+you type.
+
+The editor covers what most templates need, but it doesn't do everything Word or Google Docs can. For anything it
+doesn't do, edit the document in Word, Google Docs (**File > Download > Microsoft Word (.docx)**) or LibreOffice, then
+upload it in **Settings** (see below). Anything in the document that the editor can't change is kept as it is, and
+still appears in your PDFs and Word documents.
+
+- Type `{{` to see suggestions for your fields. Choose a field to insert it, or keep typing to add a new one. The
+  **Field** button in the toolbar lists your fields too. A field in a list, such as each item's `description` in
+  `line_items`, goes in the `{% for %}` loop around the cursor, or comes with a new loop.
+- Click a tag to change its expression.
+- The toolbar has paragraph styles (Normal text, Title, Subtitle, Heading 1 to 3, and the document's own styles),
+  fonts, sizes, text and highlight colors, bulleted and numbered lists, indents, alignment, line and paragraph spacing,
+  links, pictures, tables and page breaks. **Clear formatting** removes the formatting you've added to the selected
+  text, so it looks as its style says.
+- The font menu lists fonts that look the same in the PDF as they do in Word. Text in the document's other fonts keeps
+  them.
+- Pictures in the line of text are shown as pictures: you can move or delete them, and insert new ones (PNG, JPEG, GIF
+  or BMP, up to 10 MB). Content that the editor can't change, such as floating pictures, text boxes, charts, equations
+  and content controls, is shown as a labelled box. Edit it in Word, then replace the document.
+- If a tag can't be used (an unclosed tag, an `{% endfor %}` without its `{% for %}`), a banner above the page lists the
+  problem and where it is. Submissions fail until it's fixed.
+- The **Preview** tab shows the document filled in with sample data. To check it with your own data, use
+  [Preview a template](/docs/api/#tag/templates/post/templates/{template_id}/previews) in the API: it returns images
+  of the PDF's pages, without making a submission or using credits.
+
+To replace the document with a new version from Word, open **Settings** and upload it there, or send it to
+[Update a template's document](/docs/api/#tag/templates/put/templates/{template_id}/document) in the API (as a
+`cache_id`, `document_url` or `document_base64`). The template keeps its fields and settings, and adds fields for any
+new tags. While a `document_url` downloads, the template keeps the document it has.
+
+## Fields
+
+DocSpring adds a field for each value your tags use, so the template's fields always match the document. Fields are
+never removed automatically: if you delete a tag, delete its field in the field list too.
+
+Renaming a field in the editor renames its tags in the document too, in headers, footers and loops, and **Undo** takes
+back both. A tag keeps its old name when the new one can't be written in a tag (a name with a space, for example), and
+so do tags the editor doesn't show, in footnotes or text boxes.
+
+- `{{ customer.name }}` adds a `customer` object with a `name` field.
+- `{% for item in line_items %}` adds a `line_items` list, and `{{ item.price }}` inside the loop adds a `price` field
+  to each item.
+- `{% image logo %}` adds an image field, and `{% signature signer_signature %}` a signature field.
+
+Each new field's type comes from how the tags use it: a value formatted with the `date` filter becomes a date field,
+and one used with `currency` or `times` a number field. Other values are text fields. New fields are required. Click a
+field to change its type, make it optional or set a default value. Optional fields that aren't in the submission data
+are blank, so you can check them with `{% if %}`.
+
+The fields work the same way as they do for other templates: the API validates submission data against them, and
+[web forms](/docs/forms/web-forms/) are built from them.
+
+## Output Format
+
+Each Word template makes Word documents, OpenDocument files or PDFs, as you choose in **Settings > Output**. Web forms
+make what the template makes. The setting belongs to the template, not to one version: when you change it on the
+draft, every published version makes the new format too. If your integration needs one format, ask for it in each
+request with `output_formats` (below).
+
+With API v2, a submission can ask for other formats with `output_formats`, such as a Word document and a PDF:
+
+```json
+{
+  "data": { "customer": { "name": "Jane Doe" } },
+  "output_formats": ["docx", "pdf"]
+}
+```
+
+Once the submission is processed, its `files` has one entry for each format (`files.docx`, `files.odt` and
+`files.pdf`), each with a `download_url` and a `permanent_url`.
+
+An OpenDocument file (`odt`) is converted from the submission's Word document with LibreOffice, so it looks as the Word
+document does when you open it in LibreOffice.
+
+To get the PDF of a submission that made only a Word document, send `{"formats": ["pdf"]}` to
+`POST /api/v2/submissions/{submission_id}/generate_files`, or `{"formats": ["png"]}` for the PDF and an image of each
+of its pages. DocSpring converts the Word document the submission made, so the PDF matches it even if the template has
+changed since, and it doesn't use credits again. Until the PDF is ready, `files.pdf` has the `state` `pending`
+(`sync.api.docspring.com` waits for it). In the dashboard, choose **Make PDF** from the **Download** menu on the
+submission's page.
+
+The other way round, `{"formats": ["docx"]}` gets the Word document of a submission that made only a PDF. A PDF can't be
+turned back into a Word document, so DocSpring makes it again from the submission's data and the template version the
+submission used (for a submission of the draft, the draft as it is now). It doesn't use credits again either, and
+`files.docx` is `pending` until it's ready. In the dashboard, choose **Make Word document** from the **Download** menu. A
+submission whose PDF is password-protected can't get a Word document.
+
+`{"formats": ["odt"]}` adds an OpenDocument file, converted from the Word document the submission made, or from one made
+again from its data when it didn't keep one. It doesn't use credits again, and `files.odt` is `pending` until it's
+ready. In the dashboard, choose **Make OpenDocument file** from the **Download** menu.
+
+- API v1 makes PDFs from Word templates. Use API v2 to get Word documents and OpenDocument files.
+- Test submissions (`"test": true`) are watermarked in every format.
+- [Storage integrations](/docs/integrations/overview/) upload the files their **File Formats** setting chooses: PDFs,
+  Word documents (with OpenDocument files) or both. A file made later is uploaded when it's ready.
+- Word documents and OpenDocument files can't be password-protected. A template that encrypts its PDFs makes PDFs, and
+  a submission with a `password` can't ask for either.
+
+<LinkCard
+  title="API Reference: Generate a PDF"
+  href="/docs/api/#tag/submissions/post/templates/{template_id}/submissions"
+  description="Every request parameter, including output_formats"
+/>
+
+<LinkCard
+  title="API Reference: Generate More Files"
+  href="/docs/api/#tag/submissions/post/submissions/{submission_id}/generate_files"
+  description="Add a PDF, images of its pages, a Word document or an OpenDocument file to a processed submission"
+/>
+
+## Next Steps
+
+<LinkCard
+  title="Tags and Filters"
+  href="/docs/word-templates/tags/"
+  description="Values, conditions, loops, pictures, signatures, barcodes and QR codes"
+/>
+<LinkCard
+  title="Template Versions"
+  href="/docs/template-editor/versions/"
+  description="Publish a version, so changes to the draft don't affect your integration"
+/>

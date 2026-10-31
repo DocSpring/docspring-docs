@@ -8,7 +8,7 @@ sidebar:
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Connect DocSpring to your apps and automation workflows to generate PDFs, collect signatures, and store completed documents.
+Connect DocSpring to your apps and automation workflows to generate PDFs and Word documents, collect signatures, and store completed documents.
 
 ## Getting started
 
@@ -40,7 +40,7 @@ On the free Developer plan, an account can have 2 [active integrations](/docs/bi
   <LinkCard
     title="AWS S3"
     href="/docs/integrations/aws-s3/"
-    description="Automatically upload generated PDFs to your own Amazon S3 bucket"
+    description="Automatically upload generated PDFs and Word documents to your own Amazon S3 bucket"
   />
   <LinkCard
     title="S3-compatible storage"
@@ -50,17 +50,17 @@ On the free Developer plan, an account can have 2 [active integrations](/docs/bi
   <LinkCard
     title="Google Drive"
     href="/docs/integrations/google-drive/"
-    description="Save generated PDFs to a folder in your Google Drive or a shared drive"
+    description="Save generated PDFs and Word documents to a folder in your Google Drive or a shared drive"
   />
   <LinkCard
     title="Dropbox"
     href="/docs/integrations/dropbox/"
-    description="Save generated PDFs to a folder in your Dropbox, including team folders"
+    description="Save generated PDFs and Word documents to a folder in your Dropbox, including team folders"
   />
   <LinkCard
     title="Box"
     href="/docs/integrations/box/"
-    description="Save generated PDFs to a folder in your Box account"
+    description="Save generated PDFs and Word documents to a folder in your Box account"
   />
   <LinkCard
     title="Bubble"
@@ -100,7 +100,7 @@ On the free Developer plan, an account can have 2 [active integrations](/docs/bi
   <LinkCard
     title="Slack"
     href="/docs/template-editor/settings/#slack-webhook-url"
-    description="Post a message to a Slack channel whenever a template generates a PDF"
+    description="Post a message to a Slack channel whenever a template generates a PDF or a Word document"
   />
 </CardGrid>
 
@@ -154,7 +154,7 @@ An upload that fails because of a problem on DocSpring's side, or a timeout or a
 
 ## Build your own integration
 
-Use the REST API or an official client library to generate PDFs from your application. Webhooks notify your app when PDFs finish processing or signing events occur.
+Use the REST API or an official client library to generate PDFs and Word documents from your application. Webhooks notify your app when documents finish processing or signing events occur.
 
 <CardGrid>
   <LinkCard

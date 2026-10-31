@@ -1,6 +1,6 @@
 # DocSpring Documentation
 
-This repository contains the public documentation for [DocSpring](https://docspring.com), a PDF generation and e-signature API service.
+This repository contains the public documentation for [DocSpring](https://docspring.com), a document automation platform. Fill PDF forms, generate PDFs and Word documents from templates, and collect e-signatures with one API.
 
 ## 📚 About
 

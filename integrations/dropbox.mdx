@@ -1,40 +1,45 @@
 ---
 title: Dropbox Integration
-description: Automatically upload generated PDFs to a folder in your Dropbox, including team folders
+description: Automatically upload generated PDFs and Word documents to a folder in your Dropbox, including team folders
 sidebar:
   order: 4
 ---
 
 import { Aside, LinkCard } from "@astrojs/starlight/components";
 
-DocSpring's Dropbox integration saves every PDF it generates to a folder you choose in your Dropbox or in your team's space. Each PDF is uploaded as soon as it's generated, including combined PDFs, and you choose the file names.
+DocSpring's Dropbox integration saves every PDF and Word document it generates to a folder you choose in your Dropbox or in your team's space. Each file is uploaded as soon as it's generated, including combined PDFs, and you choose the file names.
 
 ## Set up the integration
 
 1. In DocSpring, go to **Integrations → Manage Dropbox connections** ([US](https://app.docspring.com/account_integrations/dropbox), [EU](https://app-eu.docspring.com/account_integrations/dropbox)).
 2. Click **Connect Dropbox** and sign in to the Dropbox account that should receive the PDFs, then allow DocSpring's access.
 3. DocSpring opens the new integration's settings. Click **Choose Folder** to browse your Dropbox. Click a folder to open it, then click **Choose This Folder**. On a Dropbox team account, the top level shows your team's folders as well as your own.
-4. Set the file paths and choose which PDFs to upload (see below), then click **Save**.
+4. Set the file paths and choose what to upload (see below), then click **Save**.
 5. Generate a PDF and check that it appears in the folder.
 
 Nothing is uploaded until a folder is chosen. You can connect more than one Dropbox account, or the same account with different folders, by connecting again.
 
-## Choose which PDFs to upload
+## Choose what to upload
 
 - **Submission Type**: Only Live _(default)_, Only Test, or Both Live and Test. Combined PDFs are uploaded with every setting.
 - **API Token IDs**: a comma-separated list of API token IDs. Only PDFs generated with one of these tokens are uploaded. Submissions created without an API token (for example from the dashboard or a web form) are still uploaded.
+- **File Formats**: PDFs, Word documents, or PDFs and Word documents _(default)_. A
+  [Word template](/docs/word-templates/overview/)'s submission has a Word document, an OpenDocument file (.odt) or
+  both, and a PDF too when the template makes one. Word documents include OpenDocument files. Combined PDFs are uploaded unless you choose Word documents only. An integration created before this
+  setting was added uploads PDFs only, so its paths ending in `.pdf` stay right: add `{{ extension }}` to its paths
+  before you change it.
 
 ## File paths
 
-Each kind of PDF has its own file path, relative to the folder you chose. A `/` in the path creates subfolders, which DocSpring creates the first time they're needed. The defaults are:
+Live submissions, test submissions and combined PDFs each have their own file path, relative to the folder you chose. A `/` in the path creates subfolders, which DocSpring creates the first time they're needed. The defaults are:
 
 ```liquid
-{{ template_name }}/{{ submission_id }}.pdf
-Test PDFs/{{ template_name }}/{{ submission_id }}.pdf
-Combined PDFs/{{ combined_submission_id }}.pdf
+{{ template_name }}/{{ submission_id }}.{{ extension }}
+Test Submissions/{{ template_name }}/{{ submission_id }}.{{ extension }}
+Combined PDFs/{{ combined_submission_id }}.{{ extension }}
 ```
 
-The paths are [Liquid](https://shopify.github.io/liquid/) templates and take the same variables as the S3 integration, such as `template_id`, `submission_id`, `date`, `year` and `metadata.<key>`.
+The paths are [Liquid](https://shopify.github.io/liquid/) templates and take the same variables as the S3 integration, such as `template_id`, `submission_id`, `date`, `year` and `metadata.<key>`. `{{ extension }}` is each file's extension, `pdf`, `docx` or `odt`. When **File Formats** includes Word documents, the submission paths need it, so a submission's files each get their own name. (To upload only Word documents, a path can end in `.docx` instead: an OpenDocument file's path then ends in `.odt`.)
 
 <LinkCard
   title="Available variables"
@@ -51,7 +56,7 @@ If a file path is used again (for example `{{ template_name }}.pdf`, which every
 
 ## Check an upload
 
-The submission's `actions` array in the API response has an entry for each upload. Its `state` is `pending` until the PDF is in your Dropbox, then `processed`:
+The submission's `actions` array in the API response has an entry for each upload. Its `state` is `pending` until the files are in your Dropbox, then `processed`:
 
 ```json
 {
@@ -66,6 +71,12 @@ The submission's `actions` array in the API response has an entry for each uploa
   }
 }
 ```
+
+When a Word document is uploaded, `result_data` also gives its details with a `docx_` prefix (for example
+`docx_file_id`), and an OpenDocument file's with an `odt_` prefix. If a Word template's PDF, Word document or
+OpenDocument file is made after the submission is processed (for example
+with [Generate More Files](/docs/word-templates/overview/#output-format)), it's uploaded when it's ready, in an action
+of its own.
 
 If the upload fails, `state` is `failed` and `error_message` says why. Problems that can go away by themselves (timeouts, rate limits, errors at Dropbox) are retried automatically.
 

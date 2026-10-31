@@ -26,13 +26,20 @@ least 1 unit, so most PDFs are 1 unit. Size is measured in MiB (1,048,576
 bytes). Template size applies to PDF-template submissions. Processing time and
 template size count where they're measured; memory isn't charged.
 
-Each kind of PDF costs a number of credits per unit:
+Each kind of document costs a number of credits per unit:
 
-| PDF                                              | Credits per unit |
+| Document                                         | Credits per unit |
 | ------------------------------------------------ | ---------------- |
 | Filled PDF form (a submission to a PDF template) | 20               |
 | PDF from an HTML template                        | 4                |
+| [Word document](/docs/word-templates/overview/)  | 20               |
 | Combined PDF                                     | 4                |
+
+A Word template submission costs the same whichever files it makes: a Word
+document, an OpenDocument file, a PDF, or any of them (API v2's
+`output_formats`). Its pages aren't counted, so a long
+Word document costs the same as a short one; very large files and long
+processing still count.
 
 Two charges are added on top:
 
@@ -47,8 +54,8 @@ Two charges are added on top:
   live PDF; creating requests, recording events, issuing access tokens, and
   generating previews have no separate charge.
 
-Retained PDFs have a separate [storage charge](#stored-pdfs) after their first
-30 days.
+Retained documents have a separate [storage charge](#stored-documents) after
+their first 30 days.
 
 ### AI field setup
 
@@ -86,41 +93,46 @@ setup by day and by template.
 | A filled PDF form of up to 10 pages     | 20      |
 | A 45-page filled PDF form               | 100     |
 | A 3-page PDF from an HTML template      | 4       |
+| A 30-page Word document and its PDF     | 20      |
 | A 3-page filled PDF form with 2 signers | 140     |
 | Combining 12 one-page PDFs              | 56      |
 
 Combining 12 one-page PDFs costs 48 credits for the source PDFs plus 8 credits
 for the 12-page combined PDF (2 units). What a credit costs depends on your plan
 or credit pack: the [pricing page](https://docspring.com/pricing/#pdf-prices)
-shows the price of each kind of PDF on every plan and pack.
+shows the price of each kind of document on every plan and pack.
 
-## Stored PDFs
+## Stored documents
 
-Each completed PDF includes **30 days of storage**, starting when it becomes
-available. After that, storage costs the greater of:
+Each completed document includes **30 days of storage**, starting when it
+becomes available. After that, storage costs the greater of:
 
-- **1 credit per 50 MiB-month** of stored PDFs; or
-- **1 credit per 50 PDF-months**.
+- **1 credit per 50 MiB-month** of stored documents; or
+- **1 credit per 50 document-months**.
 
-Both components are prorated for the time PDFs are stored during the UTC
+A submission counts as one document whichever formats it keeps: a Word
+template's Word document, OpenDocument file and PDF count once, and their sizes
+add up.
+
+Both components are prorated for the time documents are stored during the UTC
 calendar month. We take the higher component, then round up **once for your
-account for that month**. We do not add the two components or round each PDF
-separately. A nonzero monthly total can therefore cost one credit even if you
-store less than 50 MiB and fewer than 50 PDFs.
+account for that month**. We do not add the two components or round each
+document separately. A nonzero monthly total can therefore cost one credit even
+if you store less than 50 MiB and fewer than 50 documents.
 
 For example, after the included 30 days:
 
-| Storage retained for a whole month | Monthly credits |
-| ---------------------------------- | --------------- |
-| 1,000 PDFs totalling 500 MiB       | 20              |
-| 1,000 PDFs totalling 5 GiB         | 103             |
-| 250,000 PDFs totalling 100 GiB     | 5,000           |
+| Storage retained for a whole month  | Monthly credits |
+| ----------------------------------- | --------------- |
+| 1,000 documents totalling 500 MiB   | 20              |
+| 1,000 documents totalling 5 GiB     | 103             |
+| 250,000 documents totalling 100 GiB | 5,000           |
 
-Retaining 1,000 PDFs totalling 500 MiB for half a month costs 10 credits. PDFs
-expired within their first 30 days have no storage charge.
+Retaining 1,000 documents totalling 500 MiB for half a month costs 10 credits.
+Documents expired within their first 30 days have no storage charge.
 
 The same rates and included period apply on **every plan, including Developer**.
-Generated PDFs and combined PDFs are measured as separate retained files. A
+Generated documents and combined PDFs are measured as separate retained files. A
 combined PDF's source submissions count separately while you keep them. Normal
 watermarked test submissions, previews, templates and temporary processing files
 have no storage charge. Combining has no test mode, so retaining a combined PDF
@@ -134,10 +146,10 @@ not create another payment invoice.
 ### If storage credits are due
 
 If your unreserved balance cannot cover the whole storage charge, we keep your
-PDFs and show the credits due in Billing. We email your billing email address and give
-you **seven days** to add credits before new live PDF jobs pause. Already admitted
-jobs can finish; downloads, expiration controls, watermarked test PDFs and previews
-remain available. Funding pays outstanding storage charges before admitting more
+documents and show the credits due in Billing. We email your billing email address and give
+you **seven days** to add credits before new live jobs pause. Already admitted
+jobs can finish; downloads, expiration controls, watermarked test documents and
+previews remain available. Funding pays outstanding storage charges before admitting more
 live work, and waiting submissions resume automatically.
 
 Automatic top-up can fund storage charges when enabled, using your chosen pack
@@ -145,16 +157,16 @@ and spending cap. Storage never enables automatic top-up for you. An unpaid
 storage charge can trigger an opted-in purchase even above your usual threshold.
 
 Storage continues to accrue during the grace period and while live jobs are
-paused. **Expire PDFs you no longer need to stop future storage charges.**
+paused. **Expire documents you no longer need to stop future storage charges.**
 Expiration does not erase charges for storage already used. Cancelling a paid
 subscription does not turn off storage billing or automatic top-up.
 
 ### If storage stays unpaid
 
-We don't keep PDFs indefinitely while their storage is unpaid. If storage
+We don't keep documents indefinitely while their storage is unpaid. If storage
 credits are still due **90 days** after live jobs paused, we delete your stored
-PDFs that are past their included 30 days of storage, together with their
-submission data. Your account, templates and newer PDFs are not affected, and
+documents that are past their included 30 days of storage, together with their
+submission data. Your account, templates and newer documents are not affected, and
 the storage charge already owed stays due until you add credits.
 
 We email your billing email address **30 days** and again **7 days** before the
@@ -193,15 +205,15 @@ When your balance can't cover a live job (at least one unit of it, plus 60
 credits for each signer or 4 for each source PDF), or storage credits are
 overdue:
 
-- New **live** PDF generation pauses. API requests return
+- New **live** document generation pauses. API requests return
   `402 Payment Required` and the submission is saved in the
   `insufficient_credits` state, and nothing is lost.
 - Paused submissions show as **Waiting for credits** and resume automatically
   once enough credits are available (buy a pack, enable auto top-up, or receive
   your next monthly grant). A submission resumes once your balance covers at
   least one unit of it, plus 60 credits for each signer (or 4 credits for each
-  source PDF of a combined PDF); a larger PDF can need more. A PDF that has
-  already rendered becomes available once your balance covers it.
+  source PDF of a combined PDF); a larger document can need more. A document
+  that has already rendered becomes available once your balance covers it.
 - Work waits up to **30 days** from when it first ran out of credits. After
   that it isn't processed: the dashboard shows **Not processed** and the API
   reports the `error` state. You can discard waiting work with **Discard

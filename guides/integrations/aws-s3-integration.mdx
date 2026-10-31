@@ -11,7 +11,7 @@ import {
   LinkCard,
 } from "@astrojs/starlight/components";
 
-This guide walks you through setting up AWS S3 integration to automatically upload generated PDFs to your own S3 bucket.
+This guide walks you through setting up AWS S3 integration to automatically upload generated PDFs and Word documents to your own S3 bucket.
 
 ## Authentication Methods
 
@@ -155,12 +155,13 @@ For role-based authentication:
 - **Template IDs**: Comma-separated list of template IDs. Only submissions for these templates are uploaded.
 - **Folder IDs**: Comma-separated list of folder IDs. Only submissions for templates in these folders (and their subfolders) are uploaded. When you set both Template IDs and Folder IDs, a submission is uploaded if its template matches either one. Leave both blank to upload submissions for every template. Combined PDFs aren't filtered by template or folder.
 - **API Token IDs**: Comma-separated list to limit uploads to specific API tokens. Submissions created without an API token (for example from the dashboard or a web form) are still uploaded.
+- **File Formats**: PDFs, Word documents, or PDFs and Word documents _(default)_. A [Word template](/docs/word-templates/overview/)'s submission has a Word document, and a PDF too when the template makes one. Combined PDFs are uploaded unless you choose Word documents only. An integration created before this setting was added uploads PDFs only: add `{{ extension }}` to its object key templates before you change it.
 
 To stop uploading a kind of PDF, leave its path template blank. For example, leave **Object Key Template for Combined PDFs** blank to upload submissions but not combined PDFs.
 
 ## Path Templates
 
-Customize where PDFs are stored in your bucket using [Liquid](https://shopify.github.io/liquid/) templates.
+Customize where files are stored in your bucket using [Liquid](https://shopify.github.io/liquid/) templates.
 
 ### Available Variables
 
@@ -174,6 +175,7 @@ Customize where PDFs are stored in your bucket using [Liquid](https://shopify.gi
 - `month` - Month, not zero-padded (e.g., `5`)
 - `day` - Day, not zero-padded (e.g., `9`)
 - `metadata.<key>` - Any metadata values
+- `extension` - The file's extension: `pdf`, `docx` for a [Word template](/docs/word-templates/overview/)'s Word document, or `odt` for its OpenDocument file. When **File Formats** includes Word documents or OpenDocument files, use it in the submission templates so each file gets its own key.
 
 For combined submissions, `template_id`, `template_name`, and `submission_id` aren't available. Use this instead:
 
@@ -184,9 +186,9 @@ For combined submissions, `template_id`, `template_name`, and `submission_id` ar
 New integrations start with these templates. A blank template skips that kind of upload.
 
 ```liquid
-submission_path_template: "live/templates/{{ template_id }}/{{ submission_id }}.pdf"
-test_submission_path_template: "test/templates/{{ template_id }}/{{ submission_id }}.pdf"
-combined_submission_path_template: "combined_submissions/{{ combined_submission_id }}.pdf"
+submission_path_template: "live/templates/{{ template_id }}/{{ submission_id }}.{{ extension }}"
+test_submission_path_template: "test/templates/{{ template_id }}/{{ submission_id }}.{{ extension }}"
+combined_submission_path_template: "combined_submissions/{{ combined_submission_id }}.{{ extension }}"
 ```
 
 ### Example Custom Templates
@@ -194,7 +196,7 @@ combined_submission_path_template: "combined_submissions/{{ combined_submission_
 Organize by date and template:
 
 ```liquid
-{{ year }}/{{ month }}/{{ template_name }}/{{ submission_id }}.pdf
+{{ year }}/{{ month }}/{{ template_name }}/{{ submission_id }}.{{ extension }}
 ```
 
 Use metadata for organization:

@@ -1,0 +1,150 @@
+---
+title: Tags and Filters
+description: The Liquid tags you can type in a Word template, and where to put them
+sidebar:
+  order: 2
+---
+
+import { Aside, LinkCard } from "@astrojs/starlight/components";
+
+Word templates use the [Liquid](https://shopify.github.io/liquid/basics/introduction/) template language, like
+[HTML templates](/docs/html-templates/overview/). Type the tags into the document in Word or in the template editor.
+
+## Values
+
+`{{ }}` inserts a value. The value keeps the formatting of the tag: if the tag is bold and red in Word, so is the value.
+
+```
+{{ name }}
+{{ customer.address.city }}
+{{ line_items[0].description }}
+```
+
+Line breaks in a value become line breaks in the document, and tabs become tabs.
+
+### Filters
+
+Filters format a value before it's inserted:
+
+```
+{{ name | upcase }}
+{{ invoice_date | date: "%B %-d, %Y" }}
+{{ total | currency }}
+{{ "now" | in_time_zone: "America/New_York" | date: "%Y-%m-%d" }}
+```
+
+Word templates have the same filters as HTML templates.
+
+<LinkCard
+  title="Liquid Filters"
+  href="/docs/html-templates/liquid-filters/"
+  description="Every filter, with examples"
+/>
+
+## Conditions and Loops
+
+Word templates support `if`, `elsif`, `else`, `unless`, `case`, `for` (with `break`, `continue` and the `forloop`
+variables), `assign` and `comment`. What a block covers depends on where its tags are:
+
+- **In one paragraph**, a block covers the text between its tags:
+
+  ```
+  Total: {{ total | currency }}{% if paid %} (paid){% endif %}
+  ```
+
+- **In different paragraphs**, a block covers the whole paragraphs and tables from the paragraph with the opening tag
+  to the paragraph with the closing tag:
+
+  ```
+  {% if notes %}
+  Notes
+  {{ notes }}
+  {% endif %}
+  ```
+
+  A paragraph that holds only tags like `{% if notes %}` is removed from the document, so it doesn't leave a blank
+  line.
+
+- **In different cells of one table row**, a block repeats or hides that row. Put `{% for %}` in the first cell and
+  `{% endfor %}` in the last cell to add a row for each item:
+
+  | Description                                          | Qty                   | Price                                      |
+  | ---------------------------------------------------- | --------------------- | ------------------------------------------ |
+  | `{% for item in line_items %}{{ item.description }}` | `{{ item.quantity }}` | `{{ item.price \| currency }}{% endfor %}` |
+
+- **In different rows of one table**, a block covers those rows and the rows between them.
+
+The same rules apply inside a table cell: a block whose tags are both in one cell repeats or hides only what's in that
+cell, and leaves the row as it is.
+
+A block can't start in one place and end in another kind of place, for example start in a table cell and end in a
+paragraph after the table. The editor lists tags that can't be placed, with where they are.
+
+## Pictures
+
+Picture tags insert a picture where the tag is. Each takes a field, and optional sizes such as `"4cm"`, `"30mm"`,
+`"1.5in"`, `"72pt"` or `"200px"`.
+
+| Tag                                | Field type                                               | Options                                    | Size when not given                                |
+| ---------------------------------- | -------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------- |
+| `{% image logo %}`                 | [Image](/docs/reference/field-data-types/#image)         | `width`, `height`, `scale_type`, `gravity` | The image's own size, made smaller to fit the page |
+| `{% signature signer_signature %}` | [Signature](/docs/reference/field-data-types/#signature) | `width`, `height`                          | Fits in 5 cm by 2 cm                               |
+| `{% initials signer_initials %}`   | [Initials](/docs/reference/field-data-types/#initials)   | `width`, `height`                          | Fits in 2 cm by 1 cm                               |
+| `{% barcode order_number %}`       | [Barcode](/docs/reference/field-data-types/#barcode)     | `width`, `height`, `symbology`             | 1.5 cm high                                        |
+| `{% qrcode payment_url %}`         | Any text                                                 | `size`                                     | 3 cm square                                        |
+
+```
+{% image logo height: "1.6cm" %}
+{% signature signer_signature width: "6cm" %}
+{% barcode order_number symbology: "ean_13" %}
+{% qrcode payment_url size: "2.5cm" %}
+```
+
+- With only `width` or only `height`, the picture keeps its proportions. With both, it fits in that box.
+- An image with both a `width` and a `height` can also fill the box or be stretched to it, as PDF image fields can:
+  - `scale_type: "fit"` (the default): the image keeps its proportions and fits inside the box.
+  - `scale_type: "fill"`: the image keeps its proportions and covers the whole box. The parts outside the box are cut off,
+    on the sides away from its `gravity`: `NorthWest`, `North`, `NorthEast`, `West`, `Center` (the default), `East`,
+    `SouthWest`, `South` or `SouthEast`. For example, `gravity: "North"` keeps the top of the image.
+  - `scale_type: "stretch"`: the image is stretched to the box's width and height.
+
+  ```
+  {% image photo width: "3cm" height: "4cm" scale_type: "fill" gravity: "North" %}
+  ```
+
+  The image is cut in the Word document, so the uploaded image is never changed.
+
+- A signature can be an image or a typed name with a typeface. Typed signatures are drawn in that typeface.
+- `symbology` is one of `code_128` (the default), `code_25`, `code_39`, `code_93`, `ean_13`, `ean_8`, `upc_a` or
+  `pdf417`.
+- A picture tag with a blank value inserts nothing.
+
+<Aside type="caution">
+  Use a picture tag for image, signature and initials fields. `{{ logo }}` can't
+  insert a picture, so it fails the submission with a message that names the
+  picture tags.
+</Aside>
+
+## Submission and Template Details
+
+```
+{% metadata reference %}
+{% template name %}
+{% template version %}
+```
+
+`metadata` inserts a value from the submission's `metadata`. `template` inserts the template's `id`, `name`, `version`
+or `version_published_at`.
+
+## When a Submission Fails
+
+DocSpring never produces a document that's different from the template. These fail the submission with a message
+that says what to fix:
+
+- A tag that can't be read or placed. The editor shows these as you edit.
+- A filter that doesn't exist, or a value a filter or picture tag can't use (for example, a barcode value that the
+  symbology can't encode).
+- A picture that can't be read.
+- A document that takes more than 5 seconds to fill in, or more than 128 MB of memory on top of the size of its data.
+  A `{% for %}` loop that repeats far more often than it needs to is the usual cause. Loops can repeat up to 100,000
+  times in total.

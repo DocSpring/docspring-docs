@@ -1304,6 +1304,13 @@ Set by Convox: the service's name (web, worker). DocSpring logs it at startup.
 
 - Type: text
 
+### TZ
+
+The operating system's time zone, not a DocSpring setting. Liquid's `date` filter shows `"now"` in it, and templates' Liquid sandbox gets it too. Leave it unset for the system's own time zone (UTC in DocSpring's images).
+
+- Type: text
+- Example: `America/New_York`
+
 ### WEB_CONCURRENCY
 
 The number of web server processes, in production.
