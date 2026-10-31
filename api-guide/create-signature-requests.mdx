@@ -5,7 +5,7 @@ description: Learn how to create PDF submissions with pending signature requests
 
 import { LinkCard } from "@astrojs/starlight/components";
 
-### Create a new PDF job submission with pending signature requests
+## Create a new PDF job submission with pending signature requests
 
 API v1 calls signature requests data requests (`data_requests`). They're the same records.
 
@@ -28,7 +28,7 @@ have no separate charge. Watermarked test submissions and previews are free.
 See the [Signature Requests](/docs/forms/signature-requests/) documentation for more information about how signature requests work.
 :::
 
-### API Endpoint
+## API Endpoint
 
 This uses the same API endpoint as a regular PDF generation request, with an additional `signature_requests` array.
 Signature requests are for PDF templates only.
@@ -39,7 +39,7 @@ Signature requests are for PDF templates only.
   href="/docs/api/#tag/submissions/post/templates/{template_id}/submissions"
 />
 
-### Parameters
+## Parameters
 
 The request body must be a JSON object with the following properties:
 
@@ -84,7 +84,7 @@ Only the signers can sign a submission that has signature requests, and its sign
 Please [contact us](https://docspring.com/contact/) if you need a different `auth_type` or `auth_second_factor_type`.
 :::
 
-### Authentication Details
+## Authentication Details
 
 It's important to provide accurate authentication details in case an electronic signature is disputed.
 You can send us SHA256 hashes if you don't want to disclose too much information about
@@ -98,7 +98,7 @@ Alternatively, you can use a different salt for each user, and store this in
 your database. But please make sure you never lose this salt, otherwise there is no way to
 prove that the SHA256 hashes match the records in your database.
 
-### Example Response
+## Example Response
 
 The response is the submission. Some of its properties are left out here:
 
@@ -136,7 +136,7 @@ The response is the submission. Some of its properties are left out here:
 
 `files.pdf` appears when every signature request is completed and the PDF has been generated. `files.preview` can appear earlier, so check `state` to know when the submission is signed.
 
-### See Also
+## See Also
 
 <LinkCard
   title="Signature Requests Overview"

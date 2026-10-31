@@ -16,7 +16,7 @@ Use your API token ID as the username, and the API token secret as the password.
   description="Manage your API tokens in the DocSpring dashboard"
 />
 
-### Environment Variables
+## Environment Variables
 
 All DocSpring API clients read your credentials from environment variables. Set the following environment variables, and the client will automatically use them:
 
@@ -120,7 +120,7 @@ let client = docspring::Client::from_env()?;
 </TabItem>
 </Tabs>
 
-### HTTP Basic Authentication
+## HTTP Basic Authentication
 
 "HTTP basic authentication" means that you need to send an `Authorization` header with
 the value `Basic` followed by `token_id:token_secret` in Base64 encoding.
@@ -142,7 +142,7 @@ curl -H "Authorization: Basic QVBJX1RPS0VOX0lEOkFQSV9UT0tFTl9TRUNSRVQ=" \
   https://sync.api.docspring.com/api/v2/authentication
 ```
 
-### API tokens and team members
+## API tokens and team members
 
 Each API token belongs to a team member, and API requests made with it act as that team member. The
 [API tokens page](https://app.docspring.com/api_tokens) shows who each token belongs to and when it was last used.
@@ -157,7 +157,7 @@ from the API tokens page.
 
 ---
 
-### Next Steps
+## Next Steps
 
 <LinkCard
   title="API Reference: Test Authentication"
