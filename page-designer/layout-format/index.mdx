@@ -1,0 +1,213 @@
+---
+title: Layout Format
+description: The JSON format of a page design's layout, for creating and updating page designs with the API
+sidebar:
+  order: 1
+  label: Overview
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+A page design's layout is a JSON document: the page setup, an optional header and footer, and the sections that flow
+down the page, with the text, pictures, tables and other elements in them. Send it as `layout` when you
+[create](/docs/api/#tag/templates/post/templates) or [update](/docs/api/#tag/templates/put/templates/{template_id}) a
+page design with API v2. [Getting a template](/docs/api/#tag/templates/get/templates/{template_id}) returns its
+`layout`. The Page Designer edits the same layout, so a page design you create with the API can be changed in
+DocSpring, and the other way round.
+
+## The JSON Schema
+
+The format's JSON Schema is at `https://docspring.com/schemas/page-designer/layout.v1.json`. Point your editor or
+validator at it to check a layout before you send it.
+
+DocSpring also checks things the schema can't, such as unique IDs and valid Liquid. A layout with problems isn't
+saved: the response is a `422` with a detail for each problem, whose message starts with the JSON path of the value
+it's about:
+
+```json
+{
+  "error": {
+    "code": "validation_failed",
+    "message": "Invalid request: /layout Layout is invalid: /sections/0/elements/0/content: the field \"customer.name |\" isn't valid Liquid: Expected id but found end_of_string in \"{{ customer.name | }}\"",
+    "details": [
+      {
+        "code": "invalid",
+        "message": "Layout is invalid: /sections/0/elements/0/content: the field \"customer.name |\" isn't valid Liquid: Expected id but found end_of_string in \"{{ customer.name | }}\"",
+        "pointer": "/layout"
+      }
+    ],
+    "request_id": "54b79eb5-a7c3-41d8-913f-9152979130f7"
+  }
+}
+```
+
+## Versions
+
+This is version 1 of the format: every layout has `"version": 1`. Version 1 may gain new optional properties and new
+values, such as another element type, font or page size, so a layout that's valid today stays valid. Code that reads
+layouts should skip element types and properties it doesn't know. A change that would make a valid version 1 layout
+invalid comes with a new version number and its own JSON Schema, and DocSpring keeps accepting version 1 layouts.
+
+## An example
+
+An invoice heading with the customer's name in bold, and a table with a row for each line item:
+
+```json
+{
+  "version": 1,
+  "page": {
+    "size": "letter",
+    "orientation": "portrait",
+    "margins": { "top": 36, "right": 36, "bottom": 36, "left": 36 },
+    "font": { "family": "Roboto", "size": 10 }
+  },
+  "sections": [
+    {
+      "id": "heading",
+      "type": "free",
+      "height": 40,
+      "elements": [
+        {
+          "id": "title",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "width": 540,
+          "height": 24,
+          "font": { "size": 18 },
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  { "type": "text", "text": "Invoice for " },
+                  {
+                    "type": "field",
+                    "attrs": { "expression": "customer.name" },
+                    "marks": [{ "type": "bold" }]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "type": "stack",
+      "direction": "vertical",
+      "elements": [
+        {
+          "id": "line_items_table",
+          "type": "table",
+          "width": null,
+          "height": null,
+          "source": "line_items",
+          "as": "item",
+          "columns": [
+            {
+              "id": "description",
+              "width": 3,
+              "header": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [{ "type": "text", "text": "Description" }]
+                  }
+                ]
+              },
+              "cell": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "field",
+                        "attrs": { "expression": "item.description" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "amount",
+              "width": 1,
+              "align": "right",
+              "header": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [{ "type": "text", "text": "Amount" }]
+                  }
+                ]
+              },
+              "cell": {
+                "type": "doc",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "field",
+                        "attrs": { "expression": "item.amount | currency" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "header": { "background": "#eeeeee" },
+          "border": { "width": 0.5, "color": "#999999" }
+        }
+      ]
+    }
+  ]
+}
+```
+
+DocSpring adds a field for each value the layout reads: `customer/name`, `line_items/~/description` and
+`line_items/~/amount` here. Fields it already has are kept as they are, including fields the layout no longer reads
+([the fields DocSpring adds](/docs/page-designer/layout-format/fields-and-expressions/#the-fields-docspring-adds)).
+
+## The layout
+
+| Property   | Required | Description                                                                                                           |
+| ---------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `version`  | Yes      | `1`                                                                                                                   |
+| `page`     | Yes      | The page size, margins and default text style ([Page](/docs/page-designer/layout-format/page/))                       |
+| `header`   | No       | Elements in every page's top margin ([Header and footer](/docs/page-designer/layout-format/header-and-footer/))       |
+| `footer`   | No       | Elements in every page's bottom margin                                                                                |
+| `sections` | Yes      | The sections, top to bottom ([Sections](/docs/page-designer/layout-format/sections/)). Pages break wherever they fill |
+
+The sections hold the [elements](/docs/page-designer/layout-format/elements/): [text](/docs/page-designer/layout-format/text/),
+[images](/docs/page-designer/layout-format/image/), [tables](/docs/page-designer/layout-format/table/),
+[charts](/docs/page-designer/layout-format/chart/), [checkboxes](/docs/page-designer/layout-format/checkbox/),
+[form fields](/docs/page-designer/layout-format/form-field/), [QR codes](/docs/page-designer/layout-format/qr-code/),
+[barcodes](/docs/page-designer/layout-format/barcode/), [shapes](/docs/page-designer/layout-format/shape/),
+[lines](/docs/page-designer/layout-format/line/) and [HTML boxes](/docs/page-designer/layout-format/html/). Text boxes and table cells hold
+[rich text](/docs/page-designer/layout-format/rich-text/), whose [fields](/docs/page-designer/layout-format/fields-and-expressions/)
+print values from your data. Sections and elements can have a [condition](/docs/page-designer/layout-format/conditions/).
+[Fonts](/docs/page-designer/layout-format/fonts/) and [box styles](/docs/page-designer/layout-format/box-style-and-strokes/)
+style them.
+
+## Units and positions
+
+Lengths are in points: 72 points make an inch. Colors are `#rrggbb`. In a free section or a header or footer, each
+element has an `x` and `y` from the top left corner of the section's content, and a `width` and `height`. In a stack
+or a column, elements go one after another and take the room they need.
+
+## IDs and limits
+
+- Every section, element, table column, column and page number has an `id`: 1 to 64 letters, digits, `_` and `-`,
+  unique in the layout.
+- A layout is at most 2,000,000 bytes, with up to 500 sections and 500 elements in each section, header and footer.
+- Lengths go up to 14,400 points (200 inches).
+
+<LinkCard title="API reference: Templates" href="/docs/api/#tag/templates" />

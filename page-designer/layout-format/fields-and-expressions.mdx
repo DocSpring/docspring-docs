@@ -1,0 +1,52 @@
+---
+title: Fields and Expressions
+description: How a page design reads values from your data with Liquid expressions, and the fields DocSpring adds for them
+sidebar:
+  order: 8
+---
+
+A field node's `expression` is a Liquid expression without the braces: a path into your data, optionally with filters.
+
+```json
+{
+  "type": "field",
+  "attrs": { "expression": "invoice.issued_on | date: \"%B %-d, %Y\"" }
+}
+```
+
+- A path has `.` between its parts: `customer.name` reads `{ "customer": { "name": "..." } }`, the field
+  `customer/name`.
+- Page designs have the same [Liquid filters](/docs/html-templates/liquid-filters/) as HTML templates, such as
+  `upcase`, `currency`, `delimited` and `date`. `sum` also reads amounts written as text, such as `"$40"`
+  ([Footer row](/docs/page-designer/layout-format/table/#footer-row)).
+- An expression can't contain `{{`, `}}`, `{%` or `%}`.
+
+Fields go in [rich text](/docs/page-designer/layout-format/rich-text/) and in the `value` of a
+[QR code](/docs/page-designer/layout-format/qr-code/) or [barcode](/docs/page-designer/layout-format/barcode/).
+[Images](/docs/page-designer/layout-format/image/), [tables](/docs/page-designer/layout-format/table/) and [repeating sections](/docs/page-designer/layout-format/sections/#repeat)
+name a field by its path, without filters.
+
+## Lists
+
+A table or repeating section goes through a list in your data (`source`) and gives each entry a name (`as`). Inside it,
+that name reaches the entry's values: in a table over `line_items` `as` `line_item`, a cell reads
+`line_item.description`. The editor names a new loop's entries with the singular of its list.
+These names can't be used: `true`, `false`, `nil`, `null`, `empty`, `blank`, `forloop`, `tablerowloop`, `and`, `or`
+and `contains`.
+
+## The fields DocSpring adds
+
+When you save a layout, DocSpring adds a field for each new value it reads, with a type that fits how it's used:
+
+- A value whose first filter is `date` or `in_time_zone` is a date.
+- A value formatted as a number (`currency`, `delimited`, `round`, `plus` and the other number filters), or compared
+  with `>`, `<`, `>=`, `<=` or a number, is a number.
+- A value used on its own as a condition, or compared with `true` or `false`, is a true/false value.
+- An image's field is an image.
+- A table's or repeating section's `source` is a list, with a field for each value read from its entries:
+  `line_items/~/description`.
+- Anything else is text.
+
+Fields it already has are kept as they are, including fields the layout no longer reads. You can change a field's type
+afterwards. If you delete a field while the layout still reads its value, saving the layout doesn't add it back, and a
+submission without that value fails with an `undefined variable` message.

@@ -1,0 +1,58 @@
+---
+title: Text
+description: Text boxes in a page design, and what happens when their text doesn't fit
+sidebar:
+  order: 6
+---
+
+A text box holds [rich text](/docs/page-designer/layout-format/rich-text/): paragraphs and lists, with formatting and
+[fields](/docs/page-designer/layout-format/fields-and-expressions/) from your data.
+
+| Property        | Required | Description                                                                                    |
+| --------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `content`       | Yes      | The [rich text](/docs/page-designer/layout-format/rich-text/)                                  |
+| `overflow`      | No       | What happens when the text is too long for the box: `grow` (the default), `fixed` or `shrink`  |
+| `minFontSize`   | No       | The smallest size `shrink` goes to. Half the font size when left out                           |
+| `verticalAlign` | No       | `top` (the default), `middle` or `bottom`                                                      |
+| `font`          | No       | The box's text style ([Fonts](/docs/page-designer/layout-format/fonts/)), on top of the page's |
+| `style`         | No       | A [box style](/docs/page-designer/layout-format/box-style-and-strokes/)                        |
+
+## Overflow
+
+- `grow`: the box grows to fit its text and pushes what's below it down. Its `height` is the least height it has.
+- `fixed`: the box keeps its height, and text that doesn't fit is cut off.
+- `shrink`: the box keeps its height, and the text gets smaller until it fits, down to `minFontSize`. Text that still
+  doesn't fit at that size is cut off.
+
+`overflow` only matters for a box with a `height`. A text box in a stack or column without one is as tall as its text.
+
+## Example
+
+A name on a certificate, centered in its box, that gets smaller for a long name:
+
+```json
+{
+  "id": "recipient_name",
+  "type": "text",
+  "x": 60,
+  "y": 220,
+  "width": 420,
+  "height": 48,
+  "overflow": "shrink",
+  "minFontSize": 18,
+  "verticalAlign": "middle",
+  "font": { "family": "Great Vibes", "size": 40 },
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": { "align": "center" },
+        "content": [
+          { "type": "field", "attrs": { "expression": "recipient.name" } }
+        ]
+      }
+    ]
+  }
+}
+```

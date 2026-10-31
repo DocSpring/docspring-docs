@@ -1,0 +1,309 @@
+---
+title: Sections
+description: The free, stack, columns, repeat and page break sections that a page design's content flows through
+sidebar:
+  order: 4
+---
+
+`sections` are the page design's content, top to bottom. They flow from page to page: a new page starts wherever one
+fills, or at a `page_break`.
+
+Every section has:
+
+| Property    | Required | Description                                                                                              |
+| ----------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `id`        | Yes      | Unique in the layout                                                                                     |
+| `type`      | Yes      | `free`, `stack`, `columns`, `repeat` or `page_break`                                                     |
+| `name`      | No       | Shown in the Page Designer                                                                               |
+| `condition` | No       | The section only appears when this is true ([Conditions](/docs/page-designer/layout-format/conditions/)) |
+
+## Free
+
+Elements placed where you put them, with `x`, `y`, `width` and `height` from the top left corner of the section's
+content. Use it for letterheads, certificates and anything laid out like a form.
+
+| Property   | Required | Description                                                                                                                                |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `height`   | Yes      | The section's least height. It grows when a text box or table in it grows                                                                  |
+| `elements` | Yes      | The [elements](/docs/page-designer/layout-format/elements/)                                                                                |
+| `style`    | No       | A [box style](/docs/page-designer/layout-format/box-style-and-strokes/). Its `padding` is inside the section, so positions start inside it |
+
+```json
+{
+  "id": "letterhead",
+  "type": "free",
+  "height": 72,
+  "style": {
+    "background": "#f4f6fa",
+    "padding": { "top": 12, "right": 12, "bottom": 12, "left": 12 }
+  },
+  "elements": [
+    {
+      "id": "logo",
+      "type": "image",
+      "x": 0,
+      "y": 0,
+      "width": 120,
+      "height": 48,
+      "source": { "kind": "upload", "slug": "company_logo" },
+      "gravity": "West"
+    },
+    {
+      "id": "document_title",
+      "type": "text",
+      "x": 316,
+      "y": 8,
+      "width": 200,
+      "height": 32,
+      "font": { "size": 20 },
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "attrs": { "align": "right" },
+            "content": [{ "type": "text", "text": "Invoice" }]
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+## Stack
+
+Elements one after another, down the page (`vertical`) or across it (`horizontal`). Use a vertical stack for
+content that flows, such as paragraphs and tables.
+
+| Property    | Required | Description                                                                                                                                 |
+| ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `direction` | Yes      | `vertical` or `horizontal`                                                                                                                  |
+| `elements`  | Yes      | The [elements](/docs/page-designer/layout-format/elements/), in order                                                                       |
+| `gap`       | No       | Points between elements                                                                                                                     |
+| `align`     | No       | `start`, `center`, `end` or `stretch`: where elements narrower than the stack go. Vertical stacks stretch by default, horizontal ones start |
+| `style`     | No       | A [box style](/docs/page-designer/layout-format/box-style-and-strokes/)                                                                     |
+
+Elements in a stack have an optional `width` and `height`. A `null` or missing `height` is the height of the content.
+A `null` or missing `width` is the full width in a vertical stack, and in a horizontal stack an equal share of the
+width the elements with widths leave.
+
+In a vertical stack, an element narrower than the stack sits `x` points from its left edge (no further than it fits),
+or where its `align` puts it: `left`, `center` or `right`. `align` wins over `x`. With neither, the stack's `align`
+places it. Elements in a horizontal stack go side by side, so `x` and `align` don't move them.
+
+```json
+{
+  "id": "summary",
+  "type": "stack",
+  "direction": "horizontal",
+  "gap": 12,
+  "elements": [
+    {
+      "id": "invoice_number",
+      "type": "text",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              { "type": "text", "text": "Invoice " },
+              { "type": "field", "attrs": { "expression": "invoice.number" } }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "invoice_total",
+      "type": "text",
+      "width": 160,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "attrs": { "align": "right" },
+            "content": [
+              {
+                "type": "field",
+                "attrs": { "expression": "invoice.total | currency" },
+                "marks": [{ "type": "bold" }]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+## Columns
+
+Up to 12 columns side by side, each a vertical stack of its own.
+
+| Property  | Required | Description                                                                                                             |
+| --------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `columns` | Yes      | 1 to 12 of `{ "id", "width", "elements" }`. Each column's `width` is its share of the section's width (1 when left out) |
+| `gap`     | No       | Points between columns                                                                                                  |
+| `style`   | No       | A [box style](/docs/page-designer/layout-format/box-style-and-strokes/)                                                 |
+
+Elements in a column follow the vertical stack's rules, and start at the column's left edge unless their `x` or
+`align` moves them.
+
+```json
+{
+  "id": "addresses",
+  "type": "columns",
+  "gap": 24,
+  "columns": [
+    {
+      "id": "bill_to",
+      "width": 2,
+      "elements": [
+        {
+          "id": "bill_to_address",
+          "type": "text",
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Bill to",
+                    "marks": [{ "type": "bold" }]
+                  },
+                  { "type": "hard_break" },
+                  {
+                    "type": "field",
+                    "attrs": { "expression": "customer.address" }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "due",
+      "width": 1,
+      "elements": [
+        {
+          "id": "due_date",
+          "type": "text",
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  { "type": "text", "text": "Due " },
+                  {
+                    "type": "field",
+                    "attrs": { "expression": "due_on | date: \"%B %-d, %Y\"" }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Repeat
+
+An `item` section, repeated for each entry of an array in your data. Inside it, the entry's name reaches its values.
+
+| Property | Required | Description                                                                                                             |
+| -------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `source` | Yes      | The path to the array, such as `orders` or `customer.orders`                                                            |
+| `as`     | Yes      | The name each entry gets, such as `order`: lower case letters, digits and `_`                                           |
+| `item`   | Yes      | A `free` or `stack` section, repeated for each entry. It can't have its own `condition`: put it on the `repeat` section |
+| `gap`    | No       | Points between the entries                                                                                              |
+
+For a list inside each entry, put a [table](/docs/page-designer/layout-format/table/) in the `item` over the entry's
+list. This repeats a heading and a table of items for each order:
+
+```json
+{
+  "id": "orders",
+  "type": "repeat",
+  "source": "orders",
+  "as": "order",
+  "gap": 18,
+  "item": {
+    "id": "order",
+    "type": "stack",
+    "direction": "vertical",
+    "gap": 6,
+    "elements": [
+      {
+        "id": "order_heading",
+        "type": "text",
+        "font": { "size": 13 },
+        "content": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                { "type": "text", "text": "Order " },
+                { "type": "field", "attrs": { "expression": "order.number" } }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "order_items",
+        "type": "table",
+        "width": null,
+        "height": null,
+        "source": "order.items",
+        "as": "item",
+        "columns": [
+          {
+            "id": "item_name",
+            "header": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [{ "type": "text", "text": "Item" }]
+                }
+              ]
+            },
+            "cell": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    { "type": "field", "attrs": { "expression": "item.name" } }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+## Page break
+
+Starts a new page. With a `condition`, it only breaks the page when the condition is true.
+
+```json
+{ "id": "terms_on_a_new_page", "type": "page_break" }
+```

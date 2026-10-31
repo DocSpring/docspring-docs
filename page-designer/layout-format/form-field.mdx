@@ -1,0 +1,123 @@
+---
+title: Form field
+description: Fillable PDF form fields in a page design, filled in from your data and editable in a PDF reader
+sidebar:
+  order: 14
+---
+
+A form field is a field of the PDF's own form: the PDF is generated with it filled in from the submission's data, and
+whoever opens the PDF can change it in their PDF reader. Use a [text element](/docs/page-designer/layout-format/text/)
+or a [checkbox](/docs/page-designer/layout-format/checkbox/) for values nobody should change.
+
+| Property     | Required | Description                                                                                                                                                                                                       |
+| ------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kind`       | Yes      | `text`, `checkbox`, `radio` (one button of a group) or `dropdown`                                                                                                                                                 |
+| `fieldName`  | Yes      | The field's name in the PDF, up to 100 characters, without a period. Radio buttons with the same name are one group                                                                                               |
+| `value`      | No       | What a text field holds, or the option a drop-down selects: text and [field](/docs/page-designer/layout-format/fields-and-expressions/) nodes, as a [QR code's value](/docs/page-designer/layout-format/qr-code/) |
+| `multiline`  | No       | `true` makes a text field several lines tall, wrapping its text                                                                                                                                                   |
+| `maxLength`  | No       | The most characters a text field takes                                                                                                                                                                            |
+| `options`    | No       | A drop-down's options, as a list of text. Required for a drop-down                                                                                                                                                |
+| `option`     | No       | What a radio group holds when this button is chosen. Required for a radio button                                                                                                                                  |
+| `checked`    | No       | A [condition](/docs/page-designer/layout-format/conditions/) that checks a checkbox or radio button when it's true, such as `order.paid` or `size == "L"`                                                         |
+| `readOnly`   | No       | `true` stops the field being changed in a PDF reader                                                                                                                                                              |
+| `fontSize`   | No       | The text's size in points, 4 to 72. 10 when left out                                                                                                                                                              |
+| `color`      | No       | The text's color, and the color of a checkbox's check or a radio button's dot. Black when left out                                                                                                                |
+| `align`      | No       | `left` (the default), `center` or `right`                                                                                                                                                                         |
+| `border`     | No       | The field's outline, a [stroke](/docs/page-designer/layout-format/box-style-and-strokes/#strokes). 1 point black when left out, none when `null`                                                                  |
+| `background` | No       | The color inside the field. Transparent when left out or `null`                                                                                                                                                   |
+| `radius`     | No       | Rounds the field's corners, in points. A radio button is round unless it has a radius                                                                                                                             |
+
+The field fills its element inside the border. A checkbox or radio button is square, as large as fits in the element,
+and centered in it. In a stack or column, a field without a `height` is 20 points tall, a text field with several lines
+60, and a checkbox or radio button 12.
+
+In a [repeating section](/docs/page-designer/layout-format/sections/#repeat), each item has fields of its
+own, named with the item's number: a `quantity` field is `quantity_1` in the first item, `quantity_2` in the second, and
+so on. Each item's radio buttons are a group of their own.
+
+A drop-down selects the option that matches its `value` exactly. Without a `value`, or when it comes out blank, the
+drop-down starts with an empty choice, selected, before its options. A value that isn't one of the options fails the
+submission, since the drop-down can't show it. Text in a field is drawn in Helvetica, whatever the design's fonts: PDF
+readers draw a field's text in the field's own font when it's changed. Form fields are always upright, as PDF readers
+don't turn them, so they have no `rotation`.
+
+Each kind takes only its own properties: `value`, `multiline`, `maxLength` and `align` for text, `checked` for a
+checkbox, `option` and `checked` for a radio button, and `options`, `value` and `align` for a drop-down. A drop-down's
+options must all be different. Fields other than radio buttons need names of their own: when two have the same name,
+the second is named with `_2` on the end, the third with `_3`, and so on.
+
+## Example
+
+A name field filled in from the data, and a group of three radio buttons for the size, with the size in the data chosen:
+
+```json
+{
+  "id": "order_form",
+  "type": "free",
+  "height": 50,
+  "elements": [
+    {
+      "id": "name",
+      "type": "form_field",
+      "kind": "text",
+      "fieldName": "customer_name",
+      "x": 0,
+      "y": 0,
+      "width": 240,
+      "height": 20,
+      "value": [{ "type": "field", "attrs": { "expression": "customer.name" } }]
+    },
+    {
+      "id": "size_s",
+      "type": "form_field",
+      "kind": "radio",
+      "fieldName": "size",
+      "option": "S",
+      "checked": "size == \"S\"",
+      "x": 0,
+      "y": 30,
+      "width": 12,
+      "height": 12
+    },
+    {
+      "id": "size_m",
+      "type": "form_field",
+      "kind": "radio",
+      "fieldName": "size",
+      "option": "M",
+      "checked": "size == \"M\"",
+      "x": 40,
+      "y": 30,
+      "width": 12,
+      "height": 12
+    },
+    {
+      "id": "size_l",
+      "type": "form_field",
+      "kind": "radio",
+      "fieldName": "size",
+      "option": "L",
+      "checked": "size == \"L\"",
+      "x": 80,
+      "y": 30,
+      "width": 12,
+      "height": 12
+    }
+  ]
+}
+```
+
+A drop-down of countries, selecting the customer's:
+
+```json
+{
+  "id": "country",
+  "type": "form_field",
+  "kind": "dropdown",
+  "fieldName": "country",
+  "width": 160,
+  "height": 20,
+  "options": ["Australia", "New Zealand", "United Kingdom"],
+  "value": [{ "type": "field", "attrs": { "expression": "customer.country" } }]
+}
+```

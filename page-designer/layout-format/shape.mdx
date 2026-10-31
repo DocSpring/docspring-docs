@@ -1,0 +1,52 @@
+---
+title: Shape
+description: Rectangles and ellipses in a page design
+sidebar:
+  order: 18
+---
+
+A rectangle or an ellipse that fills its box.
+
+| Property | Required | Description                                                                                                             |
+| -------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `shape`  | Yes      | `rectangle` or `ellipse`                                                                                                |
+| `fill`   | No       | The color inside. None when left out or `null`                                                                          |
+| `stroke` | No       | The outline ([Strokes](/docs/page-designer/layout-format/box-style-and-strokes/#strokes)). None when left out or `null` |
+| `radius` | No       | A rectangle's rounded corners, in points. An ellipse ignores it                                                         |
+
+To put text on a colored background, give a [text box](/docs/page-designer/layout-format/text/) a
+[box style](/docs/page-designer/layout-format/box-style-and-strokes/) instead.
+
+## Examples
+
+A light blue panel with rounded corners, behind other elements in a free section (elements later in the list are drawn
+on top):
+
+```json
+{
+  "id": "summary_panel",
+  "type": "shape",
+  "x": 0,
+  "y": 0,
+  "width": 540,
+  "height": 90,
+  "shape": "rectangle",
+  "fill": "#eaf1fb",
+  "radius": 6
+}
+```
+
+A circle with a dashed outline:
+
+```json
+{
+  "id": "seal_outline",
+  "type": "shape",
+  "x": 460,
+  "y": 10,
+  "width": 72,
+  "height": 72,
+  "shape": "ellipse",
+  "stroke": { "width": 1.5, "color": "#8a6d3b", "style": "dashed" }
+}
+```

@@ -1,0 +1,77 @@
+---
+title: Checkbox
+description: Checkboxes in a page design, ticked when a condition on your data is true
+sidebar:
+  order: 13
+---
+
+A checkbox is a square box, ticked when its condition is true for the submission's data.
+
+| Property     | Required | Description                                                                                                                                    |
+| ------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checked`    | Yes      | A [condition](/docs/page-designer/layout-format/conditions/), such as `order.paid` or `plan == "pro"`: the box is ticked when it's true        |
+| `mark`       | No       | What a ticked box shows: `check` (the default), `cross`, `dot` or `fill` (a filled square)                                                     |
+| `color`      | No       | The mark's color. Black when left out                                                                                                          |
+| `border`     | No       | The box's outline, a [stroke](/docs/page-designer/layout-format/box-style-and-strokes/#strokes). 1 point black when left out, none when `null` |
+| `background` | No       | The color inside the box. Transparent when left out or `null`                                                                                  |
+| `radius`     | No       | Rounds the box's corners, in points                                                                                                            |
+
+The box is square, as large as fits in the element, and centered in it. In a stack or column, a checkbox without a
+`height` is 12 points tall. A boolean field ticks the box when it's `true`. As in any condition, every other value
+except `false` and no value at all is true too, so compare text and numbers: `answer == "yes"`, `count > 0`.
+
+## Example
+
+A checkbox for each option of a list, with its label:
+
+```json
+{
+  "id": "options",
+  "type": "free",
+  "height": 16,
+  "elements": [
+    {
+      "id": "express_box",
+      "type": "checkbox",
+      "x": 0,
+      "y": 2,
+      "width": 12,
+      "height": 12,
+      "checked": "order.express"
+    },
+    {
+      "id": "express_label",
+      "type": "text",
+      "x": 18,
+      "y": 0,
+      "width": 200,
+      "height": 16,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "text", "text": "Express delivery" }]
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+A round dot in blue, in a box with a grey dashed outline:
+
+```json
+{
+  "id": "newsletter_box",
+  "type": "checkbox",
+  "width": 14,
+  "height": 14,
+  "checked": "customer.newsletter == true",
+  "mark": "dot",
+  "color": "#1d4ed8",
+  "border": { "width": 1, "color": "#9ca3af", "style": "dashed" },
+  "radius": 7
+}
+```

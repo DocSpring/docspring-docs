@@ -1,0 +1,121 @@
+---
+title: Page
+description: The page size, orientation, margins, default font, background and watermark of a page design
+sidebar:
+  order: 2
+---
+
+`page` sets the paper and the defaults for everything on it. Every page of the PDF has the same size and margins.
+
+| Property          | Required            | Description                                                                                                                                                 |
+| ----------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `size`            | Yes                 | `letter`, `legal`, `tabloid`, `a3`, `a4`, `a5` or `custom`                                                                                                  |
+| `width`           | For a `custom` size | 36 to 14,400. Only for a `custom` size                                                                                                                      |
+| `height`          | For a `custom` size | 36 to 14,400. Only for a `custom` size                                                                                                                      |
+| `orientation`     | Yes                 | `portrait` or `landscape`                                                                                                                                   |
+| `margins`         | Yes                 | `{ "top", "right", "bottom", "left" }`. The header and footer go in the top and bottom margins                                                              |
+| `font`            | No                  | The default text style ([Fonts](/docs/page-designer/layout-format/fonts/)). Without one, text is 10 point Liberation Sans, black, with a line height of 1.2 |
+| `background`      | No                  | The page's background color                                                                                                                                 |
+| `backgroundImage` | No                  | An uploaded image behind everything on every page ([Background image](#background-image))                                                                   |
+| `watermark`       | No                  | Text across the middle of every page, over the content ([Watermark](#watermark))                                                                            |
+
+## Sizes
+
+| Size      | Width × height in points (portrait) |
+| --------- | ----------------------------------- |
+| `letter`  | 612 × 792                           |
+| `legal`   | 612 × 1008                          |
+| `tabloid` | 792 × 1224                          |
+| `a3`      | 841.89 × 1190.55                    |
+| `a4`      | 595.28 × 841.89                     |
+| `a5`      | 419.53 × 595.28                     |
+
+`landscape` swaps the width and height, a `custom` size's too. The sections are as wide as the page less its left and
+right margins: 540 points on a portrait Letter page with half-inch margins.
+
+## Background image
+
+`backgroundImage` puts an image [uploaded to the template](/docs/page-designer/layout-format/image/) behind
+everything on every page, including the header and footer: a letterhead, or a certificate's border.
+
+| Property    | Required | Description                                                                                                           |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `slug`      | Yes      | The uploaded image's name, as an image element's `source` has it                                                      |
+| `scaleType` | No       | `stretch` (the default) fills the page exactly; `fill` covers it, cropping the image; `fit` shows all of it, centered |
+
+Make the image the page's shape and use `stretch`, so it lines up with the page's edges.
+
+## Watermark
+
+`watermark` prints text across the middle of every page, over the content, such as "DRAFT" or "COPY".
+
+| Property    | Required | Description                                                                                                                                           |
+| ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `text`      | Yes      | Text and [field](/docs/page-designer/layout-format/fields-and-expressions/) nodes, as a [QR code's value](/docs/page-designer/layout-format/qr-code/) |
+| `font`      | No       | A [font](/docs/page-designer/layout-format/fonts/). Bold, in the page's family; 72 points and black when it doesn't say                               |
+| `opacity`   | No       | 0 (invisible) to 1. 0.15 when left out                                                                                                                |
+| `rotation`  | No       | Degrees clockwise, -360 to 360. -45 when left out, rising from left to right                                                                          |
+| `layer`     | No       | `above` the content (the default) or `below` it, where boxes with a background cover it                                                               |
+| `condition` | No       | Only print it when this is true ([Conditions](/docs/page-designer/layout-format/conditions/))                                                         |
+
+The text is centered in the area inside the margins, on one line: choose a size that fits.
+
+## Examples
+
+An A4 page in landscape, with wider margins, a default font and an off-white background:
+
+```json
+{
+  "version": 1,
+  "page": {
+    "size": "a4",
+    "orientation": "landscape",
+    "margins": { "top": 72, "right": 54, "bottom": 54, "left": 54 },
+    "font": {
+      "family": "Lato",
+      "size": 11,
+      "color": "#222222",
+      "lineHeight": 1.4
+    },
+    "background": "#fffdf7"
+  },
+  "sections": []
+}
+```
+
+A letterhead image behind every page, and "DRAFT" in red until the document is final:
+
+```json
+{
+  "version": 1,
+  "page": {
+    "size": "letter",
+    "orientation": "portrait",
+    "margins": { "top": 108, "right": 54, "bottom": 72, "left": 54 },
+    "backgroundImage": { "slug": "letterhead" },
+    "watermark": {
+      "text": [{ "type": "text", "text": "DRAFT" }],
+      "font": { "size": 120, "color": "#c00000" },
+      "opacity": 0.12,
+      "condition": "status != \"final\""
+    }
+  },
+  "sections": []
+}
+```
+
+A 4 × 6 inch shipping label:
+
+```json
+{
+  "version": 1,
+  "page": {
+    "size": "custom",
+    "width": 288,
+    "height": 432,
+    "orientation": "portrait",
+    "margins": { "top": 18, "right": 18, "bottom": 18, "left": 18 }
+  },
+  "sections": []
+}
+```

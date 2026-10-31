@@ -1,0 +1,36 @@
+---
+title: Fonts
+description: The text styles and font families a page design can use
+sidebar:
+  order: 21
+---
+
+A `font` sets a text style. It goes on the page (the default for everything), a text box, a table's header or rows, and
+a page number.
+
+| Property     | Description                      |
+| ------------ | -------------------------------- |
+| `family`     | One of the families below        |
+| `size`       | In points, up to 400             |
+| `color`      | `#rrggbb`                        |
+| `lineHeight` | A multiple of the size, 0.5 to 5 |
+
+All four are optional. A text box's font is combined with the page's, so set only what's different. Without a page
+font, text is 10 point Liberation Sans in black, with a line height of 1.2. Inside the text,
+[marks](/docs/page-designer/layout-format/rich-text/#marks) change the family, size and color of single words.
+
+```json
+{ "family": "Lato", "size": 11, "color": "#222222", "lineHeight": 1.4 }
+```
+
+## Families
+
+| Kind        | Families                                                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Sans serif  | Liberation Sans (the default, sized like Arial), Roboto, Open Sans, Lato, Poppins, Public Sans, Questrial, DejaVu Sans |
+| Serif       | Liberation Serif (sized like Times New Roman)                                                                          |
+| Monospace   | Liberation Mono (sized like Courier New), Inconsolata, Roboto Mono, Ubuntu Mono                                        |
+| Handwriting | Dancing Script, Caveat, Great Vibes, Sacramento, Satisfy, Cookie                                                       |
+
+Write a family's name as it's written here, with its spaces: `"Open Sans"`. DocSpring draws every PDF with its own
+copy of each font, so the PDF looks the same wherever it's made.

@@ -1,0 +1,84 @@
+---
+title: Conditions
+description: Showing a page design's sections and elements only when a Liquid condition is true
+sidebar:
+  order: 9
+---
+
+A section or element with a `condition` only appears when the condition is true. A condition is what goes between
+`{% if` and `%}` in Liquid:
+
+- A value on its own: `customer.vip`. Every value is true except `false` and no value at all, so an empty text and
+  `0` are true too: write `customer.notes != blank` to check for text.
+- Comparisons: `==`, `!=`, `>`, `<`, `>=`, `<=`, and `contains` for text and lists: `tags contains "rush"`.
+- `and` and `or`, without parentheses. Liquid reads them from right to left: `a and b or c` means `a and (b or c)`.
+- A list's size: `line_items.size > 0`.
+
+Conditions can't use filters. A condition on a [repeating section](/docs/page-designer/layout-format/sections/#repeat)
+goes on the `repeat` section, not its `item`, and is checked once. Elements inside the item can have their own
+conditions, which can read the entry: `item.discount > 0`.
+
+## Examples
+
+A "VIP" badge that only shows for VIP customers:
+
+```json
+{
+  "id": "vip_badge",
+  "type": "text",
+  "x": 440,
+  "y": 0,
+  "width": 100,
+  "height": 20,
+  "condition": "customer.vip",
+  "style": { "background": "#ffd966", "radius": 4 },
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": { "align": "center" },
+        "content": [
+          { "type": "text", "text": "VIP", "marks": [{ "type": "bold" }] }
+        ]
+      }
+    ]
+  }
+}
+```
+
+A notes section that's left out when there are no notes:
+
+```json
+{
+  "id": "notes",
+  "type": "stack",
+  "direction": "vertical",
+  "condition": "notes != blank",
+  "elements": [
+    {
+      "id": "notes_text",
+      "type": "text",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "field", "attrs": { "expression": "notes" } }]
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+A page break before the terms, only for large orders:
+
+```json
+{
+  "id": "terms_break",
+  "type": "page_break",
+  "condition": "total > 10000 and status == \"approved\""
+}
+```

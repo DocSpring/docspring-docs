@@ -1,0 +1,134 @@
+---
+title: Rich Text
+description: Paragraphs, lists, line breaks, fields and formatting in a page design's text boxes and table cells
+sidebar:
+  order: 7
+---
+
+Text boxes and table cells hold rich text: a `doc` with a list of blocks. Each piece of text can have its own
+formatting.
+
+```json
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "Dear " },
+        { "type": "field", "attrs": { "expression": "customer.first_name" } },
+        { "type": "text", "text": "," }
+      ]
+    }
+  ]
+}
+```
+
+## Blocks
+
+| Block          | Properties                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `paragraph`    | `content`: text, line breaks and fields. `attrs` (optional): `align`, `lineHeight`, `spaceBefore` and `spaceAfter` |
+| `bullet_list`  | `content`: one or more `list_item`s, each with blocks in its `content`                                             |
+| `ordered_list` | As `bullet_list`. `attrs.order` is the number the list starts at (1 when left out)                                 |
+
+A paragraph's `align` is `left`, `center`, `right` or `justify`. Its `lineHeight` is a multiple of the font size (0.5
+to 5), and `spaceBefore` and `spaceAfter` are in points. An empty paragraph still takes a line.
+
+A numbered list that starts at 3, with a second line in its first item:
+
+```json
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "ordered_list",
+      "attrs": { "order": 3 },
+      "content": [
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                { "type": "text", "text": "Payment is due within 30 days." },
+                { "type": "hard_break" },
+                { "type": "text", "text": "Late payments incur a fee." }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list_item",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [{ "type": "text", "text": "Prices include GST." }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Inline content
+
+| Node         | Shape                                                                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `text`       | `{ "type": "text", "text": "..." }`. Spaces are kept as typed                                                                                                                   |
+| `hard_break` | `{ "type": "hard_break" }`: a line break                                                                                                                                        |
+| `field`      | `{ "type": "field", "attrs": { "expression": "customer.name" } }`: a value from your data ([Fields and expressions](/docs/page-designer/layout-format/fields-and-expressions/)) |
+
+Text is printed as it's written: `{{` and `<b>` in a text node come out as those characters, and a line break in the
+text starts a new line. A field's value is printed the same way.
+
+## Marks
+
+Each inline node can have `marks`, up to 20:
+
+| Mark         | Shape                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------- |
+| `bold`       | `{ "type": "bold" }`                                                                                          |
+| `italic`     | `{ "type": "italic" }`                                                                                        |
+| `underline`  | `{ "type": "underline" }`                                                                                     |
+| `strike`     | `{ "type": "strike" }`                                                                                        |
+| `link`       | `{ "type": "link", "attrs": { "href": "https://example.com" } }`. `https:`, `http:` or `mailto:`              |
+| `fontFamily` | `{ "type": "fontFamily", "attrs": { "family": "Lato" } }` ([Fonts](/docs/page-designer/layout-format/fonts/)) |
+| `fontSize`   | `{ "type": "fontSize", "attrs": { "size": "12pt" } }`. A size in points, written with `pt`, such as `"9.5pt"` |
+| `textColor`  | `{ "type": "textColor", "attrs": { "color": "#336699" } }`                                                    |
+| `highlight`  | `{ "type": "highlight", "attrs": { "color": "#ffff00" } }`                                                    |
+
+A link, and a total in bold red:
+
+```json
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "Pay online at " },
+        {
+          "type": "text",
+          "text": "example.com/pay",
+          "marks": [
+            { "type": "link", "attrs": { "href": "https://example.com/pay" } },
+            { "type": "underline" }
+          ]
+        },
+        { "type": "text", "text": ". Amount due: " },
+        {
+          "type": "field",
+          "attrs": { "expression": "invoice.balance | currency" },
+          "marks": [
+            { "type": "bold" },
+            { "type": "textColor", "attrs": { "color": "#c00000" } }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```

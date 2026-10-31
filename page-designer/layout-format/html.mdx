@@ -1,0 +1,88 @@
+---
+title: HTML
+description: Your own HTML and SCSS in a box on the page, with values from your data, and SCSS that only applies inside the box
+sidebar:
+  order: 20
+---
+
+An HTML box shows HTML you write, with Liquid for your data, and SCSS that only applies inside the box.
+
+| Property   | Required | Description                                                                                |
+| ---------- | -------- | ------------------------------------------------------------------------------------------ |
+| `html`     | Yes      | The box's HTML, with Liquid, up to 100,000 characters                                      |
+| `scss`     | No       | SCSS for what's in the box, with Liquid, up to 100,000 characters                          |
+| `overflow` | No       | `grow` (the default): the box gets taller to fit its content. `fixed`: the rest is cut off |
+
+## The HTML
+
+[Fields and expressions](/docs/page-designer/layout-format/fields-and-expressions/) work as they do in a text box, and
+so do Liquid's tags: `{{ customer.name }}`, `{% if customer.vip %}`, `{% for item in line_items %}`. In a table or a
+repeating section, the item's fields work too, such as `{{ item.description }}`. DocSpring adds a field for each value
+the HTML reads.
+
+Values are escaped: a value with `<b>` in it prints `<b>` as text. `{{ value | raw }}` prints a value as HTML. Put
+`raw` last: a filter after it escapes what it adds.
+
+`<img src="{% template_image_url company_logo %}">` shows an image uploaded to the template, by its name in lower case
+with `_` for everything but letters and digits, as an [image box's source](/docs/page-designer/layout-format/image/#sources)
+does. An `<img>` can't show anything else: no other `src` and no `srcset`. An image is no wider than its box.
+
+JavaScript is not supported. A layout is refused, with each problem and its line in the HTML, when the HTML has:
+
+- `<script>`, `<style>`, `<link>`, `<iframe>`, `<frame>`, `<frameset>`, `<object>`, `<embed>`, `<form>`, `<base>`,
+  `<meta>`, `<title>` or `<template>`
+- an event attribute such as `onclick`, or a `javascript:` URL
+- a `style` attribute with something the SCSS below can't have
+
+What a box's HTML leaves open is closed inside the box, and an end tag it didn't open is ignored, so nothing in it
+reaches the rest of the page. The same goes for HTML that a `raw` value prints.
+
+## The SCSS
+
+The SCSS is compiled as an [HTML template's SCSS](/docs/html-templates/overview/#sass) is, with variables, nesting, mixins and
+functions, and it only applies inside the box. `html`, `body` and `:root` at the start of a selector are the box itself:
+`body { padding: 8pt; background: #eef4ff; }` gives the box padding and a background. `@media` and `@supports` work.
+
+What's in the box starts with a browser's default styles (margins around paragraphs, indented lists, bold table
+headings, blue links) and the page's font. `font-family` can name any of the
+[Page Designer's fonts](/docs/page-designer/layout-format/fonts/).
+
+Liquid in the SCSS reads the template's fields, so a style can depend on your data:
+`h2 { color: {{ brand_color | default: "#1e3a8a" }}; }`, or `{% if customer.vip %}body { border: 2pt solid gold; }{% endif %}`.
+Its values are escaped for CSS, so a value stays inside the value or string it's written in. In a table or a repeating
+section, the item's fields aren't there: the SCSS is for the whole box. DocSpring adds a field for each value the SCSS
+reads, as it does for the HTML.
+
+The template editor's canvas compiles the SCSS without data, so a value prints nothing there. Give values a `default`,
+as above, or the canvas shows the box without its SCSS. The **Preview** tab fills each field with sample text, which an
+SCSS function such as `darken()` can't use as a color: give a field that a function uses a default value in its
+settings, and the preview uses that instead.
+
+A layout is refused, with each problem and its line in the SCSS, when the SCSS uses `@import`, `@use`, `@forward`,
+`@page`, `@font-face` or another at-rule that isn't Sass's own, `@media` or `@supports`, or `url()`,
+`position: fixed`, `running()`, `element()` or `string-set`. What the SCSS compiles to can't have them either: a rule
+that Sass makes with one, from a variable or a value, is left out.
+
+## Errors
+
+A submission fails with the box's name, or its `id` when it has none, and the line in its HTML or SCSS:
+`The HTML box "Totals", line 2: divided by 0`, or
+`The HTML box "Totals"'s SCSS, line 3: Invalid CSS after "  margin: 1pt +": expected expression (e.g. 1px, bold), was ";"`.
+
+## Example
+
+A thank-you note with the customer's name, a line for VIP customers, a list of what they ordered, and the customer's
+brand color:
+
+```json
+{
+  "id": "thanks",
+  "type": "html",
+  "x": 0,
+  "y": 0,
+  "width": 300,
+  "height": 80,
+  "html": "<h2>Thanks, {{ customer.name }}</h2>\n{% if customer.vip %}<p class=\"vip\">VIP customer</p>{% endif %}\n<ul>\n  {% for item in line_items %}<li>{{ item.description }}</li>{% endfor %}\n</ul>",
+  "scss": "$padding: 8pt;\nbody { padding: $padding; border-radius: 6pt; background: #eef4ff; }\nh2 { margin: 0 0 $padding / 2; color: {{ customer.brand_color | default: '#1e3a8a' }}; }\n.vip { margin: 0; color: #b45309; font-weight: bold; }"
+}
+```

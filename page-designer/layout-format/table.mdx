@@ -1,0 +1,293 @@
+---
+title: Table
+description: Tables in a page design, with a row for each entry of a list in your data
+sidebar:
+  order: 11
+---
+
+A table has a header row, and a row for each entry of a list in your data. It continues onto the next page when it
+doesn't fit. Tables can't go in a header or footer.
+
+| Property      | Required | Description                                                                                                                      |
+| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `source`      | Yes      | The path to the list, such as `line_items`, or `order.items` inside a repeating section over `order`                             |
+| `as`          | Yes      | The name each entry gets in the cells, such as `item` ([Lists](/docs/page-designer/layout-format/fields-and-expressions/#lists)) |
+| `columns`     | Yes      | 1 to 30 columns                                                                                                                  |
+| `header`      | No       | `{ "font", "background", "repeat" }`: the header row's style                                                                     |
+| `rows`        | No       | `{ "font", "background", "alternateBackground", "keepTogether", "condition" }`: the rows' style, and which entries get one       |
+| `sort`        | No       | Up to 3 `{ "by", "order" }` rules for the rows' order ([Sorting](#sorting)). In the list's order when left out                   |
+| `groups`      | No       | `{ "by", "header", "background", "font" }`: rows with the same value go together under a heading row ([Groups](#groups))         |
+| `footer`      | No       | `{ "font", "background" }`: the style of the last row, when a column has a `footer` ([Footer row](#footer-row))                  |
+| `border`      | No       | A [stroke](/docs/page-designer/layout-format/box-style-and-strokes/#strokes) around and between the cells                        |
+| `cellPadding` | No       | `{ "top", "right", "bottom", "left" }`. 2 points above and below and 4 at the sides when left out                                |
+
+A table grows with its rows, whatever its `height`: in a free section, its `height` is the least height of its box.
+Put a table in a stack, so the elements after it move down as it grows.
+
+## Columns
+
+| Property | Required | Description                                                                        |
+| -------- | -------- | ---------------------------------------------------------------------------------- |
+| `id`     | Yes      | Unique in the layout                                                               |
+| `header` | Yes      | The column's heading, as [rich text](/docs/page-designer/layout-format/rich-text/) |
+| `cell`   | Yes      | Each row's cell, as rich text that reads the entry: `item.description`             |
+| `width`  | No       | The column's share of the table's width. 1 when left out                           |
+| `align`  | No       | `left`, `center` or `right`, for the heading and the cells                         |
+| `footer` | No       | The column's cell in the last row, as rich text that reads the data                |
+
+Shares are relative: columns with widths 3, 1 and 1 take three fifths, one fifth and one fifth of the table.
+
+## Header and rows
+
+- `header.repeat` (on when left out) repeats the header row at the top of each page the table continues onto.
+- `rows.alternateBackground` gives every second row its own background, starting with the second row.
+- `rows.keepTogether` (on when left out) keeps each row on one page.
+- `rows.condition` gives only the entries it's true for a row, such as `item.quantity > 0`
+  ([Conditions](/docs/page-designer/layout-format/conditions/)).
+- `font` styles the header row's or the rows' text ([Fonts](/docs/page-designer/layout-format/fonts/)).
+
+## Sorting
+
+Each rule in `sort` has `by`, an expression that reads the entry (`item.date`), and `order`, `asc` (the default) or
+`desc`. The rows are in order of the first rule's value, then the second's for rows where the first is the same, and
+so on; rows where every value is the same keep the list's order.
+
+- Numbers sort by size, and so does text of a number: `1,250`, `$40` and `12%` sort as 1250, 40 and 12. Commas only
+  separate thousands, so `1,5` is text.
+- Text sorts alphabetically, ignoring case and accents (`Émile` sorts with `Emile`). Numbers come before text.
+- `desc` reverses the whole order, so text comes before numbers. Blank values go last, in either order.
+- Dates are text, so they sort in date order only when they're written year first. Sort by
+  `item.date | date: "%Y-%m-%d"` for dates written another way.
+
+## Groups
+
+`groups.by` is an expression that reads the entry, such as `item.category`, or `item.date | date: "%B %Y"` for a group
+for each month. Rows with the same value go together, under a heading row across the table. The groups are in the
+order of their first rows, so sort by the same value first to put the groups in order.
+
+| Property     | Required | Description                                                                              |
+| ------------ | -------- | ---------------------------------------------------------------------------------------- |
+| `by`         | Yes      | The value rows are grouped by                                                            |
+| `header`     | Yes      | The heading row's text, as rich text that reads the group's first entry: `item.category` |
+| `background` | No       | The heading row's background                                                             |
+| `font`       | No       | The heading row's text style ([Fonts](/docs/page-designer/layout-format/fonts/))         |
+
+`rows.alternateBackground` starts again in each group.
+
+## Footer row
+
+When a column has a `footer`, the table ends with a row of them. The footer is outside the rows, so it reads the data
+rather than an entry, such as a total: `line_items | sum: "amount" | currency`. It reads the whole list, with
+the entries `rows.condition` leaves out.
+
+`sum` reads amounts written as text the way sorting does: `"1,250.50"`, `"$40"` and `"12%"` count as 1250.5, 40 and 12. A blank amount, or an entry without one, adds nothing. Any other text (`"twelve"`, `"1,5"`) fails the submission
+with a message naming the value, so a total is never wrong.
+
+## Examples
+
+Line items with a quantity and an amount, a grey header that repeats on each page, and striped rows:
+
+```json
+{
+  "id": "line_items_table",
+  "type": "table",
+  "width": null,
+  "height": null,
+  "source": "line_items",
+  "as": "item",
+  "columns": [
+    {
+      "id": "description",
+      "width": 4,
+      "header": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "text", "text": "Description" }]
+          }
+        ]
+      },
+      "cell": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              { "type": "field", "attrs": { "expression": "item.description" } }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "quantity",
+      "width": 1,
+      "align": "right",
+      "header": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "text", "text": "Qty" }]
+          }
+        ]
+      },
+      "cell": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              { "type": "field", "attrs": { "expression": "item.quantity" } }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "amount",
+      "width": 1.5,
+      "align": "right",
+      "header": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "text", "text": "Amount" }]
+          }
+        ]
+      },
+      "cell": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "field",
+                "attrs": { "expression": "item.amount | currency" }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "header": {
+    "background": "#eeeeee",
+    "font": { "color": "#333333" },
+    "repeat": true
+  },
+  "rows": { "alternateBackground": "#f8f8f8", "keepTogether": true },
+  "border": { "width": 0.5, "color": "#cccccc" },
+  "cellPadding": { "top": 4, "right": 6, "bottom": 4, "left": 6 }
+}
+```
+
+Expenses grouped by category, the largest first in each group, leaving out entries without an amount, with a total
+in the last row:
+
+```json
+{
+  "id": "expenses_table",
+  "type": "table",
+  "width": null,
+  "height": null,
+  "source": "expenses",
+  "as": "item",
+  "columns": [
+    {
+      "id": "expense",
+      "width": 3,
+      "header": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "text", "text": "Expense" }]
+          }
+        ]
+      },
+      "cell": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              { "type": "field", "attrs": { "expression": "item.description" } }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "expense_amount",
+      "width": 1,
+      "align": "right",
+      "header": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [{ "type": "text", "text": "Amount" }]
+          }
+        ]
+      },
+      "cell": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "field",
+                "attrs": { "expression": "item.amount | currency" }
+              }
+            ]
+          }
+        ]
+      },
+      "footer": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "field",
+                "attrs": {
+                  "expression": "expenses | sum: \"amount\" | currency"
+                },
+                "marks": [{ "type": "bold" }]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "sort": [{ "by": "item.category" }, { "by": "item.amount", "order": "desc" }],
+  "groups": {
+    "by": "item.category",
+    "background": "#f3f4f6",
+    "header": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "field",
+              "attrs": { "expression": "item.category" },
+              "marks": [{ "type": "bold" }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "rows": { "condition": "item.amount > 0" },
+  "border": { "width": 0.5, "color": "#cccccc" }
+}
+```

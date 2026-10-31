@@ -1,0 +1,62 @@
+---
+title: Box Style and Strokes
+description: Backgrounds, borders, rounded corners, padding and opacity for a page design's boxes, and the strokes of lines and outlines
+sidebar:
+  order: 22
+---
+
+## Box style
+
+`style` on a text box, an image or a free, stack or columns section:
+
+| Property     | Description                                                                      |
+| ------------ | -------------------------------------------------------------------------------- |
+| `background` | A color, or `null` for none                                                      |
+| `border`     | A [stroke](#strokes) around the box, or `null` for none                          |
+| `radius`     | Rounded corners, in points                                                       |
+| `padding`    | `{ "top", "right", "bottom", "left" }`: space inside the box, around its content |
+| `opacity`    | 0 (invisible) to 1 (the default)                                                 |
+
+The padding and border are inside the box's `width` and `height`. In a free section, elements are placed from the
+top left corner inside its padding.
+
+A grey box with a darker border and room around its text:
+
+```json
+{
+  "id": "note",
+  "type": "text",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [{ "type": "text", "text": "Thank you for your business." }]
+      }
+    ]
+  },
+  "style": {
+    "background": "#f2f2f2",
+    "border": { "width": 1, "color": "#cccccc" },
+    "radius": 4,
+    "padding": { "top": 8, "right": 12, "bottom": 8, "left": 12 }
+  }
+}
+```
+
+## Strokes
+
+A stroke is a line's, a border's or an outline's look:
+
+| Property | Required | Description                                 |
+| -------- | -------- | ------------------------------------------- |
+| `width`  | Yes      | In points, more than 0 and up to 72         |
+| `color`  | Yes      | `#rrggbb`                                   |
+| `style`  | No       | `solid` (the default), `dashed` or `dotted` |
+
+```json
+{ "width": 0.75, "color": "#999999", "style": "dashed" }
+```
+
+Strokes go on [lines](/docs/page-designer/layout-format/line/), [shapes](/docs/page-designer/layout-format/shape/),
+[tables](/docs/page-designer/layout-format/table/) and box styles' borders.

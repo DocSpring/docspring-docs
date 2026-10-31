@@ -1,0 +1,47 @@
+---
+title: Barcode
+description: Barcodes in a page design, made from text and values in your data
+sidebar:
+  order: 17
+---
+
+A barcode of a value made from text and fields.
+
+| Property    | Required | Description                                                                                                       |
+| ----------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `value`     | Yes      | 1 to 100 text and field nodes, without formatting, as for a [QR code](/docs/page-designer/layout-format/qr-code/) |
+| `symbology` | Yes      | The kind of barcode                                                                                               |
+
+The barcode is stretched to fill its box: make the box wide enough for the bars.
+
+| `symbology` | Barcode  | Its value                               |
+| ----------- | -------- | --------------------------------------- |
+| `code_25`   | Code 25  | Only digits                             |
+| `code_39`   | Code 39  | Only A-Z, 0-9, spaces and `- . $ / + %` |
+| `code_93`   | Code 93  | Only ASCII characters                   |
+| `code_128`  | Code 128 | Only ASCII characters                   |
+| `ean_13`    | EAN-13   | 12 digits, or 13 with the check digit   |
+| `ean_8`     | EAN-8    | 7 digits, or 8 with the check digit     |
+| `upc_a`     | UPC-A    | 11 digits, or 12 with the check digit   |
+
+A submission fails with "A barcode has no value." when the value comes out empty, and with a message saying the value
+can't be encoded as that barcode when it doesn't fit its rules.
+
+## Example
+
+A Code 128 barcode of the shipment's tracking number:
+
+```json
+{
+  "id": "tracking_barcode",
+  "type": "barcode",
+  "x": 0,
+  "y": 0,
+  "width": 252,
+  "height": 60,
+  "symbology": "code_128",
+  "value": [
+    { "type": "field", "attrs": { "expression": "shipment.tracking_number" } }
+  ]
+}
+```

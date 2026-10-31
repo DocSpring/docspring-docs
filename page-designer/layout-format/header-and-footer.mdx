@@ -1,0 +1,93 @@
+---
+title: Header and Footer
+description: Elements and page numbers that repeat in the top and bottom margins of every page of a page design
+sidebar:
+  order: 3
+---
+
+The `header` fills the page's top margin and the `footer` its bottom margin, on every page. Make the margin as tall as
+what goes in it. Both are optional.
+
+| Property      | Required | Description                                                                                                                        |
+| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `elements`    | Yes      | [Elements](/docs/page-designer/layout-format/elements/) with `x`, `y`, `width` and `height`. Tables can't go in a header or footer |
+| `pageNumbers` | No       | Up to three page numbers, one per alignment                                                                                        |
+
+An element's `x` is measured from the page's left edge, not the margin, and its `y` from the top of its band. On a
+page with 36-point margins, `"x": 36` lines an element up with the sections below.
+
+## Page numbers
+
+| Property | Required | Description                                                                                               |
+| -------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `id`     | Yes      | Unique in the layout                                                                                      |
+| `align`  | Yes      | `left`, `center` or `right`: the left margin, the middle of the page or the right margin                  |
+| `format` | Yes      | The text, where `{page}` is the page number and `{pages}` the number of pages: `"Page {page} of {pages}"` |
+| `font`   | No       | Its [font](/docs/page-designer/layout-format/fonts/)                                                      |
+
+A page number is centered vertically in its band.
+
+## Example
+
+The company's name and a rule at the top of every page, and the page number at the bottom right:
+
+```json
+{
+  "version": 1,
+  "page": {
+    "size": "letter",
+    "orientation": "portrait",
+    "margins": { "top": 72, "right": 36, "bottom": 54, "left": 36 }
+  },
+  "header": {
+    "elements": [
+      {
+        "id": "company_name",
+        "type": "text",
+        "x": 36,
+        "y": 24,
+        "width": 300,
+        "height": 24,
+        "font": { "size": 14 },
+        "content": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Acme Corporation",
+                  "marks": [{ "type": "bold" }]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "header_rule",
+        "type": "line",
+        "x": 36,
+        "y": 56,
+        "width": 540,
+        "height": 4,
+        "direction": "horizontal",
+        "stroke": { "width": 0.5, "color": "#999999" }
+      }
+    ]
+  },
+  "footer": {
+    "elements": [],
+    "pageNumbers": [
+      {
+        "id": "page_number",
+        "align": "right",
+        "format": "Page {page} of {pages}",
+        "font": { "size": 8, "color": "#666666" }
+      }
+    ]
+  },
+  "sections": []
+}
+```

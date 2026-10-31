@@ -1,0 +1,111 @@
+---
+title: Chart
+description: Bar, line, area, scatter, pie, doughnut and radar charts of a list in your data
+sidebar:
+  order: 12
+---
+
+A chart draws a list in your data: a row for each entry, with a label and a value for each series. It's drawn as
+vector shapes and text, in the page's font unless you give it one.
+
+| Property       | Required | Description                                                                                                                                          |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `chartType`    | Yes      | `bar`, `horizontal_bar`, `line`, `area`, `scatter`, `pie`, `doughnut` or `radar`                                                                     |
+| `source`       | Yes      | The path to the list, such as `sales`, or `region.sales` inside a repeating section over `region`                                                    |
+| `as`           | Yes      | The name each entry gets in `label` and the series' values, such as `row` ([Lists](/docs/page-designer/layout-format/fields-and-expressions/#lists)) |
+| `label`        | Yes      | Each row's label, as an [expression](/docs/page-designer/layout-format/fields-and-expressions/): `row.month`                                         |
+| `series`       | Yes      | 1 to 20 series                                                                                                                                       |
+| `title`        | No       | Shown above the chart                                                                                                                                |
+| `legend`       | No       | `none`, `top`, `bottom` or `right`. When left out, at the bottom for pie and doughnut charts and charts with more than one series                    |
+| `stacked`      | No       | `true` stacks the series of a bar, horizontal bar or area chart on top of each other                                                                 |
+| `dataLabels`   | No       | `none` (the default), `value` or `percent`: a label on each bar, point or slice. A stacked chart labels each stack's total                           |
+| `numberFormat` | No       | `{ "prefix", "suffix", "decimals", "thousands" }`: how values are written                                                                            |
+| `xAxis`        | No       | `{ "title", "labelRotation" }`: the axis of the labels                                                                                               |
+| `yAxis`        | No       | `{ "title", "min", "max", "gridlines" }`: the axis of the values                                                                                     |
+| `colors`       | No       | Up to 50 colors for a pie or doughnut chart's first slices, in order. The slices after them take colors from the palette                             |
+| `font`         | No       | The chart's text ([Fonts](/docs/page-designer/layout-format/fonts/)): 9 points and dark grey when left out                                           |
+| `style`        | No       | A [box style](/docs/page-designer/layout-format/box-style-and-strokes/); the chart is drawn inside its padding and border                            |
+
+In a stack or a column, a chart without a `height` is 0.6 times as tall as it is wide.
+
+## Series
+
+| Property | Required | Description                                                            |
+| -------- | -------- | ---------------------------------------------------------------------- |
+| `id`     | Yes      | Unique in the layout                                                   |
+| `name`   | Yes      | Shown in the legend                                                    |
+| `value`  | Yes      | Each row's value, as an expression that reads the entry: `row.revenue` |
+| `color`  | No       | When left out, series take colors from a palette of ten, in order      |
+
+A value can be a number or text written as one: `1250.5`, `"1,250.50"`, `"$40"` and `"12%"` all work. Commas only
+separate thousands, so `"1,5"` isn't a number. A row without a value leaves a gap (a line breaks, a bar is left out).
+Any other text fails the submission, with a message that names the chart, the series and the row.
+
+Pie and doughnut charts draw the first series, with a slice for each row that has a value above zero. Scatter charts use
+each row's label as its x value, so the label must be a number too (a row with a blank one is left out). Radar charts
+draw each series as a shape around the labels, from zero at the center, where a row without a value goes.
+
+A `percent` label is a bar's or a point's share of its series' total, a slice's share of the pie, or a stack's share of
+all the stacks. A total adds up every value's size, negative ones included, so a negative value gets a negative share.
+
+## Axes and numbers
+
+- `yAxis.min` and `yAxis.max` set the range of the values. When left out, the range fits the values and includes zero
+  (scatter charts fit the values only). Values outside the range are cut off at its edge. A radar chart's range always
+  starts at zero, so it reads only `max`.
+- `yAxis.gridlines` (on when left out) draws a line across the chart at each value on the axis. Radar charts always draw
+  their rings.
+- `xAxis.labelRotation` turns the labels `0`, `45` or `90` degrees, for long labels.
+- `numberFormat.decimals` (0 to 6) writes every value with that many decimals, and the axis steps keep to them (whole
+  numbers for `0`); when left out, values get as many as they need, up to 2. `numberFormat.thousands` (on when left out) puts a comma between thousands. `prefix` and `suffix` go
+  around the number, such as `$` or ` kg`.
+
+## Example
+
+Revenue and costs for each month in `sales`, as a bar chart with dollar amounts:
+
+```json
+{
+  "id": "sales_chart",
+  "type": "chart",
+  "width": null,
+  "height": 220,
+  "chartType": "bar",
+  "source": "sales",
+  "as": "row",
+  "label": "row.month",
+  "series": [
+    { "id": "revenue", "name": "Revenue", "value": "row.revenue" },
+    {
+      "id": "costs",
+      "name": "Costs",
+      "value": "row.costs",
+      "color": "#f59e0b"
+    }
+  ],
+  "title": "Sales by month",
+  "legend": "bottom",
+  "numberFormat": { "prefix": "$", "decimals": 0 },
+  "yAxis": { "title": "USD", "min": 0 }
+}
+```
+
+The same list as a doughnut chart, with each month's share of the revenue:
+
+```json
+{
+  "id": "revenue_share",
+  "type": "chart",
+  "x": 0,
+  "y": 0,
+  "width": 220,
+  "height": 220,
+  "chartType": "doughnut",
+  "source": "sales",
+  "as": "row",
+  "label": "row.month",
+  "series": [{ "id": "share", "name": "Revenue", "value": "row.revenue" }],
+  "dataLabels": "percent",
+  "colors": ["#1e3a8a", "#2563eb", "#60a5fa", "#bfdbfe"]
+}
+```

@@ -1,0 +1,46 @@
+---
+title: QR Code
+description: QR codes in a page design, made from text and values in your data
+sidebar:
+  order: 16
+---
+
+A QR code of a value made from text and fields.
+
+| Property     | Required | Description                                                    |
+| ------------ | -------- | -------------------------------------------------------------- |
+| `value`      | Yes      | 1 to 100 text and field nodes, without formatting              |
+| `color`      | No       | The code's color. Black when left out                          |
+| `background` | No       | The color behind the code. Transparent when left out or `null` |
+
+The code is square, as large as fits in its box, and centered in it.
+
+A `value` is a list of text and [field](/docs/page-designer/layout-format/fields-and-expressions/) nodes, joined
+together:
+
+- `{ "type": "text", "text": "..." }`, up to 4,000 characters
+- `{ "type": "field", "attrs": { "expression": "order.id" } }`
+
+A submission fails with "A QR code has no value." when the value comes out empty, and with "The QR code can't hold
+this value" when it's too long for a QR code.
+
+## Example
+
+A link to the order's page, in dark blue on white:
+
+```json
+{
+  "id": "order_link",
+  "type": "qr_code",
+  "x": 440,
+  "y": 0,
+  "width": 100,
+  "height": 100,
+  "value": [
+    { "type": "text", "text": "https://example.com/orders/" },
+    { "type": "field", "attrs": { "expression": "order.id" } }
+  ],
+  "color": "#1f3864",
+  "background": "#ffffff"
+}
+```

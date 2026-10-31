@@ -1,0 +1,79 @@
+---
+title: Elements
+description: The properties every element of a page design has, and how elements are placed, sized, turned and hidden
+sidebar:
+  order: 5
+---
+
+Elements go in [sections](/docs/page-designer/layout-format/sections/) and in the
+[header and footer](/docs/page-designer/layout-format/header-and-footer/). Each element type has its own page:
+[text](/docs/page-designer/layout-format/text/), [image](/docs/page-designer/layout-format/image/),
+[table](/docs/page-designer/layout-format/table/), [chart](/docs/page-designer/layout-format/chart/),
+[checkbox](/docs/page-designer/layout-format/checkbox/), [form field](/docs/page-designer/layout-format/form-field/),
+[QR code](/docs/page-designer/layout-format/qr-code/), [barcode](/docs/page-designer/layout-format/barcode/),
+[shape](/docs/page-designer/layout-format/shape/), [line](/docs/page-designer/layout-format/line/) and
+[HTML](/docs/page-designer/layout-format/html/).
+
+Every element has:
+
+| Property    | Required | Description                                                                                                  |
+| ----------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| `id`        | Yes      | Unique in the layout                                                                                         |
+| `type`      | Yes      | `text`, `image`, `table`, `chart`, `checkbox`, `form_field`, `qr_code`, `barcode`, `shape`, `line` or `html` |
+| `name`      | No       | Shown in the Page Designer                                                                                   |
+| `condition` | No       | The element only appears when this is true ([Conditions](/docs/page-designer/layout-format/conditions/))     |
+| `hidden`    | No       | `true` keeps the element in the layout without showing it                                                    |
+| `locked`    | No       | `true` stops it being moved or changed in the Page Designer                                                  |
+| `rotation`  | No       | Degrees clockwise around its center, -360 to 360                                                             |
+
+## Position and size
+
+Where an element goes depends on what it's in:
+
+- **In a free section, a header or a footer,** `x`, `y`, `width` and `height` are required: the box's top left corner
+  from the top left of the section's content (the page's left edge in a header or footer), and its size.
+- **In a stack or a column,** elements go one after another. `width` and `height` are optional: `null` or left out,
+  the height is the content's and the width the stack's or column's (in a horizontal stack, an equal share of what's
+  left). An element narrower than a vertical stack or column sits `x` points from its left edge, or where `align`
+  (`left`, `center` or `right`) puts it.
+
+A text box, HTML box or table that grows pushes what's below it down, in a free section too: the section grows to fit it.
+
+## Turned elements
+
+`rotation` turns an element clockwise around its center. `x`, `y`, `width` and `height` are the box's before it's
+turned. In a free section, a turned box can reach as far down as the rectangle around it, and the section grows to fit
+it, as it does for any box. In a stack or column, a turned box with a `height` takes the room of the rectangle around
+it, and `align` and `x` place that rectangle. A turned box without a `height` takes the room it would take unturned,
+and can overlap what's next to it. The Page Designer keeps turned boxes inside their section.
+[Form fields](/docs/page-designer/layout-format/form-field/) are always upright: PDF readers don't turn them.
+
+A red "PAID" stamp, turned 15 degrees to the left, in a free section:
+
+```json
+{
+  "id": "paid_stamp",
+  "type": "text",
+  "x": 380,
+  "y": 20,
+  "width": 140,
+  "height": 40,
+  "rotation": -15,
+  "condition": "paid",
+  "verticalAlign": "middle",
+  "font": { "size": 22, "color": "#c00000" },
+  "style": { "border": { "width": 2, "color": "#c00000" }, "radius": 4 },
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": { "align": "center" },
+        "content": [
+          { "type": "text", "text": "PAID", "marks": [{ "type": "bold" }] }
+        ]
+      }
+    ]
+  }
+}
+```

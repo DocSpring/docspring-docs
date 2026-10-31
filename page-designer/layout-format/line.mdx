@@ -1,0 +1,46 @@
+---
+title: Line
+description: Horizontal and vertical lines in a page design
+sidebar:
+  order: 19
+---
+
+A horizontal or vertical line.
+
+| Property    | Required | Description                                                                                                     |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| `direction` | Yes      | `horizontal` or `vertical`                                                                                      |
+| `stroke`    | Yes      | The line's width, color and style ([Strokes](/docs/page-designer/layout-format/box-style-and-strokes/#strokes)) |
+
+A horizontal line runs across its box, halfway down it. A vertical line runs down its box, halfway across it. In a
+stack, a horizontal line without a `height` is as tall as its stroke. For a slanted line, give a line a `rotation`
+([Elements](/docs/page-designer/layout-format/elements/#turned-elements)).
+
+## Examples
+
+A thin rule between two parts of a stack:
+
+```json
+{
+  "id": "divider",
+  "type": "line",
+  "direction": "horizontal",
+  "height": 12,
+  "stroke": { "width": 0.5, "color": "#bbbbbb" }
+}
+```
+
+A dotted vertical line in a free section:
+
+```json
+{
+  "id": "fold_line",
+  "type": "line",
+  "x": 266,
+  "y": 0,
+  "width": 8,
+  "height": 200,
+  "direction": "vertical",
+  "stroke": { "width": 1, "color": "#999999", "style": "dotted" }
+}
+```

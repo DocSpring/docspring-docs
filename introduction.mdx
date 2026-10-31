@@ -1,17 +1,17 @@
 ---
 title: DocSpring Documentation
-description: DocSpring fills PDF forms, generates documents from HTML and Word templates, and collects e-signatures.
+description: DocSpring fills PDF forms, generates documents from HTML templates, Word templates and page designs, and collects e-signatures.
 ---
 
 import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-DocSpring fills PDF forms, generates documents from HTML and Word templates, and collects e-signatures. You send data
-through the API, a web form or a signature request, and get back a finished document.
+DocSpring fills PDF forms, generates documents from HTML templates, Word templates and page designs, and collects
+e-signatures. You send data through the API, a web form or a signature request, and get back a finished document.
 
 <div class="intro-cards">
   <CardGrid>
     <Card title="Document Generation" icon="document">
-      Fill PDF, HTML and Word templates with data via our API
+      Fill PDF, HTML and Word templates and page designs with data via our API
     </Card>
     <Card title="Powerful Template Editor" icon="pencil">
       Configure form fields with our visual drag-and-drop editor
@@ -31,6 +31,8 @@ through the API, a web form or a signature request, and get back a finished docu
 - You can also create a template using [HTML and CSS](/docs/html-templates/overview/).
 - You can upload a [Word document](/docs/word-templates/overview/) with tags in it, and get a PDF, a Word document or
   both.
+- You can lay out a new PDF in the [Page Designer](/docs/page-designer/overview/), with text, tables, images and your
+  data on the page.
 
 You can generate documents by [posting data to our API](/docs/api/#tag/submissions/post/templates/{template_id}/submissions), or filling out an online form. We can [automatically generate web forms](/docs/forms/web-forms/) from the fields in your template. You can also [embed these web forms on your own website](/docs/guides/embedded-forms/embedded-web-forms/), and your users can fill out the form to generate a document.
 

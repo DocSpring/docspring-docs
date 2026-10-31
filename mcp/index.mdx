@@ -7,7 +7,7 @@ import { Aside, LinkCard } from "@astrojs/starlight/components";
 import McpInstallButtons from "@components/McpInstallButtons.astro";
 
 DocSpring's MCP server lets an AI assistant work in your DocSpring account. It can find your templates, fill them in
-and generate PDFs and Word documents, edit fields and publish versions, set up signature requests and manage folders and webhooks. It's
+and generate PDFs and Word documents, create page designs, edit fields and publish versions, set up signature requests and manage folders and webhooks. It's
 a remote server that uses the [Model Context Protocol](https://modelcontextprotocol.io): you add its URL to your
 assistant and sign in to DocSpring. There's no API token to copy.
 
@@ -143,6 +143,7 @@ In a chat assistant:
 
 - "List my DocSpring templates and show me the fields on the rental agreement."
 - "Create a template from https://example.com/form.pdf, set up its fields, then show me the first page."
+- "Design a one-page invoice as a page design, with a table of line items and the total, then show me a preview."
 - "Generate a test PDF of the invoice template for Acme Corp, with three line items of your choice."
 - "Rename the `name` field on the contract template to `full_name`, then publish a new version."
 - "Set up a signature request on the NDA template for two signers and give me their signing links."

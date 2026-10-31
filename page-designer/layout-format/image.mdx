@@ -1,0 +1,76 @@
+---
+title: Image
+description: Images in a page design, from the template's uploaded images or from image fields in your data
+sidebar:
+  order: 10
+---
+
+An image box shows an image uploaded to the template, or an [image field](/docs/reference/field-data-types/#image)
+from your data.
+
+| Property    | Required | Description                                                                      |
+| ----------- | -------- | -------------------------------------------------------------------------------- |
+| `source`    | Yes      | Where the image comes from: an upload or a field                                 |
+| `scaleType` | No       | How the image fills its box: `fit` (the default), `fill` or `stretch`            |
+| `gravity`   | No       | Where the image sits, or the part kept when it's cropped. `Center` when left out |
+| `style`     | No       | A [box style](/docs/page-designer/layout-format/box-style-and-strokes/)          |
+
+An image fills its box, so give it a `height` in a stack or column too.
+
+## Sources
+
+- `{ "kind": "upload", "slug": "company_logo" }`: an image uploaded to the template, by its name in lower case with
+  `_` for everything but letters and digits. An image named "Company Logo" is `company_logo`.
+- `{ "kind": "field", "field": "customer.photo" }`: an image field, by its path. Inside a table or repeating section,
+  it can be the entry's: `item.photo`. An empty field shows nothing.
+
+Upload images in the Page Designer. Images can be PNG, JPEG, WebP or SVG files up to 5 MB. A submission fails with a
+message when an upload's image has been deleted.
+
+## Scale types and gravity
+
+These work as they do for PDF image fields.
+
+| `scaleType` | The image                                                         |
+| ----------- | ----------------------------------------------------------------- |
+| `fit`       | Keeps its proportions and fits inside the box, as large as it can |
+| `fill`      | Keeps its proportions and covers the box. The rest is cut off     |
+| `stretch`   | Is stretched to the box's width and height                        |
+
+`gravity` is `NorthWest`, `North`, `NorthEast`, `West`, `Center`, `East`, `SouthWest`, `South` or `SouthEast`. With
+`fit`, it's where the image sits in the box: `West` puts a wide logo against the box's left edge. With `fill`, it's the
+part of the image that's kept: `North` keeps the top of a portrait. `stretch` ignores it.
+
+## Examples
+
+The company logo, against the left of its box:
+
+```json
+{
+  "id": "logo",
+  "type": "image",
+  "x": 0,
+  "y": 0,
+  "width": 160,
+  "height": 48,
+  "source": { "kind": "upload", "slug": "company_logo" },
+  "gravity": "West"
+}
+```
+
+A photo from the data, cropped to a square with rounded corners, keeping the top of the photo:
+
+```json
+{
+  "id": "photo",
+  "type": "image",
+  "x": 0,
+  "y": 60,
+  "width": 96,
+  "height": 96,
+  "source": { "kind": "field", "field": "employee.photo" },
+  "scaleType": "fill",
+  "gravity": "North",
+  "style": { "radius": 8, "border": { "width": 1, "color": "#cccccc" } }
+}
+```
