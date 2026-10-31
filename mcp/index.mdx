@@ -27,6 +27,9 @@ server together with DocSpring's agent skills, which teach the agent DocSpring's
 Add the URL to your assistant, then sign in to DocSpring in your browser and choose what the assistant can do (see
 [Access](#access)).
 
+No DocSpring account yet? Create one on the sign-in page your assistant opens, with Google, GitHub or your email, and
+connect it from there. Then ask your assistant to design your first template.
+
 ### Claude
 
 Claude.ai, Claude Desktop and Claude's mobile apps share the same connectors. These buttons open Claude's "Add custom
@@ -141,6 +144,7 @@ automatically uses your account's free AI pages for the month, then credits, as 
 
 In a chat assistant:
 
+- "Design a certificate of completion template with the recipient's name, the course and the date."
 - "List my DocSpring templates and show me the fields on the rental agreement."
 - "Create a template from https://example.com/form.pdf, set up its fields, then show me the first page."
 - "Design a one-page invoice as a page design, with a table of line items and the total, then show me a preview."
@@ -156,6 +160,10 @@ In a coding agent, working in your app's repository:
 - "Write the code that fills our onboarding template from a customer record with the DocSpring SDK, then generate a
   test PDF to check it."
 - "Make a test PDF of the lease template for each customer in `fixtures/customers.csv`."
+
+Assistants that offer an MCP server's prompts as commands also have **Create a template**, which designs a new
+template with you, from a description or from your PDF. It's there when the assistant has write access. In Claude Code,
+type `/` and look for `create_template`: for a server added as `docspring`, it's `/mcp__docspring__create_template`.
 
 ## Security
 
