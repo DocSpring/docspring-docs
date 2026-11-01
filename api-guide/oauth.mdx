@@ -33,15 +33,19 @@ browser can call them.
 
 ## Scopes
 
-| Scope      | Access                                                                   |
-| ---------- | ------------------------------------------------------------------------ |
-| `read`     | See templates, folders, submissions and their PDFs                       |
-| `write`    | Create and edit templates, generate PDFs, and send signature requests    |
-| `delete`   | Delete templates, versions, folders and files, and expire submissions    |
-| `webhooks` | Create webhooks, and see, update and delete the webhooks the app created |
+| Scope          | Access                                                                            |
+| -------------- | --------------------------------------------------------------------------------- |
+| `read`         | See templates, folders, submissions and their PDFs, and email actions             |
+| `write`        | Create and edit templates, generate PDFs, and send signature requests             |
+| `delete`       | Delete templates, versions, folders and files, and expire submissions             |
+| `integrations` | Create webhooks and email actions, and update and delete the ones the app created |
 
 `read` is the default when a request has no `scope`. Combining PDFs with `delete_custom_files: true` also needs
-`delete`, because it deletes the custom files.
+`delete`, because it deletes the custom files. Seeing webhooks needs `integrations`, because they include their
+signing secret and headers.
+
+`integrations` was called `webhooks` until email actions came. Apps can still ask for `webhooks`, which works the
+same.
 
 Apps can also ask for `offline_access`, as many MCP clients do. Every app gets a refresh token anyway, so it changes
 nothing, but the token's `scope` includes it.
@@ -188,9 +192,18 @@ accept them. They also open the `permanent_url` of a submission's or combined PD
 a PDF when the account has turned off signed download links. An account's connected apps share the account's rate
 limit.
 
-An app can only see and change the webhooks it created. They stop and are deleted when the app is disconnected, or
-connected again without the `webhooks` scope. Apps can't set a template's `slack_webhook_url`: use the webhooks API instead.
-A template's `embed_edit_token` is null for apps.
+An app can only see and change the webhooks it created, and change only the email actions it created. They stop and
+are deleted when the app is disconnected, or connected again without the `integrations` scope. Apps can't set a
+template's `slack_webhook_url`: use the webhooks API instead.
+
+None of this applies to an AI assistant connected to DocSpring's [MCP server](/docs/mcp/) with an access token issued
+for the MCP server (its `resource` is the MCP server's URL). It acts as the user who connected it, with the access they
+chose: it sees and changes every webhook and email action, and what it sets up stays when it's disconnected. It sets
+`slack_webhook_url` with the `integrations` scope. An app's REST API access token keeps the rules above, even when
+it's sent through the MCP server.
+
+A template's `embed_edit_token` is null for every access token, an app's or the MCP server's: the embed edit token
+keeps working after the app or assistant is disconnected.
 
 <LinkCard
   title="API Reference"
@@ -225,11 +238,12 @@ curl https://app.docspring.com/oauth/revoke \
   -d client_id=YOUR_CLIENT_ID
 ```
 
-Revoking an access token or its refresh token ends that session. The app stays connected, and the webhooks it created
-keep working.
+Revoking an access token or its refresh token ends that session. The app stays connected, and the webhooks and email
+actions it created keep working.
 
 Anyone in the account can disconnect an app from the Integrations page. All of its tokens stop working straight
-away, and the webhooks it created are deleted.
+away, and the webhooks and email actions it created are deleted. Disconnecting an AI assistant from the MCP server
+deletes nothing it set up.
 
 ## Errors
 

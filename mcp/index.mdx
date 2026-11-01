@@ -7,9 +7,10 @@ import { Aside, LinkCard } from "@astrojs/starlight/components";
 import McpInstallButtons from "@components/McpInstallButtons.astro";
 
 DocSpring's MCP server lets an AI assistant work in your DocSpring account. It can find your templates, fill them in
-and generate PDFs and Word documents, create page designs, edit fields and publish versions, set up signature requests and manage folders and webhooks. It's
-a remote server that uses the [Model Context Protocol](https://modelcontextprotocol.io): you add its URL to your
-assistant and sign in to DocSpring. There's no API token to copy.
+and generate PDFs and Word documents, create page designs, edit fields and publish versions, set up signature requests
+and manage folders, webhooks and email actions. It's a remote server that uses the
+[Model Context Protocol](https://modelcontextprotocol.io): you add its URL to your assistant and sign in to DocSpring.
+There's no API token to copy.
 
 | Region | MCP server URL                     |
 | ------ | ---------------------------------- |
@@ -121,11 +122,11 @@ gemini mcp add --scope user --transport http docspring https://mcp.docspring.com
 When you sign in, DocSpring asks you to choose what the assistant can do. **Read and write** is selected until you
 choose another:
 
-| Access             | What the assistant can do                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| **Read only**      | See your templates, folders, submissions and their PDFs, and check data against a template                               |
-| **Read and write** | Also create and edit templates and their fields, publish versions, generate PDFs, and create signature requests          |
-| **Full access**    | Also delete templates, versions and folders, expire submissions, and create webhooks that send your submissions to a URL |
+| Access             | What the assistant can do                                                                                                                                                                           |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Read only**      | See your templates, folders, submissions and their PDFs, your email actions and email domains, and check data against a template                                                                    |
+| **Read and write** | Also create and edit templates and their fields, publish versions, generate PDFs, create signature requests, and add and check email domains                                                        |
+| **Full access**    | Also delete templates, versions, folders and email domains, expire submissions, create webhooks that send your submissions and other events to a URL, and create email actions that email your PDFs |
 
 If an assistant asks for less than full access when it signs in, DocSpring lists what it asked for instead, and you
 connect it with that access or cancel.
@@ -173,9 +174,9 @@ type `/` and look for `create_template`: for a server added as `docspring`, it's
   make it misuse its tools. Most assistants ask before they call a tool that changes something, and the tools that
   delete or expire data are marked as destructive, so clients ask you to confirm each call. Choose **Read only** when the
   assistant only needs to look.
-- The webhooks an assistant creates send your submissions' data to a URL. An assistant can only see and change the
-  webhooks it created, and they're deleted when you disconnect it. It doesn't see the webhooks you set up in DocSpring
-  or with an API token.
+- With full access, an assistant manages your webhooks, which send your submissions' data to a URL, and your email
+  actions, which email your PDFs. It can change all of them, including the ones you set up yourself, and what it sets
+  up keeps working after you disconnect it. Choose **Read and write** when it doesn't need them.
 
 <Aside type="note">
   DocSpring's MCP server uses the same OAuth sign-in as other apps that connect

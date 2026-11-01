@@ -25,7 +25,7 @@ Every connection has these tools.
 
 ## Full access
 
-Full access adds the tools that delete things and the webhook tools.
+Full access adds the tools that delete things, and the tools for webhooks and email actions.
 
 ### Delete
 
@@ -33,10 +33,10 @@ These tools can't be undone, so clients ask you to confirm each call.
 
 <McpToolTable scope="delete" />
 
-### Webhooks
+### Webhooks and email actions
 
-An assistant only sees and changes the webhooks it created. They're deleted when you disconnect the assistant.
-Webhooks you set up in DocSpring or with an API token aren't listed, so `list_webhooks` can be empty when your account
-has webhooks.
+An assistant sees and changes all of your webhooks and [email actions](/docs/template-editor/email-actions/), as you
+can in DocSpring. `send_test_email` sends only to you. The webhooks and email actions an assistant sets up stay when
+you disconnect it.
 
-<McpToolTable scope="webhooks" />
+<McpToolTable scope="integrations" />

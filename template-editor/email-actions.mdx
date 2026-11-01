@@ -1,0 +1,250 @@
+---
+title: Email Actions
+description: Email each submission's PDF or Word document to the people who filled it in, or to your team, with your own message
+sidebar:
+  order: 10
+---
+
+import { LinkCard } from "@astrojs/starlight/components";
+
+An email action emails each submission's files to the people you choose, as soon as the submission is ready: its PDF,
+and a [Word template](/docs/word-templates/overview/)'s Word document and OpenDocument file. It can send to fixed
+addresses, such as your team's, to the address someone typed into one of the template's fields, and to an address in
+the submission's metadata. Each email has your subject and message, and attaches the files or links to them. It can
+send for every submission, or only for the submissions that meet its conditions.
+
+Add an email action to one template, or to your account to send it for
+[every template, or the templates and folders you choose](#email-actions-for-every-template).
+
+Email actions email anyone on a paid plan (Starter or higher). On the Developer plan or during a free trial, you can set
+them up and try them out, but they only email your team: **Send a test**, and test submissions' emails to your team
+members. Live submissions' emails aren't sent until the account has a paid plan.
+
+## Adding an email action
+
+In the template editor, click **Settings**, open the **Emails** tab and click **Add email action**. A template can have
+several, such as one for the person who filled in the form and one for your records.
+
+- **To**, **Cc** and **Bcc**: addresses, and the [addresses each submission gives](#addresses-from-the-submission): pick
+  a text or email field, or type `metadata.` and a key. An email can have up to 10 recipients, counting each field and
+  metadata value as one.
+- **From name**: the sender's name. Leave it blank to use your account's name.
+- **From address**: an address at one of your [verified email domains](#sending-from-your-own-domain). Leave it blank
+  to send from DocSpring's address.
+- **Reply-To**: where replies go, a team member's address or one at your verified email domains. It starts as your own
+  address.
+- **Subject** and **Message**: the email's text, with [variables](#variables). Leave them blank for a short default
+  that names the template.
+- **File name**: the attached files' name, with [variables](#variables), such as `Lease {{ data.unit }}`. Each file
+  gets its own extension: `.pdf`, `.docx` or `.odt`. Leave it blank for the name in the submission's `pdf_filename`
+  metadata, or the template's name. A download link's files keep the names their other downloads have.
+- **Format**: on a Word template, which of the submission's files to send (see [below](#word-templates)).
+- **Delivery**: attach the files, or **Send a download link** (see [below](#attachment-or-download-link)).
+- **Submissions**: live submissions, test submissions, or both. Test submissions only email your team members'
+  addresses, so you can try the action out without emailing anyone else.
+- **Conditions**: **Every submission**, or
+  [only the submissions that meet these conditions](#sending-only-some-submissions-emails).
+
+Email actions belong to the template's draft and take effect when you save them. Publishing a version doesn't change
+them.
+
+**Send a test** emails the action's email to you only. It shows each field's value as the field's name in brackets, and
+each metadata value as `[metadata.key]`, so no submission's data goes anywhere. When the action attaches its files and
+the template is a PDF template, the test attaches the template's blank PDF. Otherwise the test has no attachment, and
+says what the real emails have. Without a paid plan, it needs your email address to be confirmed.
+
+## Email actions for every template
+
+To send the same email for many templates, add it to your account: open **Integrations** in the sidebar, click **Set up
+email actions** on the **Email** card, then **Add email action**. It has the same settings as a template's email
+action, and:
+
+- **Sends for**: **Every template**, or **Chosen templates and folders**: the templates you pick (type a name or an
+  ID to find one) and the templates in the folders you pick, including the folders inside them. You can pick up to 500
+  templates and 500 folders. To send for more templates than that, put them in a folder and send for the folder.
+- In **To**, **Cc** and **Bcc**, type a field's name to send to its value. A template without the field skips it, a
+  `{{ data.field_name }}` variable for a field that a template doesn't have prints nothing, and a condition on one
+  reads it as blank.
+- Use `{{ template.name }}` in the subject or message to say which template the files are from.
+- **Format** can choose Word documents or OpenDocument files. Only Word templates make them, so the action sends no
+  email for the other templates' submissions.
+
+**Send a test** sends the email as it would go for the template it sends for that you changed most recently.
+
+### Changing one for a template
+
+A template's **Emails** tab lists your account's email actions that send for it, under **From your account**:
+
+- The switch turns one off or on for this template only. One that's off for your account shows **Off**, and is off for
+  every template.
+- **Customize** changes its settings for this template only. The settings you don't change follow your account's email
+  action, so later changes to them there apply here too. Each changed setting is marked **Changed for this template**:
+  **Reset to the account's setting** undoes one, and **Reset all** undoes every change.
+- **Edit it for every template** opens your account's email actions.
+
+Deleting one of your account's email actions also deletes its changes on every template.
+
+## Addresses from the submission
+
+**To**, **Cc** and **Bcc** can each send to an address that every submission gives:
+
+- **A field**: pick one of the template's text or email fields. Each submission's value gets the email. For a field in
+  a list, every row's address gets it.
+- **Metadata**: type `metadata.` and the key, such as `metadata.agent_email`, or `metadata.agent.email` for a value
+  inside an object (up to 5 levels deep). Submissions get their metadata from the
+  [API](/docs/api/#tag/submissions/post/templates/{template_id}/submissions) or a web form link's
+  [`metadata` parameters](/docs/forms/web-forms/#set-submission-metadata).
+
+A field or metadata value left blank, or without a valid address, is skipped for that submission, and the submission
+page says why. A field that a [conditional logic](/docs/template-editor/conditional-logic/) rule hides gets no email:
+the PDF doesn't show it either.
+
+To send to an address the PDF shouldn't print, such as the agent who sent the form, either put it in the submission's
+metadata, or add an email field and check **Hidden** in its settings. A hidden field is on the online form and in the
+API, but not on the PDF, and its value still gets the email. Fill it in with the API, or hide it on the form too with a
+web form link's [`hidden_fields` and `data` parameters](/docs/forms/web-forms/#hidden-fields).
+
+With the API, these are tags in `to`, `cc` and `bcc`: `{{ data.client_email }}`, `{{ data["client email"] }}`,
+`{{ data["tenants/~/email"] }}` for a field in a list, or `{{ metadata.agent_email }}`.
+
+## Sending only some submissions' emails
+
+Choose **Only the submissions that meet these conditions** under **Conditions**, then add the conditions, as in a
+[conditional logic](/docs/template-editor/conditional-logic/) rule: a field, a condition (such as **Equals**, **Is one
+of** or **Greater**) and a value. With more than one, choose whether all of them or any of them must match. An
+email action can have up to 20 conditions.
+
+Conditions read the values the PDF shows: formulas are worked out, and a field that a rule hides counts as blank. Number
+comparisons need a number field, and conditions can't check a field in a list. A submission that doesn't meet them sends
+no email, and its page shows **Skipped** with **Conditions not met**. A test email always sends, and says that the
+action has conditions.
+
+With the API, set `send_when` to `{ "match": "all", "conditions": [...] }`, with conditions in the format of a
+template's conditional logic rules.
+
+## Variables
+
+The subject, message and file name can include these variables:
+
+| Variable                                      | Value                                      |
+| --------------------------------------------- | ------------------------------------------ |
+| `{{ data.field_name }}`                       | A field's value, as the PDF shows it       |
+| `{{ data["field name"] }}`                    | The value of a field whose name has spaces |
+| `{{ metadata.key }}`                          | A value in the submission's metadata       |
+| `{{ template.name }}` and `{{ template.id }}` | The template's name and ID                 |
+| `{{ submission.id }}`                         | The submission's ID                        |
+| `{{ account.name }}`                          | Your account's name                        |
+
+The `if`, `unless` and `case` tags work too:
+
+```liquid
+Hi {{ data.first_name }},
+
+Your signed lease for {{ data.address }} is attached.
+{% if data.pet_deposit != blank %}
+Your pet deposit is {{ data.pet_deposit }}.
+{% endif %}
+```
+
+**Insert a field** puts a field's variable where your cursor is. A variable that isn't one of these, or a field that
+isn't on the template, is an error when you save. A field you remove later prints nothing.
+
+## Word templates
+
+A Word template's submissions make Word documents, OpenDocument files (.odt) or PDFs, as its **Output** setting
+chooses, or the formats an API request asks for (see [Output Format](/docs/word-templates/overview/#output-format)).
+Choose which of them an email action sends under **Format**:
+
+- **All files** _(the default)_: every file the submission made.
+- **Word document (.docx)**, **OpenDocument file (.odt)** or **PDF**: only that file.
+
+A submission that didn't make the chosen file sends no email, and its page shows **Skipped**, with **No Word document to
+send** for example. A file the submission makes later, such as a PDF made from its Word document, isn't emailed. With
+the API, set `file_formats` to `docx`, `odt`, `pdf` or `all`.
+
+## Attachment or download link
+
+- **Attach the PDF** (or **Attach the files**) attaches the submission's files, with the audit trail when the template
+  merges it into the PDF. Files over the action's attachment size limit, together, go as a download link instead.
+- **Send a download link** sends a link to a DocSpring page with a button to download each file. Each link works for 7
+  days. After that, the page lets anyone the email went to ask for a new link, which is emailed to them. Links stop
+  working once the submission's files are deleted (see
+  [Expire Submissions](/docs/template-editor/settings/#expire-submissions)).
+
+Accounts that have signed a Business Associate Agreement (BAA) with us start with download links.
+
+### Attachment size limit
+
+Emailing a file makes it about 38% larger, and many company mail servers refuse emails over 10 MB. So when an action
+attaches its files, files over 7 MB together go as a download link instead: 7 MB of files makes an email of about 9.6
+MB.
+
+If everyone the action emails accepts larger emails, such as Microsoft 365 (up to 36 MB) or Gmail (50 MB), raise the
+limit with the slider under **Delivery**, up to 25 MB. A template can change it for its own emails. With the
+API, set `max_attachment_mb`. 1 MB is 1,000,000 bytes. See
+[Email Attachment Size Limits](/docs/guides/email-attachment-size-limits/) for the limits of each mail service.
+
+On DocSpring Enterprise, emails go through your install's own email service, so its limit applies too: Postmark, for
+example, accepts emails up to 10 MB, which fits about 7 MB of files.
+
+## Sending from your own domain
+
+Emails come from DocSpring's address with your account's name, and replies go to the action's Reply-To address:
+
+```
+From: Acme Inc via DocSpring <no-reply@notify.docspring.com>
+```
+
+To send from your own address instead, verify your domain:
+
+1. Open **Email domains** in the sidebar and click **Add domain**. Use the domain you'll send from, such as
+   `example.com`, or a subdomain such as `mail.example.com`.
+2. Add the DNS records it shows where you manage your domain's DNS (your domain registrar or DNS host):
+   - three **DKIM** CNAME records, which sign the emails (required),
+   - a **MAIL FROM** MX and TXT record, which let SPF pass for your domain too (recommended),
+   - a **DMARC** TXT record, if your domain doesn't have one yet (required).
+3. DocSpring checks for the records every few minutes, and the domain is verified once its DKIM and DMARC records are
+   found. DNS changes can take a few hours to show. Click **Check again** to check now.
+
+Then choose an address at the domain in an email action's **From address**. Keep the records in your DNS: we check them
+every day, and email actions can't send from a domain whose records are gone.
+
+If the DKIM records aren't found within 3 days, the domain needs new ones: click **Check again** to get them, then
+replace the three CNAME records.
+
+Enterprise installs send email actions through the email service they're set up with, and have no Email domains page.
+
+## Failures and the submission page
+
+The **Integrations** tab of a submission's page lists each email's recipients and what happened to their email:
+**Sent**, **Delivered**, **Not delivered** (the recipient's mail server kept refusing it, for example because the
+mailbox was full), **Bounced**, **Marked as spam**, or why it wasn't sent (a field left blank, an address that isn't
+valid, a test submission, or an address listed twice, which gets one email).
+
+Some failures mean the action's settings need fixing: the From address's domain is no longer verified, or a field it
+sends to was renamed or removed from the template (the **Emails** tab shows **Field missing**). When an action's emails
+keep failing, the account owner gets an email (unless you turn off **Email the account owner when its emails fail**),
+and again a day later. After 3 days of failures the action turns itself off. Fix the problem, then turn **Send
+emails** back on.
+
+Without a paid plan, live submissions' emails aren't sent. The submission page says why, and they don't count as
+failures.
+
+A fixed address (in **To**, **Cc** or **Bcc**) that bounces or marks an email as spam turns the action off straight
+away, since every later email to it would fail too, and the account owner gets an email. When a template's changes to
+one of your account's email actions added that address, only that template's email turns off.
+
+Problems with an address that came from a submission's field or metadata (left blank, not an address, or bounced) are
+shown on the submission but don't turn the action off.
+
+## API
+
+Email actions and email domains have API endpoints, and the API clients have methods for them. A template's email
+actions include your account's email actions that send for it, with the template's `customization` of each, which
+you change or remove with its own endpoints. Your account's email actions are at `/email_actions`. A submission's
+`actions` include its email actions' emails.
+
+An AI assistant connected to the [MCP server](/docs/mcp/) with full access can set up and change email actions too.
+
+<LinkCard title="Email Actions API" href="/docs/api/#tag/email-actions" />
+<LinkCard title="Email Domains API" href="/docs/api/#tag/email-domains" />

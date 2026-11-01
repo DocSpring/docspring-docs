@@ -65,10 +65,11 @@ Control what is uploaded to your bucket:
   - Combined PDFs aren't filtered by template or folder
 
 - **File Formats**
-  - PDFs, Word documents, or PDFs and Word documents (default)
+  - Word documents (.docx), OpenDocument files (.odt), PDFs, or All files (default)
   - A [Word template](/docs/word-templates/overview/)'s submission has a Word document, an OpenDocument file (.odt)
-    or both, and a PDF too when the template makes one. Word documents include OpenDocument files.
-  - Combined PDFs are uploaded unless you choose Word documents only
+    or both, and a PDF too when the template makes one. A submission that made none of the chosen files uploads
+    nothing.
+  - Combined PDFs are uploaded with PDFs and All files
   - An integration created before this setting was added uploads PDFs only, so its object keys ending in `.pdf` stay
     right: add `{{ extension }}` to its object key templates before you change it
 
@@ -91,9 +92,9 @@ combined_submissions/{{ combined_submission_id }}.{{ extension }}
 clients/{{ metadata.client_id }}/invoices/{{ submission_id }}.pdf
 ```
 
-`{{ extension }}` is each file's extension, `pdf`, `docx` or `odt`. When **File Formats** includes Word documents, the
-submission templates need it, so a submission's files each get their own key. (To upload only Word documents, a
-template can end in `.docx` instead: an OpenDocument file's key then ends in `.odt`.)
+`{{ extension }}` is each file's extension, `pdf`, `docx` or `odt`. With All files, the submission templates need it, so
+a submission's files each get their own key. With Word documents or OpenDocument files only, a template can end in
+`.docx` or `.odt` instead.
 
 <LinkCard
   title="Available Variables"

@@ -1,0 +1,128 @@
+---
+title: Email Attachment Size Limits
+description: The largest email that Gmail, Microsoft 365, Exchange, Yahoo, iCloud and other mail services accept, why attaching a file makes an email about 37% larger, and how to choose the largest file to attach.
+---
+
+An email with an attached file is larger than the file. Mail servers limit the size of the whole email, and many
+company mail servers refuse anything over 10 MB, so a 9 MB PDF can bounce from a server whose limit is 10 MB. This
+page lists the limits of common mail services, mail server software and email sending services, explains how they're
+measured, and shows how to choose the largest file to attach.
+
+We checked each limit against the provider's own documentation in October 2026. Providers change their limits, and
+an administrator can set a different one for their organization, so treat these as defaults.
+
+## Why an attachment makes an email larger
+
+Email is sent as text, so an attached file is encoded with base64
+([RFC 2045](https://www.rfc-editor.org/rfc/rfc2045.html)): every 3 bytes of the file become 4 characters, in lines of
+at most 76 characters, each followed by a line break. The file takes about 37% more space in the email, and the
+email's text and headers add a little more. Providers quote different figures: Google says encoding adds about 37%,
+and Microsoft says about 33%, which leaves out the line breaks. DocSpring's emails use shorter lines, which makes an
+attached PDF 38% larger.
+
+| File  | Email, about |
+| ----- | ------------ |
+| 5 MB  | 6.9 MB       |
+| 7 MB  | 9.6 MB       |
+| 10 MB | 13.8 MB      |
+| 18 MB | 24.8 MB      |
+| 25 MB | 34.4 MB      |
+
+To find the largest file that fits under a limit, divide the limit by 1.38. A 10 MB limit fits a file of about
+7.2 MB, and a 25 MB limit a file of about 18 MB.
+
+## What "MB" means
+
+Mail servers don't all count a megabyte the same way:
+
+- Exchange (Server and Online) and Exim count 1 MB as 1,048,576 bytes, so Exchange's 10 MB is 10,485,760 bytes.
+- Postfix's default limit is 10,240,000 bytes.
+- Google, Amazon SES, Postmark, SendGrid and Mailgun don't say.
+
+Count 1 MB as 1,000,000 bytes, the smaller: a file under a limit counted that way is under it however the server
+counts.
+
+## Mail services
+
+| Service                          | Receives              | Sends                  | Source                                                                                                                                                                                                                           |
+| -------------------------------- | --------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gmail                            | 50 MB                 | 25 MB of attachments   | [Gmail Help](https://support.google.com/mail/answer/6584), [Google Workspace Updates](https://workspaceupdates.googleblog.com/2017/03/receive-emails-of-up-to-50mb-in-gmail.html)                                                |
+| Google Workspace                 | 50 MB, after encoding | 25 MB, before encoding | [Receiving limits](https://knowledge.workspace.google.com/admin/gmail/gmail-receiving-limits-in-google-workspace), [sending limits](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace) |
+| Google Workspace Enterprise Plus | 70 MB, after encoding | Up to 50 MB            | [Google Workspace Updates](https://workspaceupdates.googleblog.com/2026/02/ending-larger-attachments-in-gmail-new-50MB-limit-for-Enterprise-Plus.html)                                                                           |
+| Microsoft 365 (Exchange Online)  | 36 MB, after encoding | 35 MB, after encoding  | [Exchange Online limits](https://learn.microsoft.com/en-us/office365/servicedescriptions/exchange-online-service-description/exchange-online-limits)                                                                             |
+| Outlook.com                      | Not published         | 25 MB                  | [Microsoft Support](https://support.microsoft.com/en-US/Support/known-issues/unable-to-attach-files-in-outlook-com)                                                                                                              |
+| Yahoo Mail                       | 25 MB                 | 25 MB                  | [Yahoo Help](https://help.yahoo.com/kb/SLN5673.html)                                                                                                                                                                             |
+| iCloud Mail                      | 20 MB                 | 20 MB                  | [Apple Support](https://support.apple.com/en-us/102198)                                                                                                                                                                          |
+| Proton Mail                      | 50 MB                 | 25 MB                  | [Proton Support](https://proton.me/support/attaching-multiple-documents-to-a-message)                                                                                                                                            |
+| Zoho Mail                        | 40 MB                 | 20 to 40 MB, by plan   | [Zoho Mail limits](https://www.zoho.com/mail/help/adminconsole/rates-and-limits.html), [plans](https://www.zoho.com/mail/zohomail-pricing.html)                                                                                  |
+| Fastmail                         | 70 MB                 | 70 MB                  | [Fastmail Help](https://www.fastmail.help/hc/en-us/articles/360060591253)                                                                                                                                                        |
+| GMX FreeMail                     | 20 MB                 | 20 MB                  | [GMX](https://www.gmx.net/mail/dateianhaenge/)                                                                                                                                                                                   |
+| Yandex Mail                      | 30 MB                 | 25 MB                  | [Yandex Support](https://yandex.com/support/mail/bounces/yandex/message-size-exceeds-fixed-limit.html)                                                                                                                           |
+
+Microsoft 365 administrators can set limits from 1 MB to 150 MB, and Google Workspace Enterprise Plus administrators
+can let people send from 25 MB to 50 MB. Zoho Mail administrators can set 1 MB to 40 MB. Yahoo, Proton and GMX give
+their limits as attachment sizes, and don't say whether they count the encoded email.
+
+## Mail server software
+
+A company that runs its own mail server has the server's default limit unless an administrator changes it:
+
+| Server                                              | Default limit                                                 | Source                                                                                                             |
+| --------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Exchange Server 2016, 2019 and Subscription Edition | 10 MB, for email it receives from outside too, after encoding | [Message size limits in Exchange Server](https://learn.microsoft.com/en-us/exchange/mail-flow/message-size-limits) |
+| Postfix                                             | 10,240,000 bytes (`message_size_limit`)                       | [postconf(5)](https://manpages.debian.org/trixie/postfix/postconf.5.en.html)                                       |
+| Exim                                                | 50 MB, or 52,428,800 bytes (`message_size_limit`)             | [Exim specification](https://www.exim.org/exim-html-current/doc/html/spec_html/ch-main_configuration.html)         |
+| Sendmail                                            | No limit (`MaxMessageSize`)                                   | [Sendmail cf/README](https://raw.githubusercontent.com/freebsd/freebsd-src/main/contrib/sendmail/cf/README)        |
+
+Exchange Server checks email from outside the organization against the organization's send limit, which is also
+10 MB by default. Email security gateways in front of a mail server, such as Mimecast, Proofpoint or Barracuda, have
+their own limits, and so does every server an email passes through on its way. The smallest limit decides.
+
+## Email sending services
+
+| Service                      | Largest email         | Source                                                                                                         |
+| ---------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Amazon SES (API v2 and SMTP) | 40 MB, after encoding | [Amazon SES quotas](https://docs.aws.amazon.com/ses/latest/dg/quotas.html)                                     |
+| Amazon SES (API v1)          | 10 MB, after encoding | [Amazon SES quotas](https://docs.aws.amazon.com/ses/latest/dg/quotas.html)                                     |
+| Postmark                     | 10 MB, after encoding | [Postmark Support](https://postmarkapp.com/support/article/1056-what-are-the-attachment-and-email-size-limits) |
+| SendGrid                     | Under 30 MB           | [SendGrid limitations](https://www.twilio.com/docs/sendgrid/api-reference/mail-send/limitations)               |
+| Mailgun                      | 25 MB                 | [Mailgun documentation](https://documentation.mailgun.com/docs/mailgun/user-manual/sending-messages/send-http) |
+
+## Finding a mail server's limit
+
+A mail server announces its limit to the servers that connect to it, with the SMTP `SIZE` extension
+([RFC 1870](https://www.rfc-editor.org/rfc/rfc1870.html)). Find the domain's mail server, connect to it on port 25 and
+send `EHLO`: the `SIZE` line gives the limit in bytes, where 0 means it has no fixed limit.
+
+```
+$ dig +short MX example.com
+10 mail.example.com.
+$ telnet mail.example.com 25
+220 mail.example.com ESMTP
+EHLO test.example.org
+250-mail.example.com
+250-SIZE 10240000
+250 8BITMIME
+QUIT
+```
+
+Many internet providers block outgoing connections to port 25, so you may need to run this from a server. The limit
+a server announces is its own: a gateway in front of it, or the mailbox behind it, can have a lower one. A server
+that refuses an email for its size replies with code 552, and the sender gets a bounce that says the message is too
+large or exceeds a fixed size limit.
+
+## Choosing the largest file to attach
+
+- When you don't know which mail services your recipients use, keep attachments under 7 MB. The email stays under
+  10 MB, the most common company limit. Send larger files as a download link.
+- When every recipient uses Microsoft 365, Gmail or Google Workspace with the default limits, files up to 25 MB
+  arrive: the email is about 34.4 MB.
+- For recipients on iCloud Mail or GMX FreeMail, keep files under about 14 MB, and on Yahoo Mail under about 18 MB.
+
+## Email actions in DocSpring
+
+DocSpring's [email actions](/docs/template-editor/email-actions/) email each submission's PDF to the people who
+filled in your form or to your team. When an action attaches the PDF, a PDF over its attachment size limit goes as a
+download link instead. The limit is 7 MB unless you change it, and you can raise it up to 25 MB when everyone the
+action emails accepts larger emails. See
+[Attachment size limit](/docs/template-editor/email-actions/#attachment-size-limit).

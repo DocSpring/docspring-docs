@@ -238,6 +238,9 @@ value while keeping the rest of the event:
 - For each data request (signature request) in the payload, the values its signer
   entered (`data`), and the `ip_address` and `user_agent` they signed from, are `null`.
   Its name, email, state, timestamps and authentication details are kept.
+- For each email an [email action](/docs/template-editor/email-actions/) sent, its
+  `subject` and the addresses that came from the submission's fields are `null`. The
+  addresses in the email action's settings, and each recipient's status, are kept.
 
 ### Strip specific fields
 
