@@ -72,7 +72,25 @@ API v2 also has `getFolder`, `listCustomFiles`, `getCustomFile`, `deleteCustomFi
   Each SDK's README names the error and the setting that turns the check off.
 - **Bodies are JSON.** Send `Content-Type: application/json`: any other content type is a `415`. (v1 read form-encoded
   and plain-text bodies as JSON.) Only the PDF uploads (`uploadTemplate` and `uploadTemplateDocument`) take
-  `multipart/form-data`.
+  `multipart/form-data`. A JSON body with comments (`//` or `/* */`) is a `400`.
+- **Methods are the documented ones.** Updates are `PUT`: `PATCH` is a `405`, as is any other method an endpoint
+  doesn't take. An `X-HTTP-Method-Override` header is a `400`, and a multipart `_method` field is an unknown property.
+  Paths have no format suffix: `/api/v2/templates.json` is a `404`.
+- **Blank isn't empty.** An ID, a query value or a template name that's empty or only whitespace is a `422` ("can't be
+  blank"). v1 read a blank ID as no ID: `parent_folder_id: ""` moved a folder to the root, a webhook with
+  `template_ids: [""]` got every template's events, and a blank filter listed everything. Send `null` where the
+  reference allows it, or leave the property out.
+- **Each query parameter once.** A query parameter or multipart field sent twice is a `422`. v1 used the last one.
+- **An update needs something to change.** An update with an empty body (`{}`) is a `422`.
+- **Versions have no leading zeros.** `version` and `template_version` take `1`, `1.2` or `1.2.3` (and `latest` or
+  `draft` where the reference says), and `01` is a `422`.
+- **Template search is literal.** `listTemplates`'s `query` matches `%` and `_` as themselves. v1 read them as
+  wildcards.
+- **`wait`** is only for the [requests that wait for PDFs](/docs/api-guide/synchronous-requests/#synchronous-api-endpoints).
+  On any other request it's a `422`.
+- **Requests can be sent again safely.** Every `POST`, `PUT` and `DELETE` takes an `Idempotency-Key` header: a request
+  sent again with the same key gets the first response instead of running twice (see
+  [Sending a request again](/docs/api-guide/synchronous-requests/#sending-a-request-again)). API v1 ignores it.
 - **Text is UTF-8.** A JSON body or query string that isn't valid UTF-8 is a `400` with an `invalid_request` error.
   v1 replaced the bytes it couldn't read with `�`, so a name sent as Latin-1 printed as `Jos�` instead of `José`.
 - **Bodies have a size limit:** 50 MB to create a submission, 100 MB for a PDF upload, and 10 MB for everything else. A
@@ -104,7 +122,8 @@ v2 checks submission data more strictly:
   UPC barcode, only ASCII characters for Code 128, not too long for a QR code. v1 accepted it and the submission
   failed when the PDF was generated.
 - Each signature request needs `fields`, and an `auth_type` unless DocSpring emails the signer. Each field can be in
-  only one signature request. A field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
+  only one signature request. A signature request's `email` is an email address, or `null` for none: an empty one is
+  a `422` (v1 accepted it). A field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
   error, unless the signature request sets `ignore_unknown_fields`.
 - Only the signers can sign a submission that has signature requests. A value for a signature or initials field, in
   `data` or in a field override's `default`, makes it an `invalid_data` submission. `editable: true`, on the submission
@@ -240,7 +259,7 @@ temporary link in `document.download_url` (v1's `document_url`), and a custom fi
 - Templates have no `webhook_url` or `webhook_options`. Create a [webhook](/docs/webhooks/overview/) with
   `template_ids` instead.
 - `embed_domains` is a list (v1's comma-separated string), and each entry is checked: a host such as `app.example.com`,
-  with an optional leading `*.`, port and `http` or `https` scheme.
+  with an optional leading `*.`, port and `http` or `https` scheme, and no path.
 - `copyTemplate` with `parent_folder_id: null` puts the copy at the root, as `moveTemplate` does. Leave
   `parent_folder_id` out to put it in the template's own folder (v1 did that for `null` too).
 - `getTemplateSchema` and `getTemplateModelCode` describe the version that submissions use by default (the latest

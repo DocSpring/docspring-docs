@@ -27,8 +27,8 @@ Only requests that create a submission, batch, combined PDF or template PDF, or 
 
 All of our API client libraries will use this subdomain by default. (You can always override the `host` when configuring your client.)
 
-You can force the synchronous subdomain to return a pending response immediately by adding the `?wait=false` query parameter.
-The `wait` query parameter has no effect on the async subdomain.
+You can force the synchronous subdomain to return a pending response immediately by adding the `?wait=false` query parameter to one of the [requests that wait](#synchronous-api-endpoints).
+The `wait` query parameter has no effect on the async subdomain, and other requests don't take it: `wait` on any other request is a `422`.
 
 ## Subdomains and Endpoints
 
@@ -71,10 +71,21 @@ Use the ID to [check the submission's status](/docs/api/#tag/submissions/get/sub
 <Aside type="caution">
   If a request to create a submission (or another record) returns a
   `polling_timeout` error that includes the record, don't send that request
-  again. The record was already created, so sending it again creates a
-  duplicate. A `polling_timeout` error without an ID means DocSpring didn't
-  answer the request in time, so the record may or may not have been created:
-  check for it before you send the request again.
+  again. The record was already created, so sending it again without an
+  `Idempotency-Key` creates a duplicate. A `polling_timeout` error without an ID
+  means DocSpring didn't answer the request in time, so the record may or may
+  not have been created: send the request again with the same
+  [`Idempotency-Key`](#sending-a-request-again), or check for the record first.
 </Aside>
 
 If some of your PDFs regularly take longer than 95 seconds, add `?wait=false` to those requests. You'll get the pending submission straight away, and can then check its status or use webhooks as described above.
+
+## Sending a request again
+
+Every request that creates, changes or deletes something (each `POST`, `PUT` and `DELETE`) takes an `Idempotency-Key` header: a key of your own, such as a UUID, of up to 255 printable ASCII characters. Send a new key with each new request, and the same key each time you send the same request again, such as after a timeout, a network error or a `5xx`. For 24 hours, DocSpring answers a request with a key that your API token has already used with the first request's response, and an `Idempotent-Replayed: true` header, instead of processing it again.
+
+- The same key with a different request (another path, query or body) is a `422` with the error code `idempotency_key_reused`.
+- A `409` with the error code `idempotency_key_in_use` and a `Retry-After` header means the first request is still being processed: send the request again after that many seconds. Without `Retry-After`, the first request was processed but its response is no longer kept, because it was too large or its data has expired. The error has the ID of the record the first request created, when it created one.
+- `wait` doesn't change the request: a request with `?wait=false` and the same request without it are the same request.
+
+The API clients take the key as each method's last argument, or as an option.

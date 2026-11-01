@@ -57,9 +57,18 @@ gemini extensions install https://github.com/DocSpring/skills
 
 ### Sign in
 
-The plugin lists both of DocSpring's MCP servers: `docspring` for accounts in the US and `docspring-eu` for accounts in
-the EU. Sign in to the one for your account's region (for example, select it in Claude Code's `/mcp`) and leave the
-other one disconnected. When you sign in, you choose what the agent can do: see [Access](/docs/mcp/#access).
+DocSpring has an MCP server in each region: `docspring` for accounts in the US and `docspring-eu` for accounts in the
+EU. When you sign in, you choose what the agent can do: see [Access](/docs/mcp/#access).
+
+In Claude Code, the plugin connects `docspring` only: select it in `/mcp` to sign in. If you sign in to DocSpring at
+`app-eu.docspring.com`, your account is in the EU: add `docspring-eu`, then select it in `/mcp` instead.
+
+```sh
+claude mcp add --transport http --scope user docspring-eu https://mcp-eu.docspring.com/mcp
+```
+
+In other agents, the plugin lists both servers. Sign in to the one for your account's region and leave the other one
+disconnected.
 
 ## Install only the skills
 
