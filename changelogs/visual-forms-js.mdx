@@ -28,7 +28,24 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.19.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.20.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 1, 2026
+</div>
+
+- Check marks and shapes support the new condition types: _Doesn't equal_,
+  _Doesn't contain_, _Doesn't start with_, _Doesn't end with_, _Doesn't match
+  regex_, _Is blank_ and _Isn't blank_. Like a _Matches regex_ condition's
+  check, a click doesn't select one: it shows whether the value matches.
+- _Matches regex_ conditions use RE2 syntax and are matched with RE2's
+  JavaScript version, so the form and the PDF agree. A pattern RE2 doesn't
+  support (lookarounds, backreferences), or that the two versions would read
+  differently (like `\pL` or `\B`), never matches. Any pattern matches quickly,
+  however long the value. See
+  [Conditions](/docs/reference/field-data-types/#conditions).
+
+### 2.19.2
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 31, 2026

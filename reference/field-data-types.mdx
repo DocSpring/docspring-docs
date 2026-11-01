@@ -49,9 +49,26 @@ If you add some Field Options, then the value must be one of those options. A se
 
 ### Conditions
 
-When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Condition. The field will only be displayed when the value matches the condition. The condition predicate can be one of: _Equals_, _Contains_, _Starts With_, _Ends With_, or _Regex_. ([Static check marks and shapes](/docs/reference/field-display-types/#static-check-marks-and-shapes) are always displayed.) A submission's _Regex_ conditions can take 2 seconds in all to check: if they take longer, the PDF isn't generated, and the submission's error names the field to fix.
+When a _String_ field is displayed as a _Check_ or _Shape_, you can define a Condition. The field is only displayed when its value matches the condition. ([Static check marks and shapes](/docs/reference/field-display-types/#static-check-marks-and-shapes) are always displayed.) The condition can be:
 
-A _Regex_ condition is a Ruby regular expression. Visual forms and signature requests show which check marks and shapes match, as the PDF does, but they don't support some Ruby-only syntax: POSIX bracket expressions (`[[:alpha:]]`), class intersections (`[a-z&&[^aeiou]]`), `\p{...}`, atomic groups (`(?>...)`), possessive quantifiers (`a++`), comments (`(?#...)`), options other than a leading `(?i)`, and the escapes `\R`, `\X`, `\K`, `\G`, `\g` and `\e`. A form shows a check mark or shape whose Regex uses them as not matching, though the PDF still draws it when the value matches. So does a Regex with a group that repeats with nothing fixed in it, like `(a+)*` or `(\w+\s?)+`, which a browser can take minutes to match against a long value.
+- _Equals_, _Contains_, _Starts with_ or _Ends with_ the condition's text, or the opposite: _Doesn't equal_, _Doesn't contain_, _Doesn't start with_ or _Doesn't end with_.
+- _Matches regex_ or _Doesn't match regex_: the condition is a regular expression (see below).
+- _Is blank_ or _Isn't blank_: whether the value is empty or has only spaces, tabs and line breaks. These conditions have no text.
+
+On a visual form, clicking a check mark or shape with an _Equals_, _Contains_, _Starts with_ or _Ends with_ condition selects it, and sets the value to the condition's text. The others only show whether the value matches. Embedded visual forms need version 2.20.0 for the _Doesn't_, _Is blank_ and _Isn't blank_ conditions, and to match regex conditions as the PDF does.
+
+A _Matches regex_ condition is an [RE2 regular expression](https://github.com/google/re2/wiki/Syntax). The value matches when the expression matches any part of it: use `^` and `$` to match the whole value, and start with `(?i)` to ignore case, as in `(?i)^(yes|y)$`. In a value with several lines, `^` and `$` match at the start and end of each line, and `\A` and `\z` only at the start and end of the value. `\w`, `\d`, `\s`, `\b` and classes like `[[:alpha:]]` only know ASCII characters: list accented letters in a class, as in `[a-zA-ZÀ-ÿ]`.
+
+RE2 matches any expression in a time proportional to the length of the value, so no condition can slow down a PDF or a form. Visual forms and signature requests match with RE2's JavaScript version, and show the same check marks and shapes as the PDF. So that the two always agree, a regex condition can't use:
+
+- Lookaheads or lookbehinds (`(?=...)`, `(?!...)`, `(?<=...)`, `(?<!...)`), backreferences (`\1`), atomic groups, conditionals or recursion, which RE2 doesn't have. For "not", use a condition like _Doesn't contain_ or _Doesn't match regex_.
+- Unicode classes like `\pL` or `\p{Greek}`: list the characters in a class instead.
+- `\B`, `\C` or `\Z` (RE2 doesn't have `\Z`: use `\z` for the end of the value).
+- With `(?i)`, the few letters that the two versions of RE2 case differently (such as `ɤ`).
+- More than 1,000 repeats of a part (`a{1001}`), including repeats inside repeats, or groups nested more than 100 deep. The whole expression can have up to 10,000 characters, counting a repeated part once for each repeat.
+- Group names with characters other than the letters a to z and A to Z, digits and `_`, or two groups with the same name.
+
+The template editor shows what's wrong under the condition as you type, and a template can't be saved with a regex condition that breaks these rules. The API's error says what to change.
 
 <Image src={conditionsImg} alt="Conditions" width={250} />
 
