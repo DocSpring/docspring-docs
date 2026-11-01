@@ -1,0 +1,15 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "DocSpring",
+  "description": "DocSpring fills PDF and Word templates, generates PDFs from HTML templates and page designs, and collects e-signatures, through a REST API, API clients in 10 languages and an MCP server.",
+  "excludeFolders": ["changelogs"],
+  "excludeFiles": ["README.md"],
+  "rules": [
+    "Send API requests to https://sync.api.docspring.com/api/v2 (EU accounts: https://sync.api-eu.docspring.com/api/v2), which waits for the PDF before it answers.",
+    "Use API v2 and the 4.x API clients in new code.",
+    "Authenticate with an API token's ID and secret, as HTTP Basic auth.",
+    "Read a template's field names from GET /templates/{template_id}/schema instead of guessing them. Template IDs look like tpl_...",
+    "Make test PDFs (test: true) while developing: they're free and watermarked. Live PDFs use the account's credits.",
+    "Verify webhook requests with the X-DocSpring-Signature header and the webhook's secret before trusting them."
+  ]
+}

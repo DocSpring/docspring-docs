@@ -18,7 +18,8 @@ There's no API token to copy.
 | EU     | `https://mcp-eu.docspring.com/mcp` |
 
 Use the URL of the region your account is in. If you sign in to DocSpring at `app-eu.docspring.com`, your account is
-in the EU. The examples below use the US URL.
+in the EU. The examples below use the US URL. For the EU, use its URL in the commands and config files, and name the
+server `docspring-eu`, as the DocSpring plugin does, so it doesn't replace a US server named `docspring`.
 
 For coding agents (Claude Code, Codex, Copilot, Gemini CLI), the [DocSpring plugin](/docs/mcp/skills/) adds the MCP
 server together with DocSpring's agent skills, which teach the agent DocSpring's workflows.
@@ -172,11 +173,46 @@ type `/` and look for `create_template`: for a server added as `docspring`, it's
   your organization allows to handle it.
 - Text that an assistant reads, such as a PDF from the web or a submission's data, can contain instructions meant to
   make it misuse its tools. Most assistants ask before they call a tool that changes something, and the tools that
-  delete or expire data are marked as destructive, so clients ask you to confirm each call. Choose **Read only** when the
-  assistant only needs to look.
+  change or remove what's already there (editing a template or its fields, renaming, moving, restoring a version,
+  changing a webhook or an email action, deleting, expiring) are marked as destructive, so clients ask you to confirm
+  each call. Choose **Read only** when the assistant only needs to look.
 - With full access, an assistant manages your webhooks, which send your submissions' data to a URL, and your email
   actions, which email your PDFs. It can change all of them, including the ones you set up yourself, and what it sets
   up keeps working after you disconnect it. Choose **Read and write** when it doesn't need them.
+- Assistants never see a webhook's signing secret or its headers' values: copy the secret from the webhook's page in
+  DocSpring (**Webhooks** in the sidebar), and add headers there.
+
+## Troubleshooting
+
+**The assistant doesn't have DocSpring's tools.** Adding the server isn't enough: sign in too. In Claude, click
+**Connect** next to DocSpring in **Customize > Connectors**, then turn it on for the chat from the **+** menu. In
+Claude Code, run `/mcp` and select `docspring` (`docspring-eu` for the EU). In Codex, run `codex mcp login docspring`
+(or `docspring-eu`).
+
+**Sign-in doesn't know your account, or your templates aren't there.** You connected the other region's server. If you
+sign in at `app-eu.docspring.com`, connect `https://mcp-eu.docspring.com/mcp` and name it `docspring-eu`; otherwise
+use `https://mcp.docspring.com/mcp`.
+
+**A tool you expected is missing.** The assistant only has the tools its access allows: **Read only** has no tools
+that change anything. To change the access, disconnect the assistant under **Connected apps** on the **Integrations**
+page and sign in again. ChatGPT Pro only gets the read-only tools whatever you choose.
+
+**New tools don't appear.** Some assistants keep the list of tools they saw when you connected. Reconnect DocSpring, or
+refresh it in the assistant's connector settings.
+
+**The assistant was signed out.** That happens when someone in your account disconnects it in DocSpring, or when it
+hasn't been used for 90 days. Sign in again from the assistant: in Claude, click **Reconnect** next to DocSpring in
+**Customize > Connectors**.
+
+**A tool returned `processing`.** The PDF or template took longer than about 50 seconds. Ask the assistant to check it
+again: it uses `get_submission` or `get_template`.
+
+**Live PDFs fail with a credits error.** Live PDFs use your account's credits. Add credits on the **Billing** page. If
+the error says the PDF will be processed once you add credits, it's made then, so don't ask for it again. Test PDFs
+are free while you try things out, but combining PDFs always uses credits.
+
+Anything else: email [support@docspring.com](mailto:support@docspring.com), or use the
+[contact form](https://docspring.com/contact).
 
 <Aside type="note">
   DocSpring's MCP server uses the same OAuth sign-in as other apps that connect

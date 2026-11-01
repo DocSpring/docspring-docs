@@ -21,6 +21,16 @@ Every connection has these tools.
 
 ## Read and write
 
+Tools that change or remove what's already there, such as `update_fields`, `remove_fields` and `restore_version`, are
+marked as destructive, so clients ask you to confirm each call. Tools that only add something, like `add_fields` or
+`copy_template`, aren't.
+
+Tools that can make DocSpring reach outside your account are marked as open-world: they download a link (a PDF, an image
+in your data), send to a webhook's URL, email people, or check an email domain's DNS records. The tools that change or
+copy a template are marked too, but only because an HTML template can link to images, fonts or stylesheets on the web,
+which DocSpring loads when it renders the template's preview. With PDF and Word templates and page designs, they don't
+load anything.
+
 <McpToolTable scope="write" />
 
 ## Full access
@@ -37,6 +47,7 @@ These tools can't be undone, so clients ask you to confirm each call.
 
 An assistant sees and changes all of your webhooks and [email actions](/docs/template-editor/email-actions/), as you
 can in DocSpring. `send_test_email` sends only to you. The webhooks and email actions an assistant sets up stay when
-you disconnect it.
+you disconnect it. Assistants never see a webhook's signing secret or its headers' values: copy the secret from the
+webhook's page in DocSpring, and add headers there.
 
 <McpToolTable scope="integrations" />
