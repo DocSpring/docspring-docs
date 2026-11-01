@@ -148,7 +148,7 @@ Formats a number as a currency, with grouped thousands and two decimal places (e
 
 Convert a date into a specific timezone. You can also pass `'now'` or `'today'` to use the current time.
 
-Include a UTC offset in timestamps you pass to `in_time_zone` (e.g. `2024-05-01T09:00:00Z`). A timestamp without one is read in your account's time zone, which you can set in your [account settings](https://app.docspring.com/account/edit). Date-only values are read as midnight and can shift to the previous day, so format them with `date` directly. An unrecognised timezone is ignored, and the time is shown in your account's time zone instead. Templates created before 29 October 2026 use the server's time zone (US Eastern) instead of the account's, so their PDFs don't change.
+Include a UTC offset in timestamps you pass to `in_time_zone` (e.g. `2024-05-01T09:00:00Z`). A timestamp without one is read in your account's time zone, which you can set in your [account settings](https://app.docspring.com/account). Date-only values are read as midnight and can shift to the previous day, so format them with `date` directly. An unrecognised timezone is ignored, and the time is shown in your account's time zone instead. Templates created before 29 October 2026 use the server's time zone (US Eastern) instead of the account's, so their PDFs don't change.
 
 **Parameters:**
 

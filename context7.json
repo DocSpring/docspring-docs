@@ -1,5 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/docspring/docspring-docs",
+  "public_key": "pk_z4V5AcCziD9DkZGEleBwr",
   "projectTitle": "DocSpring",
   "description": "DocSpring fills PDF and Word templates, generates PDFs from HTML templates and page designs, and collects e-signatures, through a REST API, API clients in 10 languages and an MCP server.",
   "excludeFolders": ["changelogs"],
