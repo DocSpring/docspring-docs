@@ -27,6 +27,7 @@ Your signature request will include:
 - The fields that the user must fill out (including signature fields)
 - Some optional metadata to save on this signature request
 - Details about how and when the user has been authenticated
+- `send_email: false`, because your app sends the link. Without it, DocSpring also emails the user a link to sign
 
 <Aside type="tip">
   While many authentication fields are optional, provide as much detail as you
@@ -42,7 +43,7 @@ Your signature request will include:
   description="API documentation for creating signature request events"
 />
 
-DocSpring does not currently send emails on your behalf, so your server must send an email to your user with a link to the page where they can sign the document. The URL will be a link to your own domain, since you will be embedding the DocSpring JavaScript in a page within your own application.
+With `send_email: false`, DocSpring doesn't email the user, so your server must send an email to your user with a link to the page where they can sign the document. The URL will be a link to your own domain, since you will be embedding the DocSpring JavaScript in a page within your own application. (DocSpring can also send the emails, with links to its own signing page or to a page on your site: see [Emails from DocSpring](/docs/api-guide/create-signature-requests/#emails-from-docspring).)
 
 Once you have sent the email, inform DocSpring about this event by making an API request to the Create Signature Request Event endpoint, with the `send_request` event type. This event will be shown on the audit trail page once the PDF has been generated, as reported by your account. The endpoint doesn't accept other event types, and it returns an error once the signature request is completed, declined, or expired.
 

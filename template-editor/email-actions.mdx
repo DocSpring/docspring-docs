@@ -26,7 +26,8 @@ In the template editor, click **Settings**, open the **Emails** tab and click **
 several, such as one for the person who filled in the form and one for your records.
 
 - **To**, **Cc** and **Bcc**: addresses, and the [addresses each submission gives](#addresses-from-the-submission): pick
-  a text or email field, or type `metadata.` and a key. An email can have up to 10 recipients, counting each field and
+  a text or email field, or type `metadata.` and a key. In **To**, pick **Each signer** to send each of the submission's
+  [signers](#signature-requests) their own email. An email can have up to 10 recipients, counting each field and
   metadata value as one.
 - **From name**: the sender's name. Leave it blank to use your account's name.
 - **From address**: an address at one of your [verified email domains](#sending-from-your-own-domain). Leave it blank
@@ -219,7 +220,7 @@ Enterprise installs send email actions through the email service they're set up 
 The **Integrations** tab of a submission's page lists each email's recipients and what happened to their email:
 **Sent**, **Delivered**, **Not delivered** (the recipient's mail server kept refusing it, for example because the
 mailbox was full), **Bounced**, **Marked as spam**, or why it wasn't sent (a field left blank, an address that isn't
-valid, a test submission, or an address listed twice, which gets one email).
+valid, a test submission, an address listed twice, which gets one email, or a signer who gets their own email).
 
 Some failures mean the action's settings need fixing: the From address's domain is no longer verified, or a field it
 sends to was renamed or removed from the template (the **Emails** tab shows **Field missing**). When an action's emails
@@ -234,8 +235,20 @@ A fixed address (in **To**, **Cc** or **Bcc**) that bounces or marks an email as
 away, since every later email to it would fail too, and the account owner gets an email. When a template's changes to
 one of your account's email actions added that address, only that template's email turns off.
 
-Problems with an address that came from a submission's field or metadata (left blank, not an address, or bounced) are
-shown on the submission but don't turn the action off.
+Problems with an address that came from a submission's field, its metadata or its signers (left blank, not an address,
+or bounced) are shown on the submission but don't turn the action off.
+
+## Signature requests
+
+Choose **Each signer** in **To** to send the PDF to the people who signed the submission's
+[signature requests](/docs/api-guide/create-signature-requests/). Each signer gets their own email, addressed only to
+them, so signers don't see each other's addresses. Everyone else in **To**, **Cc** and **Bcc** gets one email together,
+which leaves out anyone who already gets their own as a signer. With the API, it's `{{ signer.email }}` in `to`.
+
+When DocSpring emails a submission's [signature requests](/docs/api-guide/create-signature-requests/#emails-from-docspring),
+it also emails the signed PDF to the signers, the CCs and the notification addresses once everyone has signed. An email
+action that sends the PDF to one of those addresses replaces DocSpring's email there, so nobody gets the PDF twice: an
+email action to **Each signer** replaces DocSpring's emails to the signers.
 
 ## API
 

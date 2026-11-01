@@ -9,7 +9,7 @@ import { LinkCard } from "@astrojs/starlight/components";
 
 API v1 calls signature requests data requests (`data_requests`). They're the same records.
 
-This feature allows you to request information or signatures from one or more people. When you have a pending signature request, you can then redirect your user to a form hosted on docspring.com, embed this form on your website, or send them a link via email.
+This feature allows you to request information or signatures from one or more people. DocSpring emails each person a link to sign and, once everyone has signed, emails them the signed PDF. You can also send the links yourself or embed the signing form on your website: set `send_email` to `false` for everyone, or for one person. See [Emails from DocSpring](#emails-from-docspring).
 
 Once all of the signature requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server. If a signer [declines to sign](/docs/forms/signature-requests/#declining-to-sign), the submission is cancelled instead and no PDF is generated.
 
@@ -46,11 +46,22 @@ The request body must be a JSON object with the following properties:
 - `data` _(object, optional)_: Values for the fields that nobody fills in, by field name. Required unless the signature requests collect every value.
 - `metadata` _(object, optional)_: Any additional data, such as a user id. `metadata` will be included in webhook requests.
 - `test` _(boolean, optional)_: `true` to generate a test PDF, `false` for a live PDF. Test PDFs are free, but watermarked.
+- `send_email` _(boolean, optional)_: Whether DocSpring emails the signers their signing links, any reminders and the signed PDF. Default `true`. Each signature request's own `send_email` overrides it. DocSpring doesn't email the signers of a [form library](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/#forms-from-the-docspring-form-library) template: leave `send_email` out, and send them their links yourself.
+- `signing_order` _(string, optional)_: `parallel` (the default) lets everyone sign at once. With `sequential`, people sign one step at a time (each signature request's `signing_step`), and DocSpring emails each step once everyone in the step before it has signed.
+- `email_subject` _(string, optional)_: The subject of the emails that ask people to sign, up to 200 characters. See [Subject and message](#subject-and-message).
+- `email_message` _(string, optional)_: A message for the people who sign, shown above the signing button, up to 2,000 characters.
+- `cc` _(array of email addresses, optional)_: Up to 10 people who get the signed PDF. They don't sign.
+- `reply_to` _(string, optional)_: Where replies to the emails go: a member of your DocSpring team, or an address at one of your verified email domains. Default: the template's **Reply-to address** setting, or your account owner.
+- `notification_emails` _(array of email addresses, optional)_: Up to 10 addresses that DocSpring tells when the document is completed or declined, or when an email to a signer bounces or can't be sent. Each one is a team member's address or at one of your verified email domains. Default: the template's **Notification emails** setting, or your account owner.
+- `notify_when_signed` _(boolean, optional)_: Also email `notification_emails` each time someone signs.
+- `reminders` _(object, optional)_: Remind the people who haven't signed. Without it, DocSpring sends no reminders.
+  - `interval_days` _(integer, required)_: Days between reminders, from 1 to 30.
+  - `max_count` _(integer, required)_: The most reminders each person gets, from 1 to 10.
 - `signature_requests` _(array of objects, optional)_: Up to 100 signature requests. Each object in the array can have the following properties:
   - `role` _(string, optional)_: Which of the template's signers this person is: `Signer 1`, `Signer 2` and so on. Without roles, the first signature request is `Signer 1`, the second `Signer 2`, and so on.
     - To leave a signer out, give every signature request its `role` and leave that signer's out. Either every signature request has a `role` or none does.
     - `Signer 1`'s details go in the template's [`@@signature_requests/0` fields](/docs/template-editor/field-names/#special-field-names-for-signature-requests), `Signer 2`'s in `@@signature_requests/1`, and so on. A signer you leave out has no signature request, so its fields stay empty.
-  - `email` _(string, optional)_: The user's email address. We recommend including it, because it is shown in the audit trail.
+  - `email` _(string, optional)_: The user's email address. Required when DocSpring emails them. Otherwise we recommend including it, because it is shown in the audit trail.
   - `name` _(string, optional)_: The user's name.
   - `fields` _(array of field names, required)_: The field names that this person must fill in.
     - Each field can only be in one signature request.
@@ -58,7 +69,10 @@ The request body must be a JSON object with the following properties:
     - A field that `data` already has a value for is a 422, unless you set `prefilled_values_editable` to let the person change the value.
     - A name that the template doesn't have saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. Set `ignore_unknown_fields` to leave those names out instead, which lets you send one field list with several templates.
   - `metadata` _(object, optional)_: Any additional data that you want to associate with this signature request.
-  - `auth_type` _(string, required)_: One of: `password`, `oauth`, `email_link`, `phone_number`, `ldap`, `saml`
+  - `send_email` _(boolean, optional)_: Whether DocSpring emails this person. Default: the submission's `send_email`. Set it to `false` for someone who signs in your app, or whose link you send yourself.
+  - `signing_step` _(integer, optional)_: With `signing_order: sequential`, when this person signs: everyone in step 1 first, then step 2, and so on. People in the same step sign in any order. Either every signature request has a `signing_step` or none does. Without them, each person is a step of their own, in the order of `signature_requests`.
+  - `auth_type` _(string, required unless DocSpring emails this person)_: One of: `password`, `oauth`, `email_link`, `phone_number`, `ldap`, `saml`
+    - When DocSpring emails the person, it's `email_link` (the default).
     - Use `email_link` if you are sending an authenticated link in an email.
   - `auth_session_started_at` _(string, optional)_: The timestamp when the user was authenticated.
     - We will set `auth_session_started_at` automatically when `auth_type` is `email_link`.
@@ -84,6 +98,125 @@ Only the signers can sign a submission that has signature requests, and its sign
 Please [contact us](https://docspring.com/contact/) if you need a different `auth_type` or `auth_second_factor_type`.
 :::
 
+## Emails from DocSpring
+
+Unless you set `send_email` to `false`, DocSpring sends these emails for the submission:
+
+| Email         | Who gets it                                                       | When                                                                                                                |
+| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Signing link  | Each person DocSpring emails, or only the first step's            | When you create the submission                                                                                      |
+| Your turn     | The people in the next step, with `signing_order: sequential`     | Once everyone in the step before has signed                                                                         |
+| Reminder      | Each person who hasn't signed yet                                 | Every `reminders.interval_days` days, up to `reminders.max_count` times                                             |
+| Signed PDF    | Everyone DocSpring emailed a signing link, and the `cc` addresses | Once the PDF has been generated                                                                                     |
+| Completed     | `notification_emails`                                             | Once the PDF has been generated                                                                                     |
+| Signed        | `notification_emails`, with `notify_when_signed`                  | Each time someone signs                                                                                             |
+| Declined      | `notification_emails`, and the people who had already signed      | When someone declines                                                                                               |
+| Email problem | `notification_emails`                                             | When the email with someone's signing link bounces or is marked as spam, or DocSpring couldn't send their first one |
+
+People with `send_email: false`, and the signers of a form library template, get none of these emails: send them
+their link and the signed PDF yourself. When they sign in order, send their link once you have the
+`signature_request.completed` webhooks of everyone in the steps before theirs.
+
+Each email with a signing link has a new link that works for 7 days, and the audit trail records it. Reminders stop
+once the person signs, or when an email to them bounces, is marked as spam or is reported.
+
+### Who the emails come from
+
+The emails come from DocSpring's shared address, with "via DocSpring" after the sender's name: "Acme via DocSpring".
+The sender's name is the template's **Sender name** setting, or your account's name. Replies go to `reply_to`.
+
+On the Growth and Scale plans, a template can send its emails from an address at one of your verified email domains
+(its **From address** setting), and the button in the email can open a signing page on your own site (its **Signing
+URL** setting). While a template's From address or Signing URL can't be used (its domain is no longer verified, or
+your plan no longer includes it), new submissions that DocSpring emails are refused: change the template's setting, or
+set `send_email` to `false`. If the From address stops working after a submission was created, its emails go from the
+shared address and your account owner gets an email about it. If the Signing URL stops working, the emails with a link
+aren't sent, and your `notification_emails` get an email about it. See
+[Signature request emails](/docs/template-editor/settings/#signature-request-emails).
+
+The emails show your account's logo and brand color, which you set on the **Account** page, when your account is on a
+paid plan or has bought a credit pack.
+
+### Subject and message
+
+`email_subject` and `email_message` can use these variables:
+
+- `{{ signer.name }}` and `{{ signer.email }}`: the person the email is for
+- `{{ document.name }}`: the template's name
+- `{{ sender.name }}`: the sender's name
+- `{{ account.name }}`: your account's name
+
+The default subject is "_Sender_ sent you _document_ to sign". Anything else in `{{ }}` or `{% %}` is a 422. Links and
+web addresses in the subject and message are shown as plain text (`example[.]com`), so the signing button is the only
+link people can click.
+
+### The signed PDF
+
+The signed PDF email attaches the PDF, and the audit trail when it isn't merged into the PDF. When they're over 7 MB, or
+the template's **Signed PDF** setting asks for links, the email has a download link instead. Download links work for 7
+days, then the page offers to email a new one to the same address. Accounts that have signed a BAA get links by
+default.
+
+When one of your [email actions](/docs/template-editor/email-actions/) sends the submission's PDF to a signer, a `cc`
+address or a notification address, that address gets the email action's email instead of DocSpring's, so nobody gets
+the signed PDF twice. To send every signer the PDF in your own email, add an email action with **Each signer** in
+**To** ([Signature requests](/docs/template-editor/email-actions/#signature-requests)).
+
+### Test submissions
+
+A test submission (`test: true`) only emails your DocSpring team: every address it would email must be a team member's.
+Other addresses are a 422. Use a team member's address, or set `send_email` to `false`. The subjects start with
+"[Test]".
+
+### Limits
+
+- Before DocSpring emails the signers of a live submission, your credit balance must cover its PDF and signatures. On
+  the Developer plan and during a trial, it must also cover your other requests that are still waiting for signers.
+  Otherwise the request returns `402 Payment Required` with the `insufficient_credits_to_send` code, and nothing is
+  saved.
+- Each account can send 2,000 emails about signature requests a day, or 50 on the Developer plan and during a trial.
+  A request that would go over returns `429 Too Many Requests` with the `daily_email_limit_reached` code and a
+  `Retry-After` header with the seconds until midnight UTC, and nothing is saved.
+  [Contact us](https://docspring.com/contact/) for a higher limit.
+- When people mark 3 of your emails as spam, or report them with the link at the bottom, within 30 days, your
+  account's emails pause. Requests that ask DocSpring to email someone then return `403 Forbidden`, and your account
+  owner gets an email about it.
+
+### Enterprise
+
+On DocSpring Enterprise, the emails go through your server's email settings, from its `DOCSPRING_FROM_EMAIL` address
+or any template From address, with no daily limit. Your email service doesn't report bounces to DocSpring, so there are
+no email problem emails or `email_bounced` events.
+
+### Example
+
+```json
+{
+  "test": false,
+  "signing_order": "sequential",
+  "email_message": "Please sign by Friday.",
+  "cc": ["records@example.com"],
+  "reminders": { "interval_days": 3, "max_count": 2 },
+  "signature_requests": [
+    {
+      "name": "John Smith",
+      "email": "john@example.com",
+      "fields": ["tenant_signature"],
+      "signing_step": 1
+    },
+    {
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "fields": ["landlord_signature"],
+      "signing_step": 2
+    }
+  ]
+}
+```
+
+DocSpring emails John straight away, and Jane once John has signed. Each of them gets a reminder after 3 days and
+another after 6 if they haven't signed, and both of them and `records@example.com` get the signed PDF.
+
 ## Authentication Details
 
 It's important to provide accurate authentication details in case an electronic signature is disputed.
@@ -107,7 +240,7 @@ The response is the submission. Some of its properties are left out here:
   "id": "sub_1234567890abcdef01",
   "template_id": "tpl_1234567890abcdef01",
   "state": "waiting_for_signature_requests",
-  "test": true,
+  "test": false,
   "metadata": {
     "user_id": 42
   },
@@ -119,6 +252,10 @@ The response is the submission. Some of its properties are left out here:
       "email": "jsmith@example.com",
       "fields": ["name", "signature"],
       "sort_order": 0,
+      "send_email": true,
+      "signing_step": null,
+      "sent_at": null,
+      "email_status": null,
       "state": "pending",
       "viewed_at": null,
       "completed_at": null,
@@ -135,6 +272,15 @@ The response is the submission. Some of its properties are left out here:
 ```
 
 `files.pdf` appears when every signature request is completed and the PDF has been generated. `files.preview` can appear earlier, so check `state` to know when the submission is signed.
+
+`sent_at` is when DocSpring first emailed the person their signing link, and `email_status` is what happened to the latest
+email with their link: `sent`, then `delayed`, `delivered`, `undelivered`, `bounced` or `complained` (marked as spam).
+`email_status` is `failed` when DocSpring couldn't send the first email with their link, and `unknown` when it couldn't
+tell whether that email went. Neither is sent again: send them a new signature request. Both fields are `null` until
+DocSpring has emailed them, just after the submission is created or, with `signing_order: sequential`, when their turn
+comes. The `signature_request.sent`
+[webhook event](/docs/webhooks/events/) fires when DocSpring first emails them, and `signature_request.email_bounced`
+when an email with their link bounces or is marked as spam.
 
 ## See Also
 

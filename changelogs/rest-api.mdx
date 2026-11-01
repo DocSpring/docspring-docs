@@ -18,6 +18,38 @@ clients are listed in each client's own changelog.
 
 ## Changelog
 
+### Signature request emails
+
+- DocSpring emails the signers of an API v2 signature request a link to sign,
+  and the signed PDF once everyone has signed. Set `send_email` to `false`, for
+  the submission or for one signature request, when your app sends the links or
+  embeds the signing form. API v1 never emails signers. See
+  [Emails from DocSpring](/docs/api-guide/create-signature-requests/#emails-from-docspring).
+- New parameters for creating a submission: `send_email`, `signing_order`,
+  `email_subject`, `email_message`, `cc`, `reply_to`, `notification_emails`,
+  `notify_when_signed` and `reminders`, and each signature request's
+  `send_email` and `signing_step`. A signature request that DocSpring emails
+  needs an `email`, and its `auth_type` is `email_link` by default.
+- Signature requests have `send_email`, `signing_step`, `sent_at` and
+  `email_status`, and submissions have `signing_order`.
+- With `signing_order: sequential`, a signer can't sign until everyone in the
+  steps before theirs has: the signing page says so, and Signature Requests
+  JS's `onError` gets `not_your_turn`.
+- New webhook events: `signature_request.sent` and
+  `signature_request.email_bounced` (`submission_data_request.sent` and
+  `submission_data_request.email_bounced` in version 3). New webhooks get them
+  by default.
+- Creating a submission that DocSpring emails can return `402` with
+  `"code": "insufficient_credits_to_send"`, `429` with
+  `"code": "daily_email_limit_reached"` when it would go over your account's
+  daily email limit, and `403` while your account's emails are paused. Nothing
+  is saved.
+- Templates have settings for these emails: `signature_request_from_name`,
+  `signature_request_from_address`, `signature_request_signing_url`,
+  `signature_request_include_signing_token`, `signature_request_reply_to`,
+  `signature_request_notification_emails` and
+  `signature_request_email_attachments`.
+
 ### API v2
 
 - [API v2](/docs/api-guide/migrating-to-api-v2/) is the current version of the
@@ -35,8 +67,10 @@ clients are listed in each client's own changelog.
   longer opens the form, but a page the signer opened in the last 7 days still
   works.
 - Live signature requests (data requests in API v1) work on every plan,
-  including the free Developer plan. Creating one no longer returns
-  `403 Forbidden` with `"code": "upgrade_required"`.
+  including the free Developer plan, once your account has made a payment: a
+  credit pack or a paid plan. Before that, creating one returns
+  `403 Forbidden` with `"code": "upgrade_required"`. Test signature requests
+  are free on every plan.
 - A webhook with **Include submission data** turned off no longer sends any
   form values: each data request's (signature request's) `data`, `ip_address`
   and `user_agent`, and the submission's `truncated_text`, are `null`.

@@ -120,6 +120,42 @@ templates doesn't count again.
 _On the Emails tab._ Email each submission's PDF to the people who filled it in, or to your team, with your own subject
 and message. See [Email Actions](/docs/template-editor/email-actions/).
 
+## Signature Request Emails
+
+_On the Emails tab, for PDF templates only._ How DocSpring emails the people who sign this template's
+[signature requests](/docs/api-guide/create-signature-requests/#emails-from-docspring). A request's own `reply_to` and
+`notification_emails` replace the template's. You can set them for new templates on your account's **Template
+defaults** page, and with the `signature_request_*` options in the [templates API](/docs/api/#tag/templates).
+
+- **Sender name**: Who your signers see the emails are from, as in "Acme via DocSpring". Leave it empty to use your
+  account's name.
+- **From address**: _Growth and Scale plans._ An address at one of your verified email domains, the same domains as
+  [email actions](/docs/template-editor/email-actions/). Leave it empty to send from DocSpring's shared address, with
+  "via DocSpring" after the sender name. While the address can't be used (its domain is no longer verified, or your
+  plan no longer includes it), new signature requests that DocSpring emails are refused until you change it. Emails
+  for requests created before that go from the shared address, and your account owner gets an email.
+- **Signing URL**: _Growth and Scale plans._ A page on your own site that the email's button opens instead of
+  DocSpring's signing page: an `https` URL on one of your verified email domains or a subdomain of one. It must include
+  `{{ signature_request_id }}`. Your page checks who the signer is, then
+  [creates a token](/docs/api/#tag/signature-requests/post/signature_requests/{signature_request_id}/tokens) and opens
+  the [signing form](/docs/guides/embedded-forms/embedded-signature-requests/). The audit trail still says the signer
+  was authenticated by an email link (`email_link`): DocSpring emailed the link to their address, whichever page it
+  opens. While the URL can't be used (its domain is no longer verified, or your plan no longer includes it), new
+  signature requests that DocSpring emails are refused until you change it, and emails with a link for earlier
+  requests aren't sent. Your notification emails get an email about it.
+- **Include the signing token**: Adds a signing token to the signing URL, as `{{ token_id }}` and `{{ token_secret }}`,
+  so your page can open the signing form without creating a token. Anyone who has the email can then sign, as with
+  DocSpring's own link.
+- **Reply-to address**: Where your signers' replies go: a team member's address, or one at your verified email
+  domains. Leave it empty to use your account owner's.
+- **Notification emails**: Who DocSpring emails when a document is completed or declined, or an email to a signer
+  bounces or can't be sent. Up to 10 team members or addresses at your verified email domains. Leave it empty to email
+  your account owner.
+- **Signed PDF**: How the emails that send signers and CCs the signed PDF include it: attached (a download link when
+  it's too big to attach), or a download link. The default is a link if your account has signed a BAA, otherwise
+  attached. An [email action](/docs/template-editor/email-actions/) that sends the PDF to one of these people replaces
+  DocSpring's email to them.
+
 ## Redirect URL
 
 _On the Forms tab._ We'll redirect users to this URL whenever they fill out the online form to generate a PDF.

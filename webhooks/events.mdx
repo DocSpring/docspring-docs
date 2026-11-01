@@ -51,12 +51,18 @@ discard it, it moves to `error` and DocSpring sends `submission.failed`. See
 
 ## Signature Requests
 
-| Event                               | Description                              |                                        |
-| ----------------------------------- | ---------------------------------------- | -------------------------------------- |
-| `submission_data_request.viewed`    | When a signature request is first viewed | <Badge text="Default" variant="tip" /> |
-| `submission_data_request.completed` | When a signature request is completed    | <Badge text="Default" variant="tip" /> |
-| `submission_data_request.declined`  | When a signer declines to sign           | <Badge text="Default" variant="tip" /> |
-| `submission_data_request.updated`   | When a signature request is updated      |                                        |
+| Event                                   | Description                                                              |                                        |
+| --------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------- |
+| `submission_data_request.sent`          | When DocSpring first emails a signer their signing link                  | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.viewed`        | When a signature request is first viewed                                 | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.completed`     | When a signature request is completed                                    | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.declined`      | When a signer declines to sign                                           | <Badge text="Default" variant="tip" /> |
+| `submission_data_request.updated`       | When a signature request is updated                                      |                                        |
+| `submission_data_request.email_bounced` | When DocSpring's email with a signer's link bounces or is marked as spam | <Badge text="Default" variant="tip" /> |
+
+`submission_data_request.sent` and `submission_data_request.email_bounced` are for the
+[emails DocSpring sends](/docs/api-guide/create-signature-requests/#emails-from-docspring). New webhooks get them by
+default. Add them to an existing webhook on the **Webhooks** page.
 
 ## Combined Submissions
 

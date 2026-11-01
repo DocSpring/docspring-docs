@@ -41,7 +41,8 @@ generate a live document return
 
 Key points for your integration:
 
-- **The submission is saved.** The error's `submission_id` (`combined_pdf_id`
+- **The submission is saved** (except for a signature request that DocSpring
+  emails: see below). The error's `submission_id` (`combined_pdf_id`
   for a combined PDF, `submission_batch_id` for a batch) is its ID. It's held in
   the `insufficient_credits` state and **automatically resumes** once enough
   credits are available, so you don't need to resubmit. If support has turned
@@ -93,11 +94,18 @@ Key points for your integration:
   together, can all be accepted and some may still enter `insufficient_credits`
   once the earlier ones consume the balance. Always check each submission's
   `state` rather than relying on the creation status alone.
-- Signature requests can be created without credits. Credit admission happens when
-  the signers finish and the live PDF is ready to render. The final charge
-  includes the PDF's own cost plus 60 credits for each signature request that asks
-  its signer to sign or initial. Signature requests that only collect values add
-  nothing to the PDF's cost.
+- A live submission whose signers DocSpring emails (`send_email`, the default in
+  API v2) is checked before anything is saved: your balance must cover its PDF
+  and its signatures, and on the Developer plan and during a trial, your other
+  requests still waiting for signers too. Otherwise it returns `402` with the
+  code `insufficient_credits_to_send` and **nothing is saved**, so there's no
+  submission to resume: add credits and send the request again.
+- Signature requests you send the links for yourself (`send_email: false`) can
+  be created without credits. Credit admission happens when the signers finish
+  and the live PDF is ready to render.
+- Either way, the final charge includes the PDF's own cost plus 60 credits for
+  each signature request that asks its signer to sign or initial. Signature
+  requests that only collect values add nothing to the PDF's cost.
 - **Test submissions never consume credits** and are not blocked by a low
   credit balance. They remain subject to API request limits.
 
@@ -107,8 +115,9 @@ To avoid hitting `402` in production, enable
 ## Plan features (HTTP 403)
 
 Some features depend on your plan: the number of templates, users and active
-integrations, and the embedded template editor (see [Plans](/docs/billing/#plans)). A request that needs a
-higher plan returns `403 Forbidden` before anything is created:
+integrations, and the embedded template editor (see [Plans](/docs/billing/#plans)). Live signature requests need your
+account to have made a payment first: a credit pack or a paid plan. A request that needs a higher plan or a first
+payment returns `403 Forbidden` before anything is created:
 
 ```json
 {
@@ -121,7 +130,7 @@ higher plan returns `403 Forbidden` before anything is created:
 }
 ```
 
-Unlike `402`, nothing is queued: upgrade the plan, then send the request again.
+Unlike `402`, nothing is queued: upgrade the plan (or buy a credit pack), then send the request again.
 
 Setting a template's `slack_webhook_url` (or, in API v1, its legacy
 `webhook_url`) to a new URL that would go over the limit on active integrations
@@ -185,6 +194,14 @@ which counts as a single request.
 
 These limits count API requests, not PDFs within a batch or simultaneous PDF
 renders. Credit availability is checked separately for each live document.
+
+The emails DocSpring sends about signature requests have a daily limit of their
+own: 2,000 a day, or 50 on the Developer plan and during a trial. A request that
+would go over it returns `429 Too Many Requests` with the code
+`daily_email_limit_reached` and a `Retry-After` header with the seconds until
+midnight UTC. Nothing is saved, so send it again after that, or send the signing
+links yourself (`send_email: false`). See
+[Create signature requests](/docs/api-guide/create-signature-requests/#limits).
 
 If you need a higher rate limit than your plan provides, contact
 [support@docspring.com](mailto:support@docspring.com).

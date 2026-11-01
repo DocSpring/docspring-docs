@@ -103,8 +103,8 @@ v2 checks submission data more strictly:
 - A value for a field shown as a barcode or QR code must be one it can show: the right number of digits for an EAN or
   UPC barcode, only ASCII characters for Code 128, not too long for a QR code. v1 accepted it and the submission
   failed when the PDF was generated.
-- Each signature request needs `fields` and an `auth_type`, and each field can be in only one signature request. A
-  field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
+- Each signature request needs `fields`, and an `auth_type` unless DocSpring emails the signer. Each field can be in
+  only one signature request. A field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
   error, unless the signature request sets `ignore_unknown_fields`.
 - Only the signers can sign a submission that has signature requests. A value for a signature or initials field, in
   `data` or in a field override's `default`, makes it an `invalid_data` submission. `editable: true`, on the submission
@@ -276,12 +276,18 @@ records in both versions, so an ID from API v1 works in API v2. New ones get IDs
 
 A signature request's `data` holds only the values its own signer filled in.
 
+DocSpring emails each signer of an API v2 signature request a link to sign, and the signed PDF once everyone has
+signed. API v1 never emails signers. If your app sends the links or embeds the signing form, set `send_email` to
+`false` when you move to API v2. See
+[Emails from DocSpring](/docs/api-guide/create-signature-requests/#emails-from-docspring).
+
 A token's link opens the signing form for 24 hours, or 7 days for an `email` token, and a form that opened in time
 keeps working for 7 more days. Create a token each time you open the form or send a link.
 
 To leave a signer out, give each signature request its `role` (`Signer 1`, `Signer 2` and so on: `Signer 1` fills the
 template's `@@signature_requests/0` fields) and leave that signer's out. v1's `skipped` placeholders are gone, and so are
-`fields` and `auth_type`'s exemption for them: every signature request needs both.
+`fields` and `auth_type`'s exemption for them: every signature request needs `fields`, and an `auth_type` unless
+DocSpring emails the signer.
 
 ## Waiting for PDFs
 

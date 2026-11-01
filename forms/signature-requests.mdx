@@ -9,7 +9,7 @@ import { LinkCard, Aside } from "@astrojs/starlight/components";
 
 Create a signature request to collect UETA and ESIGN compliant electronic signatures.
 
-When you make an API request to fill out a PDF, you can specify that some fields must be filled in by certain people (including signature or initials fields). The PDF submission will be in a pending state until all of its signature requests have been completed. You can then send these people a link to fill in the form, or embed this form on your own website. When everyone has filled in the form, the PDF will be generated, and we can send your server a webhook notification.
+When you make an API request to fill out a PDF, you can specify that some fields must be filled in by certain people (including signature or initials fields). The PDF submission will be in a pending state until all of its signature requests have been completed. DocSpring emails each person a link to sign, or you can send them the links yourself, or embed the form on your own website. When everyone has filled in the form, the PDF will be generated, DocSpring emails it to the people who signed, and we can send your server a webhook notification.
 
 Signature requests work with PDF templates: signers fill in and sign the fields on the template's pages. HTML templates,
 Word templates and page designs can't have signature requests yet.
@@ -18,14 +18,21 @@ To collect UETA and ESIGN compliant electronic signatures, DocSpring must record
 
 ## How Signature Requests Work
 
-Here is an overview of the process:
+When DocSpring sends the emails (the default):
 
-1. **Create a submission with signature requests** - Include details about the people who will be filling out and signing the document
-2. **Send notification emails** - Send your users links to the signing form and record the event
-3. **Request authentication tokens** - Create a token when the user is ready to sign
-4. **Update authentication details** - Ensure authentication information is current
-5. **Render the signing form** - Embed the form on your website or use the hosted signing page
-6. **Process the completed PDF** - Receive webhook notifications when all signatures are collected
+1. **Create a submission with signature requests**: the people who fill in and sign the document, and optionally the order they sign in, a message and reminders. See [Emails from DocSpring](/docs/api-guide/create-signature-requests/#emails-from-docspring).
+2. **DocSpring emails each person** a link to its signing page, and reminds them if you asked it to.
+3. **Each person signs** on the signing page.
+4. **DocSpring generates the PDF** and emails it to the people who signed and to any CCs. Your server gets webhook notifications along the way.
+
+When you send the links yourself or embed the form in your app, create the signature requests with `send_email: false`:
+
+1. **Create a submission with signature requests**: include details about the people who will be filling out and signing the document, and how your app authenticated them.
+2. **Send notification emails**: send your users links to the signing form and record the event.
+3. **Request authentication tokens**: create a token when the user is ready to sign.
+4. **Update authentication details**: make sure the authentication information is current.
+5. **Render the signing form**: embed the form on your website or use the hosted signing page.
+6. **Process the completed PDF**: receive webhook notifications when all signatures are collected.
 
 This process ensures that DocSpring can record a complete audit trail of events, making all electronic signatures legally binding.
 
@@ -83,8 +90,9 @@ To ensure legal compliance, signature requests should include:
 
 DocSpring automatically records a complete audit trail for each signature request, including:
 
-- When you sent the signing link, which you report through the [Create Signature Request Event](/docs/api/#tag/signature-requests/post/signature_requests/{signature_request_id}/events) API. The audit trail shows it as reported by your account.
-- How and when each signer was authenticated, in a **Signer Authentication** section. These are the details you sent, shown as stated by your account. When a signer opens an email link, DocSpring records the time itself.
+- When DocSpring emailed the signing link or a reminder, and when that email bounced or was marked as spam.
+- When you sent the signing link yourself, which you report through the [Create Signature Request Event](/docs/api/#tag/signature-requests/post/signature_requests/{signature_request_id}/events) API. The audit trail shows it as reported by your account.
+- How and when each signer was authenticated, in a **Signer Authentication** section. These are the details you sent, shown as reported by your account. When a signer opens an email link, DocSpring records the time itself, and when the link was one DocSpring emailed, the section says DocSpring sent it to the signer's address.
 - When the document was viewed
 - When each signature was collected
 - When the document was completed
@@ -99,6 +107,13 @@ Example audit trail log:
 2024-01-01 12:20:00 - Signed by Test (test@example.com)
 2024-01-01 12:20:00 - Document completed
 ```
+
+## Your Logo and Brand Color
+
+The signing page, DocSpring's emails to your signers and the audit trail show your account's logo, and the signing
+page and emails use your brand color for their buttons. Set them in the **Logo** and **Brand color** fields on the
+**Account** page. They show when your account is on a paid plan or has bought a credit pack. On the signing page, the
+logo shows when the page is opened from its link, not when you embed the form on your own site.
 
 ## Authentication Tokens
 
