@@ -913,13 +913,6 @@ The default font for new templates (a name from the template editor's font list)
 
 ## Monitoring and error reporting
 
-### DD_TRACE_AGENT_PORT
-
-The Datadog agent's trace port, for `DOCSPRING_ENABLE_DATADOG`.
-
-- Type: whole number
-- Default: `8126`
-
 ### DOCSPRING_AWS_CLOUDWATCH_ACCESS_KEY_ID
 
 The access key ID of an IAM user with the `CloudWatchAgentServerPolicy` policy, for CloudWatch metrics, with `DOCSPRING_AWS_CLOUDWATCH_ACCESS_KEY_SECRET`. Not needed with an EKS Pod Identity or IAM Roles for Service Accounts.
@@ -957,13 +950,6 @@ The CloudWatch namespace for Sidekiq's queue metrics.
 - Type: text
 - Default: `Sidekiq`
 - Formerly: `AWS_CLOUDWATCH_SIDEKIQ_NAMESPACE`
-
-### DOCSPRING_ENABLE_DATADOG
-
-Sends request traces to a Datadog agent at the container's default gateway (the host), on `DD_TRACE_AGENT_PORT`.
-
-- Type: on/off
-- Formerly: `ENABLE_DATADOG`
 
 ### DOCSPRING_ENABLE_STATSD
 
