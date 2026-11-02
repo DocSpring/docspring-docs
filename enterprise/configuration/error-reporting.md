@@ -38,9 +38,11 @@ Copy the DSN:
   - Create another Sentry project and use its DSN.
   - Leave it unset to ignore frontend errors.
 
-DocSpring now sends its error reports to Sentry. If you need our help with an
-error, send us the report, including the stack trace and any important details
-about the request.
+DocSpring now sends its error reports to Sentry. Commands you run with
+`bin/rails runner` don't send any: their errors show in the command's output.
+
+If you need our help with an error, send us the report, including the stack
+trace and any important details about the request.
 
 :::caution
 Error reports can contain sensitive information. Remove it before you send us a
