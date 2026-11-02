@@ -1,6 +1,6 @@
 ---
 title: MCP Server
-description: Connect Claude, ChatGPT, Cursor, VS Code and other AI assistants to your DocSpring account with DocSpring's MCP server
+description: Connect Claude, ChatGPT, Microsoft Copilot, Grok, Cursor, VS Code and other AI assistants to your DocSpring account with DocSpring's MCP server
 ---
 
 import { Aside, LinkCard } from "@astrojs/starlight/components";
@@ -22,7 +22,7 @@ in the EU. The examples below use the US URL. For the EU, use its URL in the com
 server `docspring-eu`, so it doesn't replace a US server named `docspring`. The DocSpring plugin connects the US server
 only, so EU accounts add `docspring-eu` this way too.
 
-For coding agents (Claude Code, Codex, Copilot, Gemini CLI), the [DocSpring plugin](/docs/mcp/skills/) adds the MCP
+For coding agents (Claude Code, Codex, GitHub Copilot, Gemini CLI, Grok Build), the [DocSpring plugin](/docs/mcp/skills/) adds the MCP
 server together with DocSpring's agent skills, which teach the agent DocSpring's workflows.
 
 ## Connect your assistant
@@ -77,6 +77,38 @@ codex mcp login docspring
 
 The Codex CLI, its IDE extension and the ChatGPT desktop app share this configuration.
 
+### Microsoft Copilot
+
+Add DocSpring to an agent in [Copilot Studio](https://copilotstudio.microsoft.com), then use the agent in Microsoft 365
+Copilot and Teams. People in your organization use the agent with a Microsoft 365 Copilot license, or through your
+organization's Copilot Studio capacity.
+
+1. Open your agent's **Tools** page, click **Add a tool**, then **New tool**, and choose **Model Context Protocol**.
+2. Enter `DocSpring` as the server name, a description of what it does (Copilot reads it to decide when to use
+   DocSpring), and the MCP server URL. Choose **OAuth 2.0**, then **Dynamic discovery**, and click **Create**.
+3. Click **Next**, then **Create a new connection**, sign in to DocSpring, and click **Add to agent**.
+4. Publish the agent. Under **Channels**, add **Microsoft 365 and Microsoft Teams** with **Make agent available in
+   Microsoft Copilot** selected.
+
+In Microsoft 365 Copilot, type `@` and choose your agent.
+
+### Grok
+
+In Grok, go to [Connectors](https://grok.com/connectors), click **New Connector**, then **Custom**. Enter the MCP server
+URL and sign in to DocSpring.
+
+On Grok Business and Enterprise, an admin adds the connector first: in the [xAI Console](https://console.x.ai), choose
+**Grok Business > Connectors**, click **Add Connector**, then **Other**, and enter the URL. Each member then connects it
+from **Connectors** in Grok.
+
+### Grok Build
+
+```sh
+grok mcp add --transport http docspring https://mcp.docspring.com/mcp
+```
+
+Then sign in to DocSpring when Grok Build asks. The server is added for all of your projects.
+
 ### Cursor
 
 <McpInstallButtons client="cursor" label="Add to Cursor" />
@@ -111,8 +143,8 @@ VS Code opens your browser to sign in the first time it connects.
 
 ### Other assistants
 
-Any MCP client that supports remote servers (Streamable HTTP) with OAuth sign-in can connect: Gemini CLI, Zed, Goose
-and others. Add the MCP server URL as a remote or HTTP server, and the client opens DocSpring's sign-in when it first
+Any MCP client that supports remote servers (Streamable HTTP) with OAuth sign-in can connect: Gemini CLI, Windsurf, Zed,
+Goose and others. Add the MCP server URL as a remote or HTTP server, and the client opens DocSpring's sign-in when it first
 connects. For example, in Gemini CLI:
 
 ```sh
@@ -149,7 +181,7 @@ In a chat assistant:
 
 - "Design a certificate of completion template with the recipient's name, the course and the date."
 - "List my DocSpring templates and show me the fields on the rental agreement."
-- "Create a template from https://example.com/form.pdf, set up its fields, then show me the first page."
+- "Create a template from https://www.irs.gov/pub/irs-pdf/fw9.pdf, set up its fields, then show me the first page."
 - "Design a one-page invoice as a page design, with a table of line items and the total, then show me a preview."
 - "Generate a test PDF of the invoice template for Acme Corp, with three line items of your choice."
 - "Rename the `name` field on the contract template to `full_name`, then publish a new version."
