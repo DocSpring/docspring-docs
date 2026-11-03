@@ -99,7 +99,8 @@ sends you back to the CLI at `127.0.0.1`. On a computer you reach over SSH, in a
 instead.
 
 If your account is in the EU (you sign in at `app-eu.docspring.com`), log in with `docspring login --region EU`. The
-CLI remembers the region with the login.
+CLI remembers the region with the login. A profile's credentials only go to its own region or host: a command that uses
+a profile with `--region` or `--host` for another server fails, so log in to that server with another profile.
 
 The CLI acts as you, with the access you chose: it can see and change all of the account's webhooks and email actions,
 and what it sets up stays after you log out.
@@ -141,7 +142,8 @@ the CLI: delete the token on the API Tokens page to stop it working.
 
 When `DOCSPRING_TOKEN_ID` and `DOCSPRING_TOKEN_SECRET` are set, commands use that API token instead of the default
 profile. A profile you name with `--profile` still wins. `DOCSPRING_REGION` (`US` or `EU`) and `DOCSPRING_HOST` go
-with them. The API clients read the same variables.
+with them, and `docspring login` uses them for a new profile when you don't pass `--region` or `--host`. The API
+clients read the same variables.
 
 | Variable                     | What it does                                                                                               |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -218,7 +220,7 @@ docspring submit tpl_1234567890abcdef01 --data @data.json --format pdf -o invoic
 
 `docspring submissions download <submission_id>` saves an existing submission's PDF, its Word document
 (`--file docx`) or OpenDocument file (`--file odt`), its audit trail (`--file audit-trail`) or its preview
-(`--file preview`). The CLI checks each file it saves against its SHA-256 checksum.
+(`--file preview`). The CLI checks each file it saves against the size and SHA-256 checksum the API lists for it.
 
 ## Recipes
 
@@ -347,7 +349,7 @@ support@docspring.com. Report a security problem to security@docspring.com.
 
 `--host` points the CLI at your install, for example `docspring login --host docspring.example.com`. The login
 remembers the host. When your install signs people in at a different address than its API, add `--issuer` with that
-address (`--issuer https://docspring.example.com`). The CLI needs the Enterprise release that added it, or a later
+address (`--issuer https://docspring.example.com`): logging in to the same host again remembers it too. The CLI needs the Enterprise release that added it, or a later
 one: it calls API v2, which came in the same release.
 
 <LinkCard
