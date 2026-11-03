@@ -373,7 +373,7 @@ The PostgreSQL user name, when `DATABASE_URL` doesn't set one.
 
 ### REDIS_URL
 
-The Redis connection URL, e.g. `redis://redis:6379`. Redis 6.2 or later is required. Without it, DocSpring connects to Redis on `localhost`, port 6379.
+The Redis connection URL, e.g. `redis://redis:6379`. Redis 6.2 or later is required. Without it, DocSpring connects to Redis on `localhost`, port 6379. For a Redis that requires TLS, use `rediss://`: DocSpring checks the server's certificate against the image's CA certificates.
 
 - Type: text
 
