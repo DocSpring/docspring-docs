@@ -87,8 +87,20 @@ npx skills add DocSpring/skills
 ```
 
 It installs the skills from docspring.com too: `npx skills add https://docspring.com`. Then
-[connect the MCP server](/docs/mcp/#connect-your-assistant) to your agent, or give the agent an API token so that it can
-call the [REST API](/docs/api-guide/authentication/) instead.
+[connect the MCP server](/docs/mcp/#connect-your-assistant) to your agent.
+
+### Without the MCP server
+
+An agent that runs shell commands can use the [DocSpring CLI](/docs/cli/) instead, and the skills tell it how. Install
+the CLI and log in once, so the agent never sees a secret:
+
+```sh
+brew install docspring/tap/docspring
+docspring login
+```
+
+An agent that can't run the CLI can call the [REST API](/docs/api-guide/authentication/) with an API token: set
+`DOCSPRING_TOKEN_ID` and `DOCSPRING_TOKEN_SECRET` in its environment rather than pasting the secret into the chat.
 
 <Aside>
   The skills CLI doesn't update skills on its own. Run `npx skills update` to

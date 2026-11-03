@@ -118,9 +118,9 @@ If you're building an integration for many DocSpring customers and want it shown
 - Redirect URIs can't have a fragment. An app can have at most 10.
 
 Apps registered by a client ID metadata document or dynamic registration are shown with a generic icon and "This app
-hasn't been reviewed by DocSpring". A few well-known clients, such as Claude and ChatGPT, are shown as verified
-instead, and an app whose name looks like one of theirs gets a warning. DocSpring doesn't use the `logo_uri` an app
-sends.
+hasn't been reviewed by DocSpring". A few well-known clients, such as Claude, ChatGPT and the
+[DocSpring CLI](/docs/cli/), are shown as verified instead, and an app whose name looks like one of theirs gets a
+warning. DocSpring doesn't use the `logo_uri` an app sends.
 
 ## Connect a user's account
 
@@ -200,7 +200,7 @@ None of this applies to an AI assistant connected to DocSpring's [MCP server](/d
 for the MCP server (its `resource` is the MCP server's URL). It acts as the user who connected it, with the access they
 chose: it sees and changes every webhook and email action, and what it sets up stays when it's disconnected. It sets
 `slack_webhook_url` with the `integrations` scope. An app's REST API access token keeps the rules above, even when
-it's sent through the MCP server.
+it's sent through the MCP server. The [DocSpring CLI](/docs/cli/) acts as the user in the same way.
 
 A template's `embed_edit_token` is null for every access token, an app's or the MCP server's: the embed edit token
 keeps working after the app or assistant is disconnected.

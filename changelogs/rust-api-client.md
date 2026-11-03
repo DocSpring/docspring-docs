@@ -14,6 +14,16 @@ New versions of the DocSpring Rust API client. To install it, see
 
 ## Changelog
 
+### 4.5.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Nov 3, 2026</div>
+
+- Response models keep fields added to the API after this version in `additional_properties`, a `serde_json::Map`,
+  instead of dropping them. The objects defined inside a model, such as a template's `document`, still drop them. If
+  you build a response model in your own code (a mock's return value), end it with `..Default::default()`, so a field
+  added later doesn't break your code. `new()` takes every required field, so a required field added later breaks a
+  call to it.
+
 ### 4.4.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Nov 1, 2026</div>

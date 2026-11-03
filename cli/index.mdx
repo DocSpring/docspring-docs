@@ -1,0 +1,357 @@
+---
+title: DocSpring CLI
+description: Fill in templates, generate PDFs and manage your DocSpring account from your terminal, scripts and CI jobs with the docspring command
+---
+
+import { LinkCard, Tabs, TabItem } from "@astrojs/starlight/components";
+
+The DocSpring CLI is a `docspring` command for your terminal, scripts and CI jobs. It has a command for every operation
+in DocSpring's API, such as `docspring templates list` and `docspring submissions create`, and `docspring submit`
+fills in a template and saves the PDF (or a Word template's Word document) in one step. It's open source (MIT) and
+built on DocSpring's Rust API client.
+
+Use the CLI from a shell, a script in any language or a CI job, and give it to an AI agent that runs commands, such as
+Claude Code, Codex or Cursor. An app that calls DocSpring from its own code is better served by an
+[API client](/docs/api-guide/install-api-client/) in its language, and an AI assistant that can't run commands by the
+[MCP server](/docs/mcp/).
+
+## Install
+
+<Tabs syncKey="cli-install">
+<TabItem label="Homebrew">
+
+```sh
+brew install docspring/tap/docspring
+```
+
+</TabItem>
+<TabItem label="macOS and Linux">
+
+```sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/DocSpring/docspring-cli/releases/latest/download/docspring-cli-installer.sh | sh
+```
+
+The installer puts `docspring` in `~/.docspring/bin` and adds that directory to your `PATH`.
+
+</TabItem>
+<TabItem label="Windows">
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/DocSpring/docspring-cli/releases/latest/download/docspring-cli-installer.ps1 | iex"
+```
+
+The installer puts `docspring.exe` in `%USERPROFILE%\.docspring\bin` and adds that folder to your `PATH`. Open a new
+terminal to use it.
+
+</TabItem>
+<TabItem label="Cargo">
+
+```sh
+cargo install --locked docspring-cli
+```
+
+</TabItem>
+</Tabs>
+
+The [releases page on GitHub](https://github.com/DocSpring/docspring-cli/releases) has the binaries for macOS, Linux
+and Windows (x86_64 and ARM64), each with its SHA-256 checksum. The macOS binaries are signed and notarized by Apple,
+and every archive has a GitHub build attestation, which the [GitHub CLI](https://cli.github.com/) checks:
+
+```sh
+gh attestation verify docspring-cli-aarch64-apple-darwin.tar.xz --repo DocSpring/docspring-cli
+```
+
+`docspring --version` prints the version you have.
+
+### Update
+
+`docspring update` updates the CLI to the latest release, and `docspring update --check` only checks. The CLI doesn't
+check for updates by itself. `--version` installs the version you name, including a release candidate
+(`docspring update --version 1.1.0-rc.1`). Update a Homebrew install with `brew upgrade docspring`, and a Cargo install
+with `cargo install --locked docspring-cli`.
+
+`docspring update` downloads the release from GitHub, which allows 60 requests an hour from one IP address without a
+token. On a shared network, set `GH_TOKEN` (or `GITHUB_TOKEN`) to a GitHub token and the CLI sends it to GitHub.
+
+Releases follow [semantic versioning](https://semver.org/): a command or option is removed or renamed only in a new
+major version, and a command we rename keeps its old name as an alias. The [release notes](/docs/changelogs/cli/) list
+what each version changed.
+
+### Uninstall
+
+Run `docspring logout` for each profile (`docspring profiles list` shows them) to revoke the CLI's logins. Then delete
+the `docspring` binary (`brew uninstall docspring` for Homebrew, `cargo uninstall docspring-cli` for Cargo) and the
+CLI's config directory (see [Environment variables](#environment-variables)).
+
+## Log in
+
+```sh
+docspring login
+```
+
+`docspring login` opens DocSpring in your browser. Sign in and choose what the CLI can do, and the CLI saves the login.
+Its tokens are kept in your system's keychain: the macOS Keychain, Windows Credential Manager or the Secret Service on
+Linux. On a computer without one, such as a server, they're saved in `credentials.toml` in the CLI's config directory,
+readable only by you.
+
+`--no-browser` prints the login link instead of opening it. Open the link in a browser on the same computer: DocSpring
+sends you back to the CLI at `127.0.0.1`. On a computer you reach over SSH, in a container or in CI, use an API token
+instead.
+
+If your account is in the EU (you sign in at `app-eu.docspring.com`), log in with `docspring login --region EU`. The
+CLI remembers the region with the login.
+
+The CLI acts as you, with the access you chose: it can see and change all of the account's webhooks and email actions,
+and what it sets up stays after you log out.
+
+Every computer you log in on shares one "DocSpring CLI" connection on the Integrations page in DocSpring. Disconnecting
+it there logs out every one of them, and so does logging in again with less access.
+
+### API tokens
+
+To use an API token instead (create one on the API Tokens page:
+[US](https://app.docspring.com/api_tokens), [EU](https://app-eu.docspring.com/api_tokens)), run
+`docspring login --with-token`. It asks for the token's ID and secret, or reads them from standard input, one per line.
+
+Log in with your browser on your own computer, and use an API token on servers, in CI and in containers, either saved
+with `--with-token` or in [environment variables](#environment-variables). `docspring auth check` checks the
+credentials a command would use against the API, and `docspring auth status` shows where they come from.
+
+### Profiles
+
+The CLI saves a login in a profile, `default` unless you name another with `--profile`. Keep a profile for each
+account or region:
+
+```sh
+docspring login --profile eu --region EU
+docspring templates list --profile eu
+docspring profiles list
+docspring profiles use eu
+```
+
+`docspring profiles use` makes a profile the default, which commands use when you don't name one.
+`docspring auth status` shows the saved profiles and which credentials a command would use.
+
+`docspring logout` revokes the default profile's login (or the profile's you name with `--profile`) and deletes the
+profile, and `docspring profiles remove <name>` does the same for any profile. Logging out of the default profile
+leaves no default until you choose one with `docspring profiles use`. Logging out of an API token only deletes it from
+the CLI: delete the token on the API Tokens page to stop it working.
+
+### Environment variables
+
+When `DOCSPRING_TOKEN_ID` and `DOCSPRING_TOKEN_SECRET` are set, commands use that API token instead of the default
+profile. A profile you name with `--profile` still wins. `DOCSPRING_REGION` (`US` or `EU`) and `DOCSPRING_HOST` go
+with them. The API clients read the same variables.
+
+| Variable                     | What it does                                                                                               |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `DOCSPRING_PROFILE`          | The profile to use, like `--profile`                                                                       |
+| `DOCSPRING_CONFIG_DIR`       | The CLI's config directory, which holds `config.toml` (your profiles) and `credentials.toml`               |
+| `DOCSPRING_CREDENTIAL_STORE` | `file` saves tokens in `credentials.toml` even when there's a keychain, and `keychain` never uses the file |
+| `DOCSPRING_NO_SELF_UPDATE`   | Turns off `docspring update` (but not `--check`), for installs you update another way                      |
+
+The config directory is `~/.config/docspring` by default (`$XDG_CONFIG_HOME/docspring` when that's set), and
+`%APPDATA%\docspring` on Windows. Another config directory keeps its own logins, in the keychain too, so a script or a
+test with its own `DOCSPRING_CONFIG_DIR` can't replace yours.
+
+## Run commands
+
+Commands follow the API: `docspring <group> <command>`. `docspring help` lists the groups, and `--help` after any
+command shows its arguments and options.
+
+```sh
+docspring templates list
+docspring templates get tpl_1234567890abcdef01
+docspring submissions create tpl_1234567890abcdef01 --data '{"data": {"first_name": "Jane"}}'
+```
+
+Each operation in the [API reference](/docs/api/) has an example of its CLI command, next to the API clients'
+examples.
+
+`--data` takes a request body as JSON: the JSON itself, `@` and a file name (`--data @data.json`), or `-` to read
+standard input. The CLI checks the body against the API's request schemas before it sends it, so a mistyped property
+name fails straight away, with the same details as the API's 422 response. `--no-validate` skips that check, for a
+value the schemas reject but the API accepts. A property this version of the CLI doesn't know still fails, since the
+request would go without it: update the CLI (`docspring update`) to use one the API has added.
+
+A list prints a table, and other commands print the response's fields. `--json` prints the API's JSON response instead.
+
+Commands that read or fill a template take `--version`: a published version (`1.2.0`, or `1` for the latest 1.x.x),
+`latest` or `draft`. Without it, `submit` and `submissions create` fill the latest published version (or the draft
+when none has been published), and `templates get` shows the draft. `--help` gives each command's default.
+
+### Lists
+
+A list returns up to 50 items at a time (`--limit` takes up to 100). When there are more, the response's `next_cursor`
+gets the next page with `--cursor`. `--all` gets every page and prints all the items as one list:
+
+```sh
+docspring templates list --all
+docspring templates submissions tpl_1234567890abcdef01 --all --json
+```
+
+### Fill in a template and save the document
+
+```sh
+docspring submit tpl_1234567890abcdef01 --data @data.json -o filled.pdf
+```
+
+`docspring submit` creates a submission, waits until its PDF is ready (up to `--timeout`, 300 seconds by default) and
+saves it. `--data` is the same as for `submissions create`. `--test` makes a free test PDF with a watermark. `-o` takes
+a file, a directory (one ending in `/` is made if it doesn't exist), or `-` for standard output, and without it the CLI
+saves the PDF under its own name in the current directory.
+
+When the PDF isn't ready in time, the CLI prints the submission's ID: `docspring submissions download <submission_id>`
+saves it later. Running `submit` again after a timeout or a network error makes a second submission, unless both runs
+pass the same `--idempotency-key` (such as a UUID your script keeps for that document). For 24 hours, the second run
+saves the first submission's file instead.
+
+A submission with signature requests makes its PDF once everyone has signed, so `submit` refuses them: create it with
+`docspring submissions create`, and save the PDF with `docspring submissions download` when it's signed.
+
+For a [Word template](/docs/word-templates/overview/), `submit` saves what the template makes: its Word document,
+OpenDocument file or PDF. `--format docx`, `odt` or `pdf` picks the file, and the submission makes it:
+
+```sh
+docspring submit tpl_1234567890abcdef01 --data @data.json --format pdf -o invoice.pdf
+```
+
+`docspring submissions download <submission_id>` saves an existing submission's PDF, its Word document
+(`--file docx`) or OpenDocument file (`--file odt`), its audit trail (`--file audit-trail`) or its preview
+(`--file preview`). The CLI checks each file it saves against its SHA-256 checksum.
+
+## Recipes
+
+### A document for each record
+
+Loop over your records and run `submit` once for each, with an idempotency key from the record so a rerun doesn't make
+duplicates. With one JSON object per line in `records.jsonl`, each with an `id` and the template's `data`:
+
+```sh
+while read -r record; do
+  id="$(jq -r '.id' <<< "$record")"
+  jq '{data: .data}' <<< "$record" |
+    docspring submit tpl_1234567890abcdef01 --data - --idempotency-key "invoice-$id" -o "invoices/$id.pdf"
+done < records.jsonl
+```
+
+To make up to 50 at once, send them in one request with `docspring submissions batches create`.
+
+### Download all of a template's submissions
+
+```sh
+docspring templates submissions tpl_1234567890abcdef01 --all --json |
+  jq -r '.data[] | select(.state == "processed") | .id' |
+  while read -r id; do docspring submissions download "$id" -o pdfs/; done
+```
+
+### Keep generated types up to date
+
+If your app uses [types generated for a template's data](/docs/template-editor/generate-model-code/), the CLI can
+write them and check them in CI:
+
+```sh
+# Write the file
+docspring templates model-code tpl_1234567890abcdef01 --lang typescript -o src/invoice-data.ts
+# Fail when the template has changed since
+docspring templates model-code tpl_1234567890abcdef01 --lang typescript -o src/invoice-data.ts --check
+```
+
+With `--check`, the command prints a diff and exits with status 5 when the file doesn't match the template.
+
+### Download an account export
+
+When you ask DocSpring support for a copy of all your account's data (your templates, submissions and their files),
+we send you an index file, `account_migration_index_mig_....json.gz`. `docspring exports download` downloads the
+export it lists and extracts it into a folder named after the export:
+
+```sh
+docspring exports download account_migration_index_mig_1234567890abcdef.json.gz
+```
+
+`-o` picks another folder, `--keep-archives` keeps each `.tar.gz` archive after extracting it, and `--no-extract` only
+downloads them. The index file's links work for 48 hours. If they expire before the download finishes, ask support for
+a new index file and run the command again with it: it skips the archives it has already extracted. It doesn't need a
+login.
+
+## Scripts, CI and AI agents
+
+`--json` prints one JSON document on standard output: the API's response, or the error, including a mistake in the
+command itself. Errors look like the API's, with a `code`, a `message` and, for a validation error, the `details`:
+
+```json
+{ "error": { "code": "validation_failed", "message": "...", "details": [] } }
+```
+
+A file saved to standard output (`-o -`) and `docspring completions` print the file or the script instead. Messages and
+progress go to standard error, and `--quiet` (`-q`) turns off everything but errors. The exit status says what went
+wrong:
+
+| Status | Meaning                                                                                                   |
+| ------ | --------------------------------------------------------------------------------------------------------- |
+| 0      | Success                                                                                                   |
+| 1      | The API returned an error, or something else failed: the request, saving a file                           |
+| 2      | The command was wrong: an unknown command or option, a bad argument, or a config file the CLI can't read  |
+| 3      | The request is invalid, its body or a parameter, found by the CLI's check or the API's 422                |
+| 4      | You're not logged in, the API rejected the credentials (401 or 403), or the keychain couldn't be used     |
+| 5      | A check found a difference: `templates model-code --check` found that the file doesn't match the template |
+
+The CLI doesn't retry a request that failed, such as a 429 (rate limited), a 5xx or a network error: check the status
+and retry in your script. It sends no telemetry. Its requests go only to DocSpring (the API, your login and the download
+links DocSpring gives it) and, for `docspring update`, to GitHub.
+
+### GitHub Actions
+
+DocSpring's action installs the CLI in a job, on Linux, macOS and Windows runners (x64 and ARM64):
+
+```yaml
+- uses: DocSpring/docspring-cli@v1
+- run: docspring submit tpl_1234567890abcdef01 --data @data.json --test -o filled.pdf
+  env:
+    DOCSPRING_TOKEN_ID: ${{ secrets.DOCSPRING_TOKEN_ID }}
+    DOCSPRING_TOKEN_SECRET: ${{ secrets.DOCSPRING_TOKEN_SECRET }}
+- uses: actions/upload-artifact@v4
+  with:
+    name: filled-pdf
+    path: filled.pdf
+```
+
+For an account in the EU, add `DOCSPRING_REGION: EU` to `env`. `--test` makes free test PDFs, for a check that runs on
+every push.
+
+`DocSpring/docspring-cli@v1` installs the newest 1.x release, and `DocSpring/docspring-cli@v1.2.0` installs 1.2.0. The
+`version` input installs another version (`with: { version: 1.3.0 }`), or the newest release with `latest`. The
+action's `version` output is the version it installed, and it turns off `docspring update` in the job.
+
+### Shell completions
+
+`docspring completions <shell>` prints a completion script for bash, zsh, fish, PowerShell or Elvish. For zsh:
+
+```sh
+docspring completions zsh > ~/.zfunc/_docspring
+```
+
+## Troubleshooting
+
+- **A proxy.** The CLI uses the proxy in `HTTPS_PROXY` (and `NO_PROXY`), and checks HTTPS certificates against your
+  system's trusted certificates, so a company proxy's certificate works once your system trusts it.
+- **A slow network.** The CLI waits up to 30 seconds to connect to the API. After that, a request has no time limit.
+- **A command fails with status 4.** `docspring auth status` shows which credentials the command used, and
+  `docspring auth check` tries them.
+- **`docspring update` fails with a rate limit.** Set `GH_TOKEN` (see [Update](#update)).
+
+To report a bug, open an issue on [GitHub](https://github.com/DocSpring/docspring-cli/issues) or email
+support@docspring.com. Report a security problem to security@docspring.com.
+
+## DocSpring Enterprise
+
+`--host` points the CLI at your install, for example `docspring login --host docspring.example.com`. The login
+remembers the host. When your install signs people in at a different address than its API, add `--issuer` with that
+address (`--issuer https://docspring.example.com`). The CLI needs the Enterprise release that added it, or a later
+one: it calls API v2, which came in the same release.
+
+<LinkCard
+  title="DocSpring CLI on GitHub"
+  href="https://github.com/DocSpring/docspring-cli"
+  description="The CLI's source code, releases and issues"
+/>

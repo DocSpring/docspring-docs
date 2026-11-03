@@ -86,6 +86,13 @@ The response contains the code and the name of the root type. For a template cal
 }
 ```
 
+The [DocSpring CLI](/docs/cli/#keep-generated-types-up-to-date) writes the file, and with `--check` fails a CI job
+when the template has changed since:
+
+```sh
+docspring templates model-code tpl_1234567890abcdef01 --lang typescript -o src/invoice-data.ts --check
+```
+
 <LinkCard
   title="Generate typed model code for a template"
   href="/docs/api/#tag/templates/get/templates/{template_id}/model_code"
