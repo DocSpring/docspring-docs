@@ -28,7 +28,20 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.21.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.21.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 4, 2026
+</div>
+
+- A signing form opened by Data Requests JS 2.x no longer stops with "Please
+  add ... to your template's Embed Domains" when your page, or the signer's
+  browser, sends no referrer, or when Embed Domains lists your site with a
+  wildcard or a scheme. Our server already tells the browser which sites can
+  show a live signature request, so the form checks your page's address itself
+  only for test signature requests.
+
+### 2.21.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Nov 1, 2026
