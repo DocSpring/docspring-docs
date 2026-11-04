@@ -41,6 +41,34 @@ The page shows the template's name at the top, with its
 The [query params](#query-params) below work in every mode, except that the visual form can't hide fields: a link with
 `hidden_fields` shows the web form, unless it asks for the visual form with `?mode=visual`.
 
+## Sections
+
+A long form is easier to fill in a few fields at a time. Click **Sections** in the template editor's header to split
+the web form into sections:
+
+- **Add section** adds a section. Give each one a title, and a description to show under it if it helps. The arrows
+  beside the title move the section up or down.
+- To move fields to another section, tick them and pick the section in **Move to**, or drag them onto it. To bring a
+  field into the section you're looking at, find it in **Find a field to add** above the section's fields. Drag
+  fields, or use their arrows, to change their order in a section.
+- **Delete section** moves its fields into the section before it (the first section's go to the next one).
+  **Remove sections** goes back to one form, with the fields in the sidebar's order.
+- **Suggest sections** asks AI to group the fields into sections, which uses 1 AI page. Change the suggestion as you
+  like, then click **Use these sections**, or **Discard suggestion**. You can close the dialog while AI works: the
+  suggestion is there when you open **Sections** again. The embedded template editor doesn't offer it.
+- On a locked template or a published version, **Sections** shows the sections but doesn't let you change them.
+
+The web form shows one section at a time, with **Next** and **Back** buttons and a list of the sections: on the left
+of the form on a wide screen, and above its fields on a narrow one. It checks a section's answers before it moves on
+to the next one. A group or a list of fields stays in one section, and a
+field you add later goes in the section of the field before it in the sidebar. Once a template has sections, the web
+form shows its fields in the order you set in **Sections**, instead of the sidebar's order.
+
+Sections only change the web form: the visual form and signature requests show the PDF's fields as they are. The
+template's JSON schema lists its properties in the sections' order and has the sections in `x-form-sections`.
+Sections are saved with the template's fields, so once the template has a published
+[version](/docs/template-editor/versions/), they reach your forms when you publish the next one.
+
 ## Configure Template Privacy Settings
 
 First, you will need to go to your template's settings and make sure that "Online Form Privacy"
@@ -81,6 +109,8 @@ Use the following syntax to set default data for nested fields inside objects or
 ```
 https://app.docspring.com/templates/tpl_1234567890abcdef01/form?data[name]=John%20Smith&data[email]=test@example.com
 ```
+
+An empty value, such as `data[name]=`, leaves the field blank.
 
 <Aside type="note">
   The form saves the user's progress in the browser's local storage. If the user
@@ -157,13 +187,53 @@ Pass `version` to show a specific [template version](/docs/template-editor/versi
 https://app.docspring.com/templates/tpl_1234567890abcdef01/form?version=1.2.3
 ```
 
+## After the form is submitted
+
+The web form shows a success screen in place of the form: a title, a message, a **Download PDF** button once the PDF is
+ready (when "Submission Privacy" is "Public"; a Word template's form links to its Word document or OpenDocument file),
+and a **Fill out again** button, which clears the form for the next person. Set the title, the message and the button in
+the template's [Forms settings](/docs/template-editor/settings/#after-submitting). Visual forms show their own
+confirmation.
+
+### Variables
+
+The title, the message and the [redirect URL](#redirect-to-a-url) can show what someone submitted. Put a variable in
+double braces:
+
+| Variable                                      | Value                                                            |
+| --------------------------------------------- | ---------------------------------------------------------------- |
+| `{{ data.first_name }}`                       | A field's answer                                                 |
+| `{{ data["first name"] }}`                    | The answer to a field whose name has spaces                      |
+| `{{ data["tenants/~/email"] }}`               | A field in a list: each row's answer, separated by commas        |
+| `{{ metadata.campaign }}`                     | A value in the submission's [metadata](#set-submission-metadata) |
+| `{{ template.name }}` and `{{ template.id }}` | The template's name and ID                                       |
+| `{{ submission.id }}`                         | The submission's ID                                              |
+
+For example, the title `Thanks, {{ data.first_name }}!` shows "Thanks, Ann!". The success screen shows each answer as
+the form showed it: a date in the template's date format, and a checkbox as Yes or No. A field that was left empty, or
+that a [conditional logic](/docs/template-editor/conditional-logic/) rule hid, shows nothing. An answer is shown as
+text: a web address that someone typed doesn't become a link.
+
+These are the variables of [email actions](/docs/template-editor/email-actions/#variables), without `account.name`,
+filters or tags such as `if`. When you save the settings, anything else in double braces is an error.
+
 ## Redirect to a URL
 
-After the user submits the form, you can redirect them to a different URL.
+After the user submits the form, you can redirect them to a different URL instead of showing the success screen.
 The redirect URL can be configured [in the template settings](/docs/template-editor/settings/#redirect-url).
 
 The submission ID, template ID, and template name will be appended to this URL as query params:
 `https://example.com/?submission_id=sub_123&template_id=tpl_123&template_name=My%20Template`
+
+The URL can have [variables](#variables) after its `?` or `#`, such as
+`https://example.com/thanks?name={{ data.first_name }}`. Each value is URL-encoded, as the submission's data has it: a
+date as `2026-11-04`, and a checkbox as `true` or `false`. A variable can't go before the `?`, so the URL always goes
+to your site.
+
+On a [signature request](/docs/forms/signature-requests/) page, the template's redirect URL gets its metadata variables
+from the submission's metadata, and the page gets only the values the URL names. A `redirectURL` you pass to
+[Signature Requests JS](/docs/forms/js-libraries/signature-requests-js/) has no metadata values, because the person
+signing could change it to name others: put them in the URL yourself.
 
 When "Submission Privacy" is set to **"Private"**, the user will be redirected as soon
 as the form has been saved. When "Submission Privacy" is set to **"Public"**, the user will be redirected after the PDF has finished processing.

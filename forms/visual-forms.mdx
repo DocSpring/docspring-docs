@@ -76,6 +76,9 @@ Configure where users go after form submission:
 1. Set in template settings as default
 2. Override with the `redirectURL` option when embedding the form
 
+After its `?` or `#`, the URL can have [variables](/docs/forms/web-forms/#variables) such as
+`?name={{ data.first_name }}`, which the form fills in with what the person submitted.
+
 ### Show Continue Once Required Fields Are Filled In
 
 The form header has a **Next** button that takes the user through each field in turn. By default, while the user is in

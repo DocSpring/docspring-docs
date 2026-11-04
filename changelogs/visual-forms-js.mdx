@@ -28,7 +28,28 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.21.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.22.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 4, 2026
+</div>
+
+- Signatures come only from [signature
+  requests](/docs/forms/js-libraries/signature-requests-js/), which record who
+  signed and when. In a form with a signature or initials field, the signature
+  pad works in test mode, with a warning at the top of the form. A live form
+  says at the top that it can't be signed as soon as it loads: its signature
+  fields say "Test mode only" and don't open, and it can't be submitted. To
+  print an image or a name on the PDF, use an Image or Text field. See [Signature
+  fields](/docs/forms/js-libraries/visual-forms-js/#signature-fields).
+- The redirect URL can have variables after its `?` or `#`, such as
+  `?name={{ data.first_name }}`, which the form fills in with what the person
+  submitted. See [Variables](/docs/forms/web-forms/#variables).
+- The form sends its submission to your DocSpring app host, where it already
+  loads the template, instead of the API host. The `apiHost` option is no longer
+  used.
+
+### 2.21.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Nov 4, 2026

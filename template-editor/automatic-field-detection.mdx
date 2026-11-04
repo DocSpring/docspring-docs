@@ -24,6 +24,8 @@ Along with names and types, the AI sets each field's title, description, whether
 
 If the checkbox is disabled, DocSpring imports a fillable PDF's form fields without AI, converting their names to DocSpring's format (lowercase snake_case, with a `/` for each `.`, so `form1.name` becomes `form1/name`). It doesn't detect fields on a flat PDF.
 
+AI leaves out the fields that only the office, agency or court receiving the form fills in, such as a "For office use only" box, a received stamp, or its reviewer's decision and signature. The people who fill in your form never see them. To keep them, for example when your own system fills in the office's part, enable **Include office-use fields**. Fields for the person the form is about, their lawyer, preparer or interpreter, and the form's other signers are never left out.
+
 The **Set up conditional logic with AI** checkbox runs one more step after the fields are named. The AI reads the whole form and adds conditional logic (fields that only apply in some situations, such as "if married"), required fields and formulas. The editor shows a summary of what it added, and you can see and change every rule with the **Logic** button in the editor header. See [Conditional Logic](/docs/template-editor/conditional-logic/).
 
 While a page is set up, the editor shows "Detecting fields…" or "Naming fields…" on it. Each page can take up to a minute. To stop and add the fields yourself, click **Skip and set up fields myself**. AI stops naming fields and doesn't set up conditional logic: fillable pages keep the PDF's own form fields, and the other pages get the fields that were detected, with plain names. A page that's still being detected gets its fields when detection finishes.
@@ -35,24 +37,26 @@ While a page is set up, the editor shows "Detecting fields…" or "Naming fields
 
 ## Set Up Fields
 
-To set up the fields of an existing template, open **Settings** in the template editor and click **Set Up Fields** under **Manage Fields**.
+To set up the fields of an existing template, open **Settings** in the template editor and click **Set Up Fields** under **Fields**.
 
-- **Field Source**:
-  - **Import PDF Form Fields** imports the form fields embedded in the PDF.
-  - **Detect Fields from PDF** finds the fields in the page layout.
-  - **Use Current Fields** keeps the template's fields where they are and only names and sets them up. It's selected when the template already has fields.
-- **Name Fields**:
-  - **Rename Fields with AI** gives the fields names and types. With **Use Current Fields**, it only replaces generic names such as "Text1" and keeps descriptive ones.
+- **Field source**:
+  - **Import PDF form fields** imports the form fields embedded in the PDF.
+  - **Detect fields from PDF** finds the fields in the page layout.
+  - **Use current fields** keeps the template's fields where they are and only names and sets them up. It's selected when the template already has fields.
+- **Name fields**:
+  - **Rename fields with AI** gives the fields names and types. With **Use current fields**, it only replaces generic names such as "Text1" and keeps descriptive ones.
   - **Preserve form field names** keeps the PDF's own field names (when you import PDF form fields).
-  - **Keep field names and settings** (with **Use Current Fields**) only sets up conditional logic.
-  - **Field name language**, shown with **Rename Fields with AI**, chooses the language of the names AI gives the fields. It starts with the template's language, and your choice is saved on the template.
-- **Conditional Logic**: set up conditional logic and required fields with AI.
-- **Merge Strategy**:
-  - **Merge fields** adds the new fields and keeps the existing ones.
-  - **Replace fields** deletes the existing fields first.
-- **Review changes before applying**: instead of changing the template, DocSpring lists each suggested change: fields to add, remove or rename, field settings and conditional logic. Select the changes you want and apply them, or discard them all. Nothing changes until you apply them, and you can undo the changes until you leave the editor.
+  - **Keep field names and settings** (with **Use current fields**) only sets up conditional logic.
+  - **Field name language**, shown with **Rename fields with AI**, chooses the language of the names AI gives the fields. It starts with the template's language, and your choice is saved on the template.
+- **Existing fields**, shown when the template already has fields and you import or detect new ones:
+  - **Keep** adds the new fields and keeps the existing ones.
+  - **Replace** deletes the existing fields first.
+- **Options**:
+  - **Set up conditional logic with AI**: set up conditional logic and required fields with AI.
+  - **Include office-use fields**, shown with **Rename fields with AI** when you import or detect fields: keep the fields that only the office receiving the form fills in. Without it, AI leaves them out (see [When you upload a PDF](#when-you-upload-a-pdf)).
+  - **Review changes before applying**: instead of changing the template, DocSpring lists each suggested change: fields to add, remove or rename, field settings and conditional logic. Select the changes you want and apply them, or discard them all. Nothing changes until you apply them, and you can undo the changes until you leave the editor.
 
-**Clear Fields**, under **Manage Fields**, deletes all of the template's fields.
+**Clear fields**, under **Fields**, deletes all of the template's fields.
 
 Set Up Fields isn't available in the [embedded template editor](/docs/guides/embedded-template-editor/).
 
@@ -68,6 +72,7 @@ Your account's **Template defaults** page, in the left sidebar, sets the default
   New templates start with this language. To change it for templates you already have, use **Update Templates** at the bottom of the page, or choose a **Field name language** in a template's Set Up Fields.
 
 - **AI Conditional Logic**: whether to set up conditional logic and required fields with AI.
+- **Include office-use fields**: whether AI keeps the fields that only the office receiving the form fills in. It's off by default.
 - **Review AI changes to existing fields before applying them**: whether **Review changes before applying** starts enabled in Set Up Fields when a template already has fields.
 
 ## Things to know
@@ -87,9 +92,10 @@ Set `detect_fields` to `true` when you create a PDF template (with `POST /templa
 - `field_source`: where the fields come from. `auto` (the default) imports a fillable PDF's form fields, and detects the fields of a PDF without them. `pdf_detection` detects the fields from the page layout, even on a fillable PDF. `pdf_form_fields` only imports the PDF's form fields.
 - `field_naming`: `ai` (the default) names the fields with AI and sets their types and settings. `preserve` keeps the names of the PDF's form fields, and only detected fields get AI names. `preserve` needs `field_source` `auto` or `pdf_form_fields`.
 - `field_logic`: `ai` sets up conditional logic and required fields with AI once the fields are named, and `none` skips it. It defaults to your account's **AI Conditional Logic** setting.
+- `include_office_use_fields`: `true` keeps the fields that only the office receiving the form fills in, such as a "For office use only" box, and `false` leaves them out. It defaults to your account's **Include office-use fields** setting, which is off. It applies only with `field_naming` `ai`: `preserve` keeps every field.
 - `ai_field_naming_language` (`auto`, `english` or `form_language`): the language of the field names. It defaults to your account's **AI Field Name Language** setting, and is saved on the template, where you can change it later.
 
-`field_source`, `field_naming` and `field_logic` only apply with `detect_fields` set to `true`; sending one without it returns an error.
+`field_source`, `field_naming`, `field_logic` and `include_office_use_fields` only apply with `detect_fields` set to `true`; sending one without it returns an error.
 
 ```json
 {

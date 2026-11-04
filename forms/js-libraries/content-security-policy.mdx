@@ -5,21 +5,24 @@ description: The Content-Security-Policy a page needs to embed DocSpring forms, 
 
 import { Aside } from "@astrojs/starlight/components";
 
-If your page sends a `Content-Security-Policy` header, it needs to allow DocSpring's hosts. The JavaScript libraries
-don't need `'unsafe-inline'` or `'unsafe-eval'` in `script-src`, and only Web Forms JS needs inline styles.
+If your page sends a `Content-Security-Policy` header, it needs to allow DocSpring's hosts. The current versions of
+the JavaScript libraries don't need `'unsafe-inline'` or `'unsafe-eval'`.
 
 ## Directives
 
 For an account in the US region:
 
-| Directive     | Sources                                                     | For                                                                                                  |
-| ------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `script-src`  | `https://cdn.docspring.com`                                 | The libraries                                                                                        |
-| `style-src`   | `https://cdn.docspring.com https://fonts.googleapis.com`    | The visual form's and web form's stylesheets, which import Google Fonts                              |
-| `font-src`    | `https://cdn.docspring.com https://fonts.gstatic.com`       | The fonts those stylesheets load                                                                     |
-| `connect-src` | `https://app.docspring.com https://api.docspring.com`       | Visual Forms JS and Web Forms JS, which load the template and save the submission                    |
-| `img-src`     | `https://cdn.docspring.com https://app.docspring.com data:` | The visual form's page images and the loading spinner, plus the storage host page images redirect to |
-| `frame-src`   | `https://app.docspring.com`                                 | Signature Requests JS and Template Editor JS, which open their forms in an iframe                    |
+| Directive     | Sources                                                     | For                                                                                                                                               |
+| ------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `script-src`  | `https://cdn.docspring.com`                                 | The libraries                                                                                                                                     |
+| `style-src`   | `https://cdn.docspring.com https://fonts.googleapis.com`    | The libraries' stylesheets. The visual form's imports Google Fonts.                                                                               |
+| `font-src`    | `https://cdn.docspring.com https://fonts.gstatic.com`       | The fonts those stylesheets load                                                                                                                  |
+| `connect-src` | `https://app.docspring.com https://api.docspring.com`       | Visual Forms JS and Web Forms JS, which load the template and save the submission                                                                 |
+| `img-src`     | `https://cdn.docspring.com https://app.docspring.com data:` | The visual form's page images and the loading spinner, plus the storage host page images redirect to, and the web form's icons and image previews |
+| `frame-src`   | `https://app.docspring.com`                                 | Signature Requests JS and Template Editor JS, which open their forms in an iframe                                                                 |
+
+Web Forms JS shows the image at a web address someone types in an image field. To show it, add `https:` to
+`img-src`. Without it, the field says it has no preview, and the form still sends the address.
 
 For an account in the EU region, use `app-eu.docspring.com` and `api-eu.docspring.com` instead of
 `app.docspring.com` and `api.docspring.com`. Enterprise deployments use their own DocSpring domain for all of these,
@@ -37,8 +40,12 @@ The libraries add their CSS without inline styles, so they work when `style-src`
   the modal through the CSS object model and a constructed stylesheet, which a Content-Security-Policy doesn't block.
 - **Visual Forms JS** (2.19.0 and above) has its CSS in its stylesheet. Its dropdowns and signature font picker add
   their rules to a constructed stylesheet.
-- **Web Forms JS** renders some of its controls, such as the date picker, with `style` attributes. Allow them with
-  `style-src-attr 'unsafe-inline'`, which allows style attributes but not `<style>` elements. Without it, the form
+- **Web Forms JS** (3.0.0 and above) has its CSS in its stylesheet, and sets the few styles that change as it runs,
+  such as the date picker's position, through the CSS object model. A form with a date field adds one `<style>`
+  element for the date picker's buttons, which carries the nonce of the `<script>` tag that loaded Web Forms JS: give
+  that tag a nonce your `style-src` allows. Without one, the form works, but the browser logs a violation. Web Forms
+  JS 2.x renders some of its controls, such as the date picker, with `style` attributes: allow them with
+  `style-src-attr 'unsafe-inline'`, which allows style attributes but not `<style>` elements. Without it, a 2.x form
   works, but the browser logs a violation and a few controls lose some styling.
 
 <Aside type="note">
@@ -50,7 +57,9 @@ The libraries add their CSS without inline styles, so they work when `style-src`
 
 ## Globals
 
-The libraries add `window.DocSpring`. Signature Requests JS, Template Editor JS and Web Forms JS also include jQuery
-1.12 and set `window.jQuery` and `window.$`, replacing any jQuery your page loaded before them. Web Forms JS also sets
-globals for the libraries it includes, such as `Handlebars`, `moment` and `Alpaca`. Visual Forms JS keeps its own copy
-of jQuery to itself.
+The libraries add `window.DocSpring`. Signature Requests JS and Template Editor JS also include jQuery 1.12 and set
+`window.jQuery` and `window.$`, replacing any jQuery your page loaded before them. Visual Forms JS keeps its own copy
+of jQuery to itself, and Web Forms JS (3.0.0 and above) doesn't include jQuery. Visual Forms JS and Web Forms JS 3.x
+include [core-js](https://github.com/zloirock/core-js) polyfills, which add the standard JavaScript features a
+browser lacks, `setImmediate`, and core-js's own `__core-js_shared__`. Web Forms JS 2.x includes jQuery 1.12 too, and
+also sets globals for the libraries it includes, such as `Handlebars`, `moment` and `Alpaca`.

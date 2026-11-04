@@ -61,7 +61,7 @@ The form is rendered inline, inside the container element. Visual forms don't ha
 | `defaultFormData`             | object              | `{}`                           | Default values for fields (can be changed by the user)                                                                                                                                                                                                                                                                                                                            |
 | `staticFormData`              | object              | `{}`                           | Static values for fields (cannot be changed by the user)                                                                                                                                                                                                                                                                                                                          |
 | `fieldOverrides`              | object              | `{}`                           | Override field properties like `hidden` or `backgroundColor`. On a public template, a submission from anyone but your own account keeps only `hidden`, `required` and `backgroundColor`                                                                                                                                                                                           |
-| `redirectURL`                 | string              | `null`                         | Redirect to this URL after submitting the form                                                                                                                                                                                                                                                                                                                                    |
+| `redirectURL`                 | string              | `null`                         | Redirect to this URL after submitting the form. It can have [variables](/docs/forms/web-forms/#variables) after its `?` or `#`.                                                                                                                                                                                                                                                   |
 | `redirectURLQueryParams`      | boolean             | `true`                         | Add `submission_id`, `template_id`, and `template_name` query params to the redirect URL                                                                                                                                                                                                                                                                                          |
 | `waitForPDF`                  | boolean             | `true`                         | Set to `false` to show the thank-you title as soon as the form is saved, without the PDF processing message. The Download PDF button still appears when the PDF is ready, and the form still waits for the PDF before redirecting                                                                                                                                                 |
 | `test`                        | boolean or function | `false`                        | Create a test submission instead of a live submission. A function is called when the form is submitted and returns `true` or `false` (from version 2.15.0)                                                                                                                                                                                                                        |
@@ -83,7 +83,7 @@ The form is rendered inline, inside the container element. Visual forms don't ha
 | `region`                      | string              | `US`                           | Use a DocSpring region: `US` or `EU`                                                                                                                                                                                                                                                                                                                                              |
 | `host`                        | string              | `null`                         | Use one host for both app and API URLs, usually for single-domain enterprise deployments                                                                                                                                                                                                                                                                                          |
 | `appHost`                     | string              | `null`                         | Override the app host used for template data and page images                                                                                                                                                                                                                                                                                                                      |
-| `apiHost`                     | string              | `null`                         | Override the API host used for submission and polling requests                                                                                                                                                                                                                                                                                                                    |
+| `apiHost`                     | string              | `null`                         | Not used from version 2.22.0, which sends the submission to `appHost`. Earlier versions send submission and polling requests here                                                                                                                                                                                                                                                 |
 
 ### Region and Custom Host
 
@@ -109,7 +109,7 @@ For single-domain enterprise deployments, use `host`:
   title="Enterprise host"
 />
 
-For split-domain deployments, use `appHost` and `apiHost`. Existing globals such
+For split-domain deployments, use `appHost` (and `apiHost` before version 2.22.0). Existing globals such
 as `DocSpring.region`, `DocSpring.appHost`, `DocSpring.apiHost`, `DocSpring.host`,
 `DocSpring.scheme`, and `DocSpring.port` are still supported.
 
@@ -270,6 +270,27 @@ calling `onProcessed`.)
 
 })`} lang="javascript" title="Preview mode" />
 
+### Signature fields
+
+Signatures come only from [signature
+requests](/docs/forms/js-libraries/signature-requests-js/), which record who
+signed and when. In a form with a signature or initials field (from version
+2.22.0):
+
+- In test mode (the `test` option, or the **Test** switch on your template's
+  hosted form), the signature pad works, and a warning at the top of the form
+  says it's for testing.
+- A live form says at the top that it can't be signed as soon as it loads, even
+  when the signature field is on a later page. Its signature fields say "Test
+  mode only" and don't open, and it can't be submitted. DocSpring rejects a
+  live submission with a signature or initials value too.
+
+To print an image or a name on the PDF without a signature request, use an Image
+or Text field.
+
+On a [DocSpring Enterprise](/docs/enterprise/) install, signature fields work in
+live forms too.
+
 ## Field Types Support
 
 Visual forms support all DocSpring field types:
@@ -280,7 +301,7 @@ Visual forms support all DocSpring field types:
 - Checkboxes
 - Radio buttons
 - Select dropdowns
-- Signatures
+- Signatures and initials (see [Signature fields](#signature-fields))
 - Images
 - Combined fields
 

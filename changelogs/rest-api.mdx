@@ -18,6 +18,19 @@ clients are listed in each client's own changelog.
 
 ## Changelog
 
+### Signatures come only from signature requests
+
+- A value for a signature or initials field, in `data` or in a field
+  override's `default`, makes a submission `invalid_data` in both API versions,
+  with or without signature requests, in test mode too. Before, only
+  submissions with signature requests were checked. To print a signature image
+  or a name you send, use an Image or Text field. See [Create signature
+  requests](/docs/api-guide/create-signature-requests/).
+  [DocSpring Enterprise](/docs/enterprise/) installs keep accepting them.
+- Web forms (Web Forms JS 3.0.0 and the hosted web form) and visual forms
+  (Visual Forms JS 2.22.0 and the hosted visual form) no longer create their
+  submissions through the API. Earlier versions of the embeds still do.
+
 ### Signature request emails
 
 - DocSpring emails the signers of an API v2 signature request a link to sign,

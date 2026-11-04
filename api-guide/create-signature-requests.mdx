@@ -89,10 +89,10 @@ You can also send the other parameters of a standard PDF generation request, suc
 
 A request sent from the template's draft keeps the template as it was when you sent it, so editing the draft afterwards doesn't change what the signers see or their signed PDF. See [Signature requests sent from the draft](/docs/template-editor/versions/#signature-requests-sent-from-the-draft).
 
-Only the signers can sign a submission that has signature requests, and its signed PDF is always static:
+Only the signers can sign, and a signed PDF is always static:
 
-- A value for a signature or initials field, in `data` or in a field override's `default`, saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. Image fields can still take values.
-- `editable: true`, on the submission or in `field_overrides`, is a 422.
+- A value for a signature or initials field, in `data` or in a field override's `default`, saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. This applies to every submission, with or without signature requests, in test mode too. Image fields can still take values: to print a signature image or a name you send, use an Image or Text field.
+- `editable: true`, on a submission with signature requests or in its `field_overrides`, is a 422.
 
 :::note
 Please [contact us](https://docspring.com/contact/) if you need a different `auth_type` or `auth_second_factor_type`.

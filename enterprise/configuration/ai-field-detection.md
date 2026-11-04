@@ -28,6 +28,11 @@ It has two parts, and you can turn on either or both:
 | Naming only          | AI names a fillable PDF's own form fields and sets up conditional logic. A flat PDF gets no fields: the template editor says they couldn't be detected, and you add them by hand. |
 | Detection and naming | Everything described in [Automatic field detection](/docs/template-editor/automatic-field-detection/).                                                                            |
 
+AI field naming also turns on **Suggest sections** in the template editor's
+[Sections](/docs/forms/web-forms/#sections) dialog, which asks the AI provider
+to group a web form's fields into steps. It sends the fields' names, titles,
+types and descriptions and the template's rules, not page images.
+
 ## Turn on AI field detection
 
 1. Switch the **web** and **worker** services to the `-ai-field-detection`

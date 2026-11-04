@@ -1,11 +1,13 @@
 ---
 title: Web Forms JavaScript API
-description: JavaScript API reference for DocSpring.createSimpleForm()
+description: JavaScript API reference for DocSpring.createWebForm()
 ---
 
-import { Aside, LinkCard } from "@astrojs/starlight/components";
+import { Aside, Code, LinkCard } from "@astrojs/starlight/components";
+import getEmbedVersion from "@utils/embed-versions";
 
-The Web Forms JavaScript library allows you to embed web forms on your website for collecting data from your users and filling out PDF templates.
+Web Forms JS embeds a template's web form on your website. People fill in the form's fields, and the submission
+fills in your PDF or HTML template.
 
 <LinkCard
   title="Implementation Guide for Web Forms"
@@ -15,89 +17,113 @@ The Web Forms JavaScript library allows you to embed web forms on your website f
 
 <LinkCard
   title="Web Forms Changelog"
-  href="/docs/changelogs/simple-forms-js/"
+  href="/docs/changelogs/web-forms-js/"
   description="Changelog entries for the Web Forms JavaScript library"
 />
 
-## DocSpring.createSimpleForm()
+<Aside type="note">
+  This page describes Web Forms JS 3.x. Pages that load 2.x and call
+  `DocSpring.createSimpleForm()` keep working. To move them to 3.x, see
+  [Upgrading from 2.x](/docs/changelogs/web-forms-js/#upgrading-from-2x).
+</Aside>
 
-Creates an embedded web form (or "simple form") for a DocSpring template.
+<Code
+  code={`<link
+  rel="stylesheet"
+  href="https://cdn.docspring.com/embed/web_form.v${getEmbedVersion("web_form")}.css"
+/>
+<script src="https://cdn.docspring.com/embed/web_form.v${getEmbedVersion("web_form")}.js"></script>`}
+  lang="html"
+  title="Load the library"
+/>
+
+## DocSpring.createWebForm()
+
+Draws a template's web form inside an element on your page.
 
 ### Syntax
 
 ```javascript
-DocSpring.createSimpleForm(css_selector, template_id, options_and_callbacks);
+DocSpring.createWebForm(selector, templateId, options);
 ```
 
 ### Parameters
 
-| Parameter               | Type   | Required | Description                                                            |
-| ----------------------- | ------ | -------- | ---------------------------------------------------------------------- |
-| `css_selector`          | string | Yes      | CSS selector for the container element where the form will be rendered |
-| `template_id`           | string | Yes      | The ID of your DocSpring template (e.g., `'tpl_123456'`)               |
-| `options_and_callbacks` | object | No       | Configuration options and event callbacks                              |
+| Parameter    | Type              | Required | Description                                                                                                                               |
+| ------------ | ----------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `selector`   | string or element | No       | A CSS selector for the element to draw the form in, or the element itself. The form replaces what's inside it. Defaults to `".dsp-form"`. |
+| `templateId` | string            | Yes      | The template's ID, such as `"tpl_123456"`                                                                                                 |
+| `options`    | object            | No       | Options and callbacks                                                                                                                     |
+
+`createWebForm` looks for the element straight away, so put it on the page before you call it: it throws an error when
+nothing on the page matches `selector`. It returns nothing: the form loads the template, then draws itself.
 
 ### Options
 
-| Option                        | Type    | Default               | Description                                                                                                                                                                                                                 |
-| ----------------------------- | ------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `templateVersion`             | string  | `null`                | The template version to show and submit, e.g. `"1.2.3"` or `"draft"`. Defaults to the latest published version, or the draft if no version is published.                                                                    |
-| `defaultData`                 | object  | `{}`                  | An object containing default values for form fields. Keys should match field names in your template. If the user has already started filling in the form in this browser, their saved values are restored instead.          |
-| `metadata`                    | object  | `{}`                  | An object containing metadata for the submission. This data is included in API responses and webhooks but not in the PDF.                                                                                                   |
-| `showButtons`                 | boolean | `true`                | Set to `false` to hide both the "Clear" and submit buttons                                                                                                                                                                  |
-| `showClearButton`             | boolean | `true`                | Set to `false` to hide the "Clear" button                                                                                                                                                                                   |
-| `showSubmitButton`            | boolean | `true`                | Set to `false` to hide the submit button                                                                                                                                                                                    |
-| `clearButtonLabel`            | string  | `"Clear"`             | Text for the clear button                                                                                                                                                                                                   |
-| `submitButtonLabel`           | string  | `"Submit Form"`       | Text for the submit button                                                                                                                                                                                                  |
-| `submitButtonSavingLabel`     | string  | `"Saving..."`         | Text shown on submit button while saving                                                                                                                                                                                    |
-| `submitButtonProcessingLabel` | string  | `"Generating PDF..."` | Text shown on submit button while waiting for PDF processing (`"Generating document..."` for a Word template that makes Word documents or OpenDocument files)                                                               |
-| `redirectURL`                 | string  | `null`                | URL to redirect to after form submission. Overrides the template's default redirect URL.                                                                                                                                    |
-| `waitForPDF`                  | boolean | `true`                | Set to `false` to stop waiting for PDF processing after the form is saved. The form redirects immediately (if there is a redirect URL) and `onProcessed` is not called. Has no effect if "Submission Privacy" is "Private". |
+| Option                        | Type               | Default                | Description                                                                                                                                                                                                                                                                   |
+| ----------------------------- | ------------------ | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `templateVersion`             | string             | None                   | The template version to show and submit, such as `"1.2.3"` or `"draft"`. Defaults to the latest published version, or the draft if no version is published.                                                                                                                   |
+| `defaultData`                 | object             | `{}`                   | Values for the form's fields, as nested JSON: the field `person/name` is `{ person: { name: "..." } }`. An empty string leaves a field blank. If someone has already started filling in the form in this browser, their [saved values](#saved-progress) are restored instead. |
+| `metadata`                    | object             | `{}`                   | Metadata for the submission. It's in API responses and webhooks, not in the PDF.                                                                                                                                                                                              |
+| `showButtons`                 | boolean            | `true`                 | `false` hides the Clear and submit buttons                                                                                                                                                                                                                                    |
+| `showClearButton`             | boolean            | `true`                 | `false` hides the Clear button                                                                                                                                                                                                                                                |
+| `showSubmitButton`            | boolean            | `true`                 | `false` hides the submit button                                                                                                                                                                                                                                               |
+| `clearButtonLabel`            | string             | `"Clear"`              | The Clear button's text                                                                                                                                                                                                                                                       |
+| `submitButtonLabel`           | string             | `"Submit Form"`        | The submit button's text                                                                                                                                                                                                                                                      |
+| `submitButtonSavingLabel`     | string             | `"Saving..."`          | The submit button's text while the form saves                                                                                                                                                                                                                                 |
+| `submitButtonProcessingLabel` | string             | `"Generating PDF..."`  | The submit button's text while the form waits for the PDF (`"Generating document..."` for a Word template that makes Word documents or OpenDocument files)                                                                                                                    |
+| `redirectURL`                 | string             | None                   | Where to send people after they submit the form, instead of the template's redirect URL. See [Redirects](#redirects). It can have [variables](/docs/forms/web-forms/#variables) after its `?` or `#`.                                                                         |
+| `waitForPDF`                  | boolean            | `true`                 | `false` stops the form from waiting for the PDF once it's saved: the success screen has no link to it, the form redirects straight away (if there's a redirect URL), and `onProcessed` isn't called. Has no effect when "Submission Privacy" is "Private".                    |
+| `showSuccessScreen`           | boolean            | `true`                 | `false` keeps the form on the page once it's submitted, as 2.x did, instead of showing the [success screen](#success-screen)                                                                                                                                                  |
+| `successTitle`                | string or function | The template's setting | The success screen's title, instead of the template's. It can have [variables](/docs/forms/web-forms/#variables), or be a function (see [Success screen](#success-screen)).                                                                                                   |
+| `successMessage`              | string or function | The template's setting | The success screen's message, as plain text, instead of the template's. `""` shows no message. It can have [variables](/docs/forms/web-forms/#variables), or be a function (see [Success screen](#success-screen)).                                                           |
+| `showFillAgainButton`         | boolean            | The template's setting | Whether the success screen has a **Fill out again** button                                                                                                                                                                                                                    |
+| `sectionList`                 | string             | `"left"`               | Where a form with [sections](#sections) shows the list of sections: `"left"` beside the form (above it when the form is narrower than 720px), or `"top"` above it at any width.                                                                                               |
+| `theme`                       | object             | None                   | Values for the form's [custom properties](#styling-web-forms), without the `--dsp-` prefix: `{ primary: "#0b6e4f", radius: "4px" }`                                                                                                                                           |
+| `darkMode`                    | boolean or string  | `false`                | `true` shows the form's dark theme, and `"auto"` follows the visitor's system setting. See [Dark theme](#dark-theme).                                                                                                                                                         |
 
 <Aside type="note">
-  When "Submission Privacy" is set to "Private", the form doesn't wait for the
-  PDF. It redirects immediately after saving, or resets the submit button if
-  there is no redirect URL. Embedded web forms don't show a confirmation
-  message, so use `onSave` to show your own.
+  Once the form is saved, it shows its [success screen](#success-screen), unless
+  it redirects. When "Submission Privacy" is "Private", the form doesn't wait
+  for the PDF, so the success screen has no link to it.
 </Aside>
-
-### EU Region
-
-The web forms library doesn't support a `region` option. If your account is in
-the EU region, set `DocSpring.appHost` before creating the form:
-
-```javascript
-DocSpring.appHost = "app-eu.docspring.com";
-DocSpring.createSimpleForm(".dsp-form", "tpl_123456");
-```
 
 ### Callbacks
 
-| Callback                | Parameters             | Description                                                                                                                                                                                                         |
-| ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `processTemplateSchema` | `jsonSchema` (mutable) | Called before the form is rendered. Modify the template schema to customize form behavior. You can hide fields by removing them from the schema.                                                                    |
-| `onClearForm`           | None                   | Called after the clear button is pressed                                                                                                                                                                            |
-| `onSubmit`              | `formData` (object)    | Called when the submit button is pressed. Parameter contains all form field values. Return `false` to cancel the submission.                                                                                        |
-| `onSave`                | `submission` (object)  | Called when the form has been saved. Parameter contains submission attributes including `id`.                                                                                                                       |
-| `onProcessed`           | `submission` (object)  | Called when the PDF has been processed. Only called if "Submission Privacy" is "Public" and `waitForPDF` is not `false`. Parameter contains submission attributes including `id`, `download_url`, and `expires_at`. |
-| `onError`               | `response` (object)    | Called if there is an error. See [Error Handling](#error-handling) for the parameter.                                                                                                                               |
+| Callback                | Arguments             | Description                                                                                                                                                                                      |
+| ----------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `processTemplateSchema` | `jsonSchema`          | Called before the form is drawn, with the template's JSON schema. Change it in place, or return a new schema. To hide a field, delete it from `properties` and from `required`.                  |
+| `onClearForm`           | None                  | Called when the Clear button is pressed                                                                                                                                                          |
+| `onSubmit`              | `formData` (object)   | Called when someone submits the form and every answer is valid, before the form saves it. `formData` is the data the form will send. Return `false` to stop the submission.                      |
+| `onSave`                | `submission` (object) | Called when the submission is saved                                                                                                                                                              |
+| `onProcessed`           | `submission` (object) | Called when the PDF is ready. Only called when "Submission Privacy" is "Public" and `waitForPDF` isn't `false`. A redirect follows one second later, so you have time to finish a short request. |
+| `onSuccess`             | `submission` (object) | Called when the PDF is ready, just before `onProcessed`, with the same submission. It's there for pages written for 2.x: use `onProcessed`.                                                      |
+| `onError`               | `error` (object)      | Called when something goes wrong. See [Errors](#errors).                                                                                                                                         |
 
-### Return Value
+### The app host
 
-`DocSpring.createSimpleForm()` doesn't return a value.
+The form loads the template from `app.docspring.com`. If your account is in the EU region, set `DocSpring.appHost`
+before you create the form:
+
+```javascript
+DocSpring.appHost = "app-eu.docspring.com";
+DocSpring.createWebForm(".dsp-form", "tpl_123456");
+```
+
+[DocSpring Enterprise](/docs/enterprise/) deployments set `DocSpring.appHost` to their own DocSpring domain.
 
 ## Examples
 
-### Basic Usage
+### Basic usage
 
 ```javascript
-DocSpring.createSimpleForm(".dsp-form", "tpl_123456");
+DocSpring.createWebForm(".dsp-form", "tpl_123456");
 ```
 
-### With Default Data
+### Default data
 
 ```javascript
-DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
+DocSpring.createWebForm(".dsp-form", "tpl_123456", {
   defaultData: {
     name: "John Smith",
     email: "john@example.com",
@@ -106,11 +132,12 @@ DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
 });
 ```
 
-### With All Options
+### Every option and callback
 
 ```javascript
-DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
+DocSpring.createWebForm(".dsp-form", "tpl_123456", {
   // Options
+  templateVersion: "1.2.3",
   defaultData: {
     name: "John Smith",
   },
@@ -118,17 +145,35 @@ DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
     userId: "12345",
     source: "website",
   },
+  showButtons: true,
   showClearButton: true,
+  showSubmitButton: true,
   clearButtonLabel: "Reset",
   submitButtonLabel: "Generate My PDF",
   submitButtonSavingLabel: "Please wait...",
   submitButtonProcessingLabel: "Creating your PDF...",
+  // A form that redirects shows no success screen, so the success options below
+  // apply only when neither this nor the template sets a redirect URL
   redirectURL: "https://example.com/success",
+  waitForPDF: true,
+  showSuccessScreen: true,
+  successTitle: "Application received",
+  successMessage: "We'll email you within two working days.",
+  showFillAgainButton: false,
+  sectionList: "top",
+  theme: {
+    primary: "#0b6e4f",
+    radius: "4px",
+  },
+  darkMode: "auto",
 
   // Callbacks
   processTemplateSchema: function (jsonSchema) {
-    // Hide the email field
-    delete jsonSchema.properties.email;
+    // Hide the internal_notes field
+    delete jsonSchema.properties.internal_notes;
+    jsonSchema.required = (jsonSchema.required || []).filter(function (name) {
+      return name !== "internal_notes";
+    });
   },
   onClearForm: function () {
     console.log("Form cleared");
@@ -142,67 +187,284 @@ DocSpring.createSimpleForm(".dsp-form", "tpl_123456", {
   onProcessed: function (submission) {
     console.log("PDF ready:", submission.download_url);
   },
-  onError: function (response) {
-    console.error("Error:", response);
+  // Kept from 2.x: called just before onProcessed
+  onSuccess: function (submission) {},
+  onError: function (error) {
+    console.error(error.error, error.message);
   },
 });
 ```
 
-## Submission Object
+## Sections
 
-The `submission` object passed to `onSave` and `onProcessed` callbacks contains:
+When a template has [sections](/docs/forms/web-forms/#sections), the form shows one section at a time: its title,
+with "Step 1 of 3" beside it, its description, then its fields. **Next** checks the section's answers before it
+moves on, **Back** returns to the section before, and the submit button is on the last section. A list of the sections
+sits beside the form when the form is at least 720px wide, and above it when it's narrower. `sectionList: "top"` keeps
+it above the form at any width. People can go back to any section they've already been to from the list. A section whose fields [conditional
+logic](/docs/template-editor/conditional-logic/) hides is skipped.
 
-| Property       | Type   | Available In                             | Description                                      |
-| -------------- | ------ | ---------------------------------------- | ------------------------------------------------ |
-| `id`           | string | Both                                     | Unique identifier for the submission             |
-| `state`        | string | Both                                     | Current state, e.g. `"pending"` or `"processed"` |
-| `download_url` | string | Both (`null` until the PDF is processed) | URL to download the generated PDF                |
-| `expires_at`   | string | Both (`null` until the PDF is processed) | ISO 8601 timestamp when the download URL expires |
+The sections are in the template's JSON schema, as `x-form-sections`: a list of `{ id, title, description, properties }`,
+where `properties` names the schema's top-level properties in that section. `processTemplateSchema` can change them.
+A property that no section lists goes in the last section.
 
-## Error Handling
+## Saved progress
 
-If the form can't be saved, the `onError` callback receives the response object from the AJAX request:
+The form saves what people enter in the browser's `localStorage`, under `docspring-web-form:<template ID>`, and
+restores it the next time the form loads in that browser, instead of `defaultData`. A form with
+[sections](#sections) opens on the section the visitor was on, and they can go back to the sections they'd reached.
+Submitting the form, or pressing Clear or **Fill out again**, removes it.
 
-| Property       | Type   | Description                               |
-| -------------- | ------ | ----------------------------------------- |
-| `status`       | number | HTTP status code                          |
-| `statusText`   | string | HTTP status text                          |
-| `responseJSON` | object | Parsed JSON error response (if available) |
-| `responseText` | string | Raw response text                         |
-
-For other errors, it receives an object with an `error` code:
-
-| `error`              | Description                                                                                                                                                       |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `failed_request`     | The template could not be fetched (e.g. "Online Form Privacy" is "Private"), or a request for the PDF status failed. The AJAX response is included as `response`. |
-| `submission_timeout` | The PDF was not processed within 60 seconds                                                                                                                       |
-| `invalid_status`     | The PDF could not be generated. The submission is included as `submission`.                                                                                       |
-
-### Common Error Scenarios
+When one browser fills in the same template for different people or records, remove the saved values before you
+create the form. The form then starts at its first section, too:
 
 ```javascript
-onError: function(response) {
-  if (response.error) {
-    // Template request, PDF status, or PDF processing error
-    console.error(response.error, response.message);
-  } else if (response.status === 422) {
-    // Validation error
-    const errors = response.responseJSON.errors;
-    console.error('Validation failed:', errors);
+localStorage.removeItem("docspring-web-form:tpl_123456");
+DocSpring.createWebForm(".dsp-form", "tpl_123456", { defaultData: record });
+```
+
+## Image fields
+
+An image field has an **Add an image** button, which opens a dialog. There the visitor chooses an image file, drops
+one on it or pastes one, or gives the web address of an image. Dropping or pasting an image on the field itself adds it
+straight away. The field then shows the image, with **Change** and **Remove** buttons.
+
+The form sends a file as `{ "base64": "..." }`. It draws the image again in the browser, at most 2,400 pixels on its
+longest side: a JPEG stays a JPEG, a PNG stays a PNG, and a GIF or WebP image becomes a PNG if it has transparent
+pixels and a JPEG if it doesn't. A web address is sent as `{ "url": "..." }`, and DocSpring downloads the image when
+it makes the PDF. The form shows a preview of the address while the visitor types it, if your page's
+[Content Security Policy](#content-security-policy) allows it.
+
+Saved progress keeps the images too, unless they don't fit in `localStorage` (about 5 MB for your whole site): then it
+keeps the other answers.
+
+## Signature fields
+
+Signatures come only from [signature
+requests](/docs/forms/js-libraries/signature-requests-js/), which record who signed and when. A web form with a
+signature or initials field says at the top that it can't be signed as soon as it loads, even when the field is in a
+later section. Its signature pads, its Next button and its submit button are turned off, and DocSpring rejects a live
+submission with a signature or initials value. To print an image or a name on the PDF, use an Image or Text field
+instead.
+
+On your template's hosted form, the **Test** switch (which only you see, signed in) turns the signature pads on for
+test submissions, with a warning at the top that they're for testing.
+
+On a [DocSpring Enterprise](/docs/enterprise/) install, signature pads work in live forms too, and DocSpring accepts
+live submissions with a signature.
+
+## Success screen
+
+Once the submission is saved, the form's place on your page shows a success screen: a check mark, a title, the
+template's message, and a **Fill out again** button. When "Submission Privacy" is "Public", it says the PDF is being
+generated, then shows a **Download PDF** button once it's ready (for a Word template, a button for its Word document or
+OpenDocument file).
+
+Set the title, the message and the button in the template editor's
+[Forms settings](/docs/template-editor/settings/#after-submitting), or override them with the `successTitle`,
+`successMessage` and `showFillAgainButton` options. The title defaults to "Thanks for filling out" and the template's
+name. The message is plain text: line breaks show, and web addresses become links. One short paragraph (up to 90
+characters) is centred under the title, and a longer message is shown in a shaded box, aligned left. **Fill out again**
+clears the form, and its saved progress, and starts it again with `defaultData`. If that happens before the first
+PDF is ready, the first submission still calls `onProcessed` (or `onError`) when it finishes.
+
+The title and the message can have [variables](/docs/forms/web-forms/#variables) such as `{{ data.first_name }}`,
+which show the person's answers. `successTitle` and `successMessage` can also be functions, which get the `data` and
+`metadata` the form submitted and the `submission`, and return the text:
+
+```js
+successTitle: function (details) {
+  return "Thanks, " + details.data.first_name + "!";
+},
+```
+
+A function's text has no variables: build it from `details` instead.
+
+If the PDF can't be generated, the screen says why, with a button back to the form and its answers, so the visitor can
+fix an image's web address, say, and submit it again.
+
+The success screen doesn't show when the form redirects. `showSuccessScreen: false` keeps the form on the page after
+it's submitted, as 2.x did, so you can show your own message from `onSave` or `onProcessed`.
+
+## Redirects
+
+After someone submits the form, it goes to `redirectURL`, or to the template's
+[redirect URL](/docs/template-editor/settings/#redirect-url) when you don't pass one. `redirectURL: null` doesn't
+clear the template's redirect URL: to handle the submission in JavaScript instead, leave the template's setting blank.
+
+After its `?` or `#`, the URL can have [variables](/docs/forms/web-forms/#variables) such as
+`?name={{ data.first_name }}`. Each value is URL-encoded, as the submission's data has it.
+
+The form adds the submission's details to the URL as query parameters, replacing any parameter of the same name:
+
+```
+https://example.com/thank-you?submission_id=sub_123&template_name=My%20Template&template_version=latest&template_id=tpl_123
+```
+
+When "Submission Privacy" is "Private", or `waitForPDF` is `false`, the form redirects as soon as it's saved. When
+it's "Public", the form waits for the PDF, calls `onProcessed`, then redirects one second later. If the PDF can't be
+generated, the form doesn't redirect: it says why above its buttons and calls `onError`. A form that redirects shows no
+[success screen](#success-screen).
+
+## Submission object
+
+The `submission` object passed to `onSave` and `onProcessed` contains:
+
+| Property       | Type   | Description                                                                |
+| -------------- | ------ | -------------------------------------------------------------------------- |
+| `id`           | string | The submission's ID                                                        |
+| `state`        | string | Its state, such as `"pending"` or `"processed"`                            |
+| `download_url` | string | A URL to download the PDF. `null` until the PDF is processed.              |
+| `expires_at`   | string | When `download_url` expires (ISO 8601). `null` until the PDF is processed. |
+
+## Errors
+
+`onError` receives an object with an `error` code and a `message`:
+
+| `error`              | Description                                                                                                                                                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `failed_request`     | The template couldn't be loaded (for example, "Online Form Privacy" is "Private"), the form couldn't be saved, or a request for the PDF's status failed. `status` is the HTTP status when there was a response, and `errors` DocSpring's messages. |
+| `invalid_data`       | DocSpring rejected the form's data. The form also shows the errors at the fields they're about. `errors` lists DocSpring's messages, and `submission` is the submission.                                                                           |
+| `submission_timeout` | The PDF wasn't processed within 60 seconds                                                                                                                                                                                                         |
+| `invalid_status`     | The PDF couldn't be generated. `submission` is the submission.                                                                                                                                                                                     |
+
+When the form can't be saved, it also shows what went wrong above its buttons. When the PDF fails, the success screen
+says why.
+
+```javascript
+onError: function (error) {
+  if (error.error === "invalid_data") {
+    console.error("Validation failed:", error.errors);
   } else {
-    // Other error
-    console.error('Error:', response.statusText);
+    console.error(error.error, error.message);
   }
 }
 ```
 
-## Browser Compatibility
+## Styling web forms
 
-The embedded forms library supports all modern browsers:
+The form draws a `.dsp-web-form` element inside your container. Its styles apply only inside that element, so your
+page's styles don't change, and its classes start with `dsp-`.
 
-- Chrome 60+
-- Firefox 55+
-- Safari 11+
-- Edge 79+
+### Custom properties
 
-_Older versions of Internet Explorer are not supported._
+Set these CSS custom properties to change the form's colors, font and sizes:
+
+| Property                   | Default                      | What it styles                                                                                              |
+| -------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `--dsp-font-family`        | `inherit` (your page's font) | All text                                                                                                    |
+| `--dsp-font-size`          | `15px`                       | The base text size. Labels, hints and headings are sized from it.                                           |
+| `--dsp-text`               | Near black                   | Text, labels and answers                                                                                    |
+| `--dsp-text-secondary`     | Gray                         | Descriptions, hints, the section step and inactive sections                                                 |
+| `--dsp-placeholder`        | Gray                         | Placeholder text, and a dropdown with nothing chosen                                                        |
+| `--dsp-background`         | `transparent`                | The form's background                                                                                       |
+| `--dsp-surface`            | White                        | The date picker's calendar, the image dialog, and its drop area while an image is dragged over it           |
+| `--dsp-surface-sunken`     | Pale blue-gray               | Hovered buttons and sections, read-only fields and input prefixes                                           |
+| `--dsp-border`             | Light gray                   | Groups, list items, section numbers, icon buttons, uploaded images and the calendar                         |
+| `--dsp-input-background`   | White                        | Text fields, dropdowns, icon buttons and secondary buttons (signature pads stay white)                      |
+| `--dsp-input-border`       | Gray                         | The borders of text fields, dropdowns, signature pads and secondary buttons                                 |
+| `--dsp-primary`            | DocSpring blue               | The submit and Next buttons, the current section, checkboxes and radio buttons, links and the selected date |
+| `--dsp-primary-hover`      | Darker blue                  | The submit and Next buttons and links on hover                                                              |
+| `--dsp-primary-text`       | White                        | Text on `--dsp-primary`                                                                                     |
+| `--dsp-danger`             | Red                          | Errors, the asterisk on required fields, and the message at the top of a live form with a signature field   |
+| `--dsp-danger-background`  | Pale red                     | The error message above the buttons, sections with errors, and the circle behind a failed PDF's icon        |
+| `--dsp-success`            | Green                        | Finished sections in the sections list, and the success screen's check mark                                 |
+| `--dsp-success-background` | Pale green                   | The circle behind the success screen's check mark                                                           |
+| `--dsp-warning`            | Amber                        | The warning at the top of a form with a signature field in test mode                                        |
+| `--dsp-warning-background` | Pale amber                   | Its background                                                                                              |
+| `--dsp-focus`              | Blue                         | Focus rings                                                                                                 |
+| `--dsp-radius`             | `6px`                        | Corners of fields, buttons and groups                                                                       |
+| `--dsp-control-height`     | `40px`                       | The height of text fields, dropdowns and buttons                                                            |
+| `--dsp-spacing`            | `16px`                       | The space between fields. Other gaps are sized from it.                                                     |
+
+Set them in your CSS, on `.dsp-web-form`. Your rule wins over the form's defaults whichever stylesheet loads first:
+
+```css
+.dsp-web-form {
+  --dsp-font-family: "Inter", sans-serif;
+  --dsp-primary: #0b6e4f;
+  --dsp-primary-hover: #08563d;
+  --dsp-radius: 4px;
+}
+```
+
+Or pass them with the `theme` option, without the `--dsp-` prefix:
+
+```javascript
+DocSpring.createWebForm(".dsp-form", "tpl_123456", {
+  theme: {
+    "font-family": '"Inter", sans-serif',
+    primary: "#0b6e4f",
+    "primary-hover": "#08563d",
+    radius: "4px",
+  },
+});
+```
+
+### Dark theme
+
+`darkMode: true` shows the form's dark theme, and `darkMode: "auto"` shows it when the visitor's system is set to dark
+mode. The form's background is transparent, so use the dark theme on a dark page, or set `--dsp-background`.
+
+The `.dsp-web-form` element's `data-dsp-theme` attribute is `light`, `dark` or `auto`. Values from the `theme` option
+apply in both themes. To give the dark theme its own colors, set the properties in your CSS:
+
+```css
+.dsp-web-form[data-dsp-theme="dark"] {
+  --dsp-primary: #4ea8de;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dsp-web-form[data-dsp-theme="auto"] {
+    --dsp-primary: #4ea8de;
+  }
+}
+```
+
+### Classes
+
+For anything the custom properties don't cover, style the form's classes, inside `.dsp-web-form`:
+
+| Class                                            | Element                                                                                                                    |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `.dsp-field`                                     | A field, with its label, description and error                                                                             |
+| `.dsp-label`, `.dsp-description`                 | A field's label and description                                                                                            |
+| `.dsp-input`, `.dsp-select`, `.dsp-textarea`     | Text fields, dropdowns and multi-line text fields                                                                          |
+| `.dsp-field-error`                               | A field's error                                                                                                            |
+| `.dsp-group`, `.dsp-list-item`                   | A group of fields, and an item in a list                                                                                   |
+| `.dsp-sections`                                  | The list of sections                                                                                                       |
+| `.dsp-section-title`, `.dsp-section-description` | The current section's title and description                                                                                |
+| `.dsp-section-step`                              | "Step 1 of 3"                                                                                                              |
+| `.dsp-form-error`                                | The message above the buttons                                                                                              |
+| `.dsp-signature-notice`                          | The message at the top of a form with a signature field. Test mode's warning also has `.dsp-signature-notice-test`.        |
+| `.dsp-actions`                                   | The buttons                                                                                                                |
+| `.dsp-button-submit`, `.dsp-button-clear`        | The submit and Clear buttons, which also have the 2.x classes `.alpaca-form-button-submit` and `.alpaca-form-button-clear` |
+| `.dsp-button-next`, `.dsp-button-back`           | The Next and Back buttons                                                                                                  |
+| `.dsp-success`                                   | The success screen. Its `data-state` is `none` (no PDF), `generating`, `ready` or `failed`.                                |
+| `.dsp-success-title`, `.dsp-success-message`     | The success screen's title and message. A longer message also has `.dsp-success-message-card`.                             |
+| `.dsp-button-download`, `.dsp-button-fill-again` | The **Download PDF** and **Fill out again** buttons                                                                        |
+| `.dsp-image-add`, `.dsp-image-card`              | An image field's **Add an image** button, and the image once it's added                                                    |
+| `.dsp-dialog`, `.dsp-image-dialog`               | The dialog that adds an image                                                                                              |
+
+```css
+.dsp-web-form .dsp-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+```
+
+## Content Security Policy
+
+Web Forms JS works under a strict Content-Security-Policy, without `'unsafe-inline'` or `'unsafe-eval'`. Give the
+`<script>` tag that loads it a nonce your `style-src` allows: a form with a date field adds one `<style>` element,
+which carries that nonce. See [Content Security Policy](/docs/forms/js-libraries/content-security-policy/) for the
+hosts to allow. It doesn't include jQuery, and its only global is `DocSpring`, apart from the polyfills it includes for
+JavaScript features a browser lacks ([Globals](/docs/forms/js-libraries/content-security-policy/#globals)).
+
+To show an image field's image from a web address, allow `https:` in `img-src`. Without it, the field says it has no
+preview, and still sends the address.
+
+## Browser compatibility
+
+Web Forms JS 3.x supports current versions of Chrome, Edge, Firefox and Safari, on desktop and mobile. It doesn't
+support Internet Explorer.

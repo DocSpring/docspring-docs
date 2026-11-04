@@ -80,6 +80,26 @@ setting: they have no visual form, so they always show the web form.
 You can also set this on your account's **Template defaults** page, for new templates and, with **Update Templates**,
 for existing ones. HTML templates stay on the web form either way.
 
+## After Submitting
+
+_On the Forms tab._ What the [web form](/docs/forms/web-forms/#after-the-form-is-submitted) shows once someone submits
+it:
+
+- **Title after submitting**: the success screen's title. Leave it empty to show "Thanks for filling out" and the
+  template's name.
+- **Message after submitting**: shown under the title, as plain text. Line breaks show, and web addresses become links.
+  One short paragraph (up to 90 characters) is centred under the title, and a longer message is shown in a shaded box,
+  aligned left.
+
+The title and the message can have [variables](/docs/forms/web-forms/#variables) such as `{{ data.first_name }}`,
+which show the person's answers.
+
+- **Show a Fill out again button**: the button clears the form, so someone can fill it in again. On by default.
+
+The web form doesn't show its success screen when it redirects to a [Redirect URL](#redirect-url).
+[Web Forms JS](/docs/forms/js-libraries/web-forms-js/#success-screen) options can override these settings. You can also
+set them on your account's **Template defaults** page.
+
 ## Show Continue Once Required Fields Are Filled In
 
 _On the Forms tab, for PDF templates only._ Visual forms and signature requests have a **Next** button that takes the user through each field in
@@ -158,10 +178,15 @@ defaults** page, and with the `signature_request_*` options in the [templates AP
 
 ## Redirect URL
 
-_On the Forms tab._ We'll redirect users to this URL whenever they fill out the online form to generate a PDF.
+_On the Forms tab, under After Submitting._ We'll redirect users to this URL whenever they fill out the online form to
+generate a PDF, instead of showing the web form's success screen.
 This applies to online forms hosted on [docspring.com](https://docspring.com),
 and [embedded forms on your own website](/docs/guides/embedded-forms/embedded-web-forms/).
 The submission ID, template ID, and template name will be appended to the URL as query params.
+
+After its `?` or `#`, the URL can have [variables](/docs/forms/web-forms/#variables) such as
+`?name={{ data.first_name }}`. Web forms, visual forms and signature request pages fill them in with what the person
+submitted.
 
 ## Template Description
 

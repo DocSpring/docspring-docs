@@ -125,10 +125,12 @@ v2 checks submission data more strictly:
   only one signature request. A signature request's `email` is an email address, or `null` for none: an empty one is
   a `422` (v1 accepted it). A field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
   error, unless the signature request sets `ignore_unknown_fields`.
-- Only the signers can sign a submission that has signature requests. A value for a signature or initials field, in
-  `data` or in a field override's `default`, makes it an `invalid_data` submission. `editable: true`, on the submission
-  or in `field_overrides`, is a `422`, because signed PDFs are always static. v1 also makes the submission
-  `invalid_data` for signature values, and makes the signed PDF static whatever `editable` says.
+- Signatures come only from signature requests. A value for a signature or initials field, in `data` or in a field
+  override's `default`, makes any submission `invalid_data`, with or without signature requests, in test mode too. To
+  print a signature image or a name you send, use an Image or Text field. On a submission with signature requests,
+  `editable: true`, on the submission or in `field_overrides`, is a `422`, because signed PDFs are always static. v1
+  also makes the submission `invalid_data` for signature values, and makes the signed PDF static whatever `editable`
+  says.
 - A [formula](/docs/template-editor/formulas/) or [condition](/docs/template-editor/conditional-logic/) can only use
   your `data` and the fields of the signer who fills in its field. A formula field that no signature request asks for
   counts as the field of the one signer whose fields it uses, so leave a calculated total out of `fields` to keep it

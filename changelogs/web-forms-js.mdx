@@ -1,0 +1,359 @@
+---
+title: Web Forms JS Library
+description: Changelog and version history for the Web Forms JavaScript library
+sidebar:
+  order: 2
+---
+
+import { Aside, Badge, LinkCard } from "@astrojs/starlight/components";
+
+Web Forms JS embeds a template's web form on your own website. People fill in the form's fields, and the
+submission generates a PDF.
+
+<Aside type="note" title="Versions 2.x">
+  Web Forms JS 3.0.0 is a new web form, with a new function,
+  `DocSpring.createWebForm()`, and new file names. Versions 2.x stay at
+  `https://cdn.docspring.com/embed/simple_form.v<version>.js` and `.css`, and
+  pages that load them keep working. To upgrade, see [Upgrading from
+  2.x](#upgrading-from-2x).
+</Aside>
+
+<LinkCard
+  title="Embedded Web Forms Guide"
+  href="/docs/guides/embedded-forms/embedded-web-forms/"
+  description="Learn how to embed our web forms on your website"
+/>
+
+You can also [get these release notes by email](https://app.docspring.com/email/subscribe?list=web_form).
+
+## Changelog
+
+### 3.0.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 4, 2026
+</div>
+
+A new web form, built on React instead of jQuery and Alpaca. It loads from
+`https://cdn.docspring.com/embed/web_form.v3.0.0.js` and `.css`, and you create
+it with `DocSpring.createWebForm()`. It takes the same options and sends the same
+data as 2.x. Pages that load 2.x keep working until you upgrade them.
+
+- **Sections:** a template's web form can show its fields in sections, one at
+  a time, with Back and Next buttons and a list of the sections beside the form
+  (above it on a narrow screen, or at any width with the new `sectionList: "top"`
+  option). Set them up with **Sections** in the template editor. See
+  [Sections](/docs/forms/web-forms/#sections).
+- **Success screen:** once the form is submitted, its place on your page shows
+  a title, the template's message, the PDF (when submissions are public) and a
+  **Fill out again** button. Set them in the template's Forms settings, or with
+  the new `successTitle`, `successMessage` and `showFillAgainButton` options.
+  `showSuccessScreen: false` keeps the form, as 2.x did. A form that redirects
+  doesn't show it. See [Success
+  screen](/docs/forms/js-libraries/web-forms-js/#success-screen).
+- **Variables:** the success screen's title and message, and the redirect URL
+  after its `?` or `#`, can show what the person submitted, with variables such
+  as `{{ data.first_name }}`. `successTitle` and `successMessage` can also be
+  functions that return the text. See
+  [Variables](/docs/forms/web-forms/#variables).
+- **Image fields:** an **Add an image** button opens a dialog where the visitor
+  chooses, drops or pastes an image file, or gives its web address, and the
+  field shows the image. Files are resized in the browser to at most 2,400
+  pixels on their longest side. See [Image
+  fields](/docs/forms/js-libraries/web-forms-js/#image-fields).
+- **Errors at each field:** errors show under the fields they're about as soon
+  as the visitor leaves a field, and for every field when they submit the form
+  or try to leave a section. An error goes as soon as the visitor fixes it, and
+  a new one waits until they leave the field. Errors DocSpring finds in the data
+  show at their fields too.
+- **Signature fields:** signatures come only from [signature
+  requests](/docs/forms/js-libraries/signature-requests-js/), which record who
+  signed and when. A form with a signature or initials field says at the top
+  that it can't be signed as soon as it loads, and its signature pads, Next and
+  submit buttons are turned off. On your template's hosted form, the **Test**
+  switch turns the pads on for test submissions. To print an image or a name on
+  the PDF, use an Image or Text field. See [Signature
+  fields](/docs/forms/js-libraries/web-forms-js/#signature-fields).
+- **Styling:** set the form's colors, font, corners and spacing with CSS custom
+  properties, in your CSS or with the new `theme` option, and give it a dark
+  theme with the new `darkMode` option. See [Styling web
+  forms](/docs/forms/js-libraries/web-forms-js/#styling-web-forms).
+- **Strict Content Security Policies:** the form works when `style-src` has no
+  `'unsafe-inline'`, without a `style-src-attr` exception, and its stylesheet
+  loads no fonts. The date picker's one `<style>` element carries the nonce of
+  the `<script>` tag that loads Web Forms JS.
+- **No jQuery:** the library no longer includes jQuery, so it leaves your page's
+  `jQuery` and `$` alone, and it no longer sets `Handlebars`, `moment` or
+  `Alpaca`. Like Visual Forms JS, it includes polyfills for JavaScript features
+  a browser lacks. See
+  [Globals](/docs/forms/js-libraries/content-security-policy/#globals).
+- **Dates** are typed or pasted into the field, in the template's date format or
+  as `2026-10-30` or `Oct 30, 2026`, or picked from the calendar that opens under
+  it, which has lists for the month and year.
+- When the form can't be sent, it says what went wrong above its buttons, as well
+  as calling `onError`.
+- The form saves what people type under `docspring-web-form:<template ID>` in
+  `localStorage`, so a web form and a visual form for the same template no
+  longer overwrite each other's saved values. Values that 2.x saved under the
+  template ID move to the new key the first time the form loads.
+- **Fixes:** a currency field shows its default value instead of NaN, and takes
+  negative amounts. Fields whose names contain `&`, `>` or `\` are no longer
+  left out of the form. When conditional logic hides every field in a group, the
+  group's box is hidden too, instead of showing its title with nothing in it.
+  Fields can be called `constructor`, `toString` or any other name.
+
+#### Upgrading from 2.x
+
+1. Load the 3.0.0 stylesheet and script instead of `simple_form`:
+
+   ```html
+   <link
+     rel="stylesheet"
+     href="https://cdn.docspring.com/embed/web_form.v3.0.0.css"
+   />
+   <script src="https://cdn.docspring.com/embed/web_form.v3.0.0.js"></script>
+   ```
+
+   [DocSpring Enterprise](/docs/enterprise/) serves them at
+   `/assets/embed/web_form.css` and `/assets/embed/web_form.js` on your
+   DocSpring domain. Enterprise no longer serves `/assets/embed/simple_form.js`
+   or `simple_form.css`.
+
+2. Rename `DocSpring.createSimpleForm()` to `DocSpring.createWebForm()`. The
+   arguments and options are the same. In 3.0.0, `createSimpleForm` throws an
+   error that gives the new name. If your page calls `DocSpring.createForm()`,
+   2.x's first name for the same function, rename it too: 3.0.0 doesn't define
+   it, and Visual Forms JS uses that name for its own function.
+   `DocSpring.SIMPLE_FORM_VERSION` is now `DocSpring.WEB_FORM_VERSION`.
+3. Put the form's element on the page before you call `createWebForm`: it looks
+   for the element straight away, where 2.x looked once the template had loaded,
+   and it throws an error when nothing on the page matches the selector. The
+   first argument can also be the element itself.
+4. If your `processTemplateSchema` callback returns a value, return the schema,
+   or nothing. 3.0.0 uses an object it returns as the schema; 2.x ignored it.
+5. If your `onError` callback reads the error, update it. Every error is now an
+   object with an `error` code and a `message`:
+
+   | Error                            | 2.x                                                       | 3.0.0                                                                                                             |
+   | -------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+   | The form couldn't be saved       | jQuery's response: `status`, `statusText`, `responseJSON` | `error: 'invalid_data'` when DocSpring rejects the data, otherwise `'failed_request'`, with `status` and `errors` |
+   | The template couldn't be loaded  | `error: 'failed_request'`, with `response`                | `error: 'failed_request'`, with `status`                                                                          |
+   | A request for the PDF failed     | `error: 'failed_request'`, with `response`                | `error: 'failed_request'`, with `status`                                                                          |
+   | The PDF failed, or took too long | `invalid_status` or `submission_timeout`                  | No change                                                                                                         |
+
+6. Update your CSS. The form draws its own `.dsp-web-form` element inside your
+   container, with classes that start with `dsp-`. The `.alpaca-*` classes are
+   gone, except on the buttons: the submit and Clear buttons keep
+   `alpaca-form-button-submit` and `alpaca-form-button-clear`. For colors, fonts
+   and sizes, set the [custom
+   properties](/docs/forms/js-libraries/web-forms-js/#styling-web-forms) instead
+   of overriding the form's rules.
+7. If your page used the jQuery that 2.x added to it, load your own copy.
+8. If your `onSave` or `onProcessed` callback shows your own confirmation, pass
+   `showSuccessScreen: false` to keep the form on the page, as 2.x did, or remove
+   your message and let the success screen show the template's.
+9. If your page removes the form's saved values before it creates the form (when
+   one browser fills in the form for different people or records), remove
+   `docspring-web-form:<template ID>` instead of the template ID:
+   `localStorage.removeItem("docspring-web-form:tpl_123456")`. 3.0.0 moves 2.x's
+   saved values to that key the first time it loads, so removing the old key no
+   longer clears them.
+10. Your Content Security Policy no longer needs `style-src-attr 'unsafe-inline'`
+    for the web form, and the web form's stylesheet loads nothing from Google
+    Fonts. If your `style-src` has no `'unsafe-inline'`, give the `<script>` tag
+    that loads Web Forms JS a nonce it allows: a form with a date field adds one
+    `<style>` element, which carries that nonce.
+
+### 2.7.4
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 31, 2026
+</div>
+
+- On a form for a Word template that makes Word documents or OpenDocument
+  files, the Submit button says "Generating document..." while the document is
+  made, instead of "Generating PDF...". The `submitButtonProcessingLabel` option
+  still sets your own label.
+
+### 2.7.3
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 29, 2026
+</div>
+
+- No longer logs a Content-Security-Policy error in Chrome on a page whose
+  `script-src` doesn't allow `'unsafe-inline'`. The jQuery it includes tested
+  for an old Internet Explorer event by setting an `onfocusin` attribute, which
+  the policy blocked, and the page sent a report for it if it collects them.
+
+### 2.7.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 27, 2026
+</div>
+
+- Fixed forms for templates with an initials field, which failed to load with
+  "Unable to find field class for type: initials". Initials fields now show a
+  pad to draw initials, like signature fields. Earlier versions load these
+  forms again too, with a signature pad for each initials field.
+- A date the date picker rejects no longer reaches your page's
+  `window.onerror` handler, so your error tracker no longer reports it as a
+  JavaScript error.
+
+### 2.7.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 27, 2026
+</div>
+
+- New icons, drawn by the form's own stylesheet: the form no longer loads an
+  icon font, so your page's Content Security Policy doesn't need to allow
+  fonts from our CDN.
+- Fixed the icons in date fields: the calendar button and the date picker's
+  arrows didn't show on pages that don't load Font Awesome themselves, and the
+  time, today and clear buttons never showed.
+- In a field with a date and a time, the date picker's button for the time now
+  says what it does ("Set the time", and "Back to the date").
+- The asterisk on a required field and the placeholder text are darker, so
+  they're easier to read.
+
+### 2.7.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 27, 2026
+</div>
+
+- [Conditional logic](/docs/template-editor/conditional-logic/) now runs on the
+  same rule engine as visual forms, signature requests and PDF generation, so a
+  condition matches the same values everywhere.
+- Number conditions read a field's value as a number only when it's a decimal
+  number, such as `5`, `-1.5` or `1e3`: a value like `0x10` isn't 16.
+
+### 2.6.4
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 26, 2026
+</div>
+
+- EAN-13, EAN-8 and UPC-A barcode fields now take a code with its check digit
+  as well as without it. The form checks the check digit and shows an error
+  before the form is submitted if it's wrong.
+
+### 2.6.3
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 18, 2026
+</div>
+
+- When the form redirects after the PDF is processed, it now waits one second
+  after calling `onProcessed`, so the callback has time to finish (for example,
+  an async request) before the page changes. The Submit button stays disabled
+  until the redirect.
+- Fixed the `submission_timeout` error message, which said "60000 seconds"
+  instead of "60 seconds".
+
+### 2.6.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Oct 7, 2026
+</div>
+
+- Field titles, option labels and validation messages are now always displayed
+  as plain text. HTML in these values is no longer rendered.
+- Fixed radio buttons and checkboxes losing their selection when an option value
+  contains quotes, backslashes or brackets.
+- Fixed repeating groups whose names contain an apostrophe.
+
+### 2.6.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 19, 2026
+</div>
+
+- Updated the [conditional logic](/docs/template-editor/conditional-logic/) support
+  for the new standards-compliant JSON schema output, where conditionally-shown
+  fields are defined inside the schema's `if`/`then` conditionals. Templates using
+  conditional logic must use this version (or later) of the library.
+
+### 2.6.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Aug 13, 2026
+</div>
+
+- Added support for [conditional logic](/docs/template-editor/conditional-logic/):
+  fields can be shown, hidden, or conditionally required based on the value or
+  presence of other fields.
+
+### 2.5.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jan 31, 2025
+</div>
+
+- Added support for template versioning. You can now specify a template version when showing the form.
+
+### 2.4.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jun 19, 2022
+</div>
+
+- Added `metadata` option to `DocSpring.createSimpleForm()`
+
+### 2.4.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on May 12, 2020
+</div>
+
+- Upgraded from Bootstrap 3 to Bootstrap 4
+
+### 2.3.2
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on May 1, 2020
+</div>
+
+- Fixed bug where a value could not be selected in an optional select field
+
+### 2.3.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 20, 2020
+</div>
+
+- Automatically set the CSS `z-index` to `999999` on the modal dialog
+
+### 2.3.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Mar 12, 2020
+</div>
+
+- Added `onUploadProgress` function to track image upload progress
+
+### 2.2.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on May 20, 2019
+</div>
+
+- Renamed FormAPI to DocSpring
+
+### 2.0.1
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Jan 20, 2019
+</div>
+
+- Added error highlighting for form fields with validation errors
+
+### 2.0.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Dec 14, 2018
+</div>
+
+- Added `formCSSUrl` option to override the default CSS file
+- Changed default button styles

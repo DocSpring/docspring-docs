@@ -12,8 +12,8 @@ the user to sign the form.
 
 <LinkCard
   title="View Combined Forms Example"
-  href="https://docspring.com/embed_simple_plus_signature_request_example"
-  description="Example combining simple forms with signature requests"
+  href="https://docspring.com/embed_web_form_plus_signature_request_example"
+  description="Example combining a web form with a signature request"
 />
 
 <Aside type="tip">
@@ -21,14 +21,14 @@ the user to sign the form.
   example above.
 </Aside>
 
-In this example, we use the simple embedded forms to show a form, but we hide the signature field in the `processTemplateSchema` callback by removing it from the template schema. We also cancel the PDF submission by returning `false` in the `onSubmit` callback. When the simple form is submitted, we send the data to our server, which makes an API call to create a prefilled signature request.
+In this example, we use an embedded web form to show a form, but we hide the signature field in the `processTemplateSchema` callback by removing it from the template schema. We also cancel the PDF submission by returning `false` in the `onSubmit` callback. When the web form is submitted, we send the data to our server, which makes an API call to create a prefilled signature request.
 
 <Aside type="caution">
-  You must always use a signature request if you are collecting legally binding
-  electronic signatures. If you only use a simple form with a signature field,
-  the user could be signing a document that they haven't seen. DocSpring will
-  also not be able to store any information about how the user was
-  authenticated, so these signatures will not be legally binding.
+  Signatures come only from signature requests, which show the signer the
+  document and record who signed and when. A web form with a signature field
+  can't be signed in a live submission (see [Signature
+  fields](/docs/forms/js-libraries/web-forms-js/#signature-fields)), so this
+  example removes the field and leaves it to the signature request.
 </Aside>
 
 For the initial data collection step, you could use any form library that supports JSON schemas, such as [react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form).
@@ -38,7 +38,7 @@ For the initial data collection step, you could use any form library that suppor
 <LinkCard
   title="Web Forms JavaScript API Reference"
   href="/docs/forms/js-libraries/web-forms-js/"
-  description="Complete reference for DocSpring.createSimpleForm() options and callbacks"
+  description="Complete reference for DocSpring.createWebForm() options and callbacks"
 />
 
 <LinkCard

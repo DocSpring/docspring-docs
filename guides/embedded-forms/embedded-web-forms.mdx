@@ -24,31 +24,35 @@ You can embed DocSpring web forms on your own website, allowing users to fill ou
 To embed a form on your website, copy the following code and replace `TEMPLATE_ID` with your actual template ID:
 
 <Code code={`<link
-    rel="stylesheet"
-    href="https://cdn.docspring.com/embed/simple_form.v${getEmbedVersion('simple_form', 'css')}.css"
-  />
-  <script
-    type="text/javascript"
-    src="https://cdn.docspring.com/embed/simple_form.v${getEmbedVersion('simple_form')}.js"
-  ></script>
+  rel="stylesheet"
+  href="https://cdn.docspring.com/embed/web_form.v${getEmbedVersion("web_form")}.css"
+/>
+<script src="https://cdn.docspring.com/embed/web_form.v${getEmbedVersion("web_form")}.js"></script>
 
 <div class="dsp-form"></div>
-<script>DocSpring.createSimpleForm('.dsp-form', 'TEMPLATE_ID')</script>`}
+<script>DocSpring.createWebForm(".dsp-form", "TEMPLATE_ID");</script>`}
 lang="html" title="Basic embedded form" />
 
 <Aside type="note">
   [DocSpring Enterprise](/docs/enterprise/) deployments can load these assets
   from the local DocSpring domain instead of the CDN:
-  `https://docspring.yourcompany.com/assets/embed/simple_form.css` and
-  `https://docspring.yourcompany.com/assets/embed/simple_form.js`.
+  `https://docspring.yourcompany.com/assets/embed/web_form.css` and
+  `https://docspring.yourcompany.com/assets/embed/web_form.js`.
 </Aside>
 
 <Aside type="note">
   If your account is in the EU region, set `DocSpring.appHost` before you call
-  `DocSpring.createSimpleForm()`: `DocSpring.appHost = 'app-eu.docspring.com';`
+  `DocSpring.createWebForm()`: `DocSpring.appHost = "app-eu.docspring.com";`
 </Aside>
 
-That's it! The form will be rendered inside the `<div class="dsp-form"></div>` element.
+The form is drawn inside the `<div class="dsp-form"></div>` element.
+
+<Aside type="note">
+  This guide uses Web Forms JS 3.x. If your page calls
+  `DocSpring.createSimpleForm()`, it loads 2.x, which keeps working. To move it
+  to 3.x, see [Upgrading from
+  2.x](/docs/changelogs/web-forms-js/#upgrading-from-2x).
+</Aside>
 
 ## Examples
 
@@ -58,7 +62,7 @@ Here's an example that demonstrates common options:
 
 <Code code={`<div class="dsp-form"></div>
   <script>
-    DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+    DocSpring.createWebForm('.dsp-form', 'tpl_123456', {
       // Set default values for form fields
       defaultData: {
         name: 'John Smith',
@@ -87,7 +91,7 @@ Use callbacks to hook into form events:
 
 <Code code={`<div class="dsp-form"></div>
   <script>
-    DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
+    DocSpring.createWebForm('.dsp-form', 'tpl_123456', {
       // Called when form is submitted
       onSubmit: function(formData) {
         console.log('Form submitted with data:', formData);
@@ -111,9 +115,9 @@ Use callbacks to hook into form events:
       },
 
       // Called on error
-      onError: function(response) {
-        console.error('Error:', response);
-        alert('An error occurred. Please try again.');
+      onError: function(error) {
+        // The form also shows the message above its buttons
+        console.error(error.error, error.message);
       }
     })
 
@@ -123,8 +127,8 @@ Use callbacks to hook into form events:
 
 For a complete example that uses all available options and callbacks:
 
-- [View HTML source](https://docspring.com/embed_form_example?view_source=true)
-- [See the live form](https://docspring.com/embed_form_example)
+- [View HTML source](https://docspring.com/embed_web_form_example?view_source=true)
+- [See the live form](https://docspring.com/embed_web_form_example)
 
 ## Handling Form Submission
 
@@ -152,64 +156,64 @@ https://example.com/thank-you?submission_id=sub_123&template_name=My%20Template&
 
 ### Custom Success Handling
 
-Instead of redirecting, you can handle successful submissions with JavaScript.
-Leave the template's redirect URL setting blank: passing `redirectURL: null` does
-not override a redirect URL that is set on the template. `onProcessed` is only
-called when "Submission Privacy" is set to "Public".
+Once the form is submitted, a success screen takes its place: a title, the template's message, a **Download PDF**
+button when "Submission Privacy" is "Public", and a **Fill out again** button. Set them in the template's Forms
+settings, or with the `successTitle`, `successMessage` and `showFillAgainButton` options. See
+[Success screen](/docs/forms/js-libraries/web-forms-js/#success-screen).
 
-<Code code={`DocSpring.createSimpleForm('.dsp-form', 'tpl_123456', {
-    onProcessed: function(submission) {
-      // Hide the form
-      document.querySelector('.dsp-form').style.display = 'none';
+To show your own message instead, pass `showSuccessScreen: false`, which keeps the form on the page, and handle the
+submission in the `onSave` or `onProcessed` callback. Leave the template's redirect URL setting blank: passing
+`redirectURL: null` does not override a redirect URL that is set on the template. `onProcessed` is only called when
+"Submission Privacy" is set to "Public".
 
-      // Show a custom success message
-      const successDiv = document.getElementById('success-message');
-      successDiv.innerHTML = \`
-        <h2>Thank you!</h2>
-        <p>Your PDF has been generated.</p>
-        <a href="\${submission.download_url}" class="btn btn-primary">
-          Download PDF
-        </a>
-      \`;
-      successDiv.style.display = 'block';
-    }
+```javascript title="Custom success handling"
+DocSpring.createWebForm(".dsp-form", "tpl_123456", {
+  showSuccessScreen: false,
+  onProcessed: function (submission) {
+    // Hide the form
+    document.querySelector(".dsp-form").style.display = "none";
 
-})`} lang="javascript" title="Custom success handling" />
+    // Show your own message
+    const successDiv = document.getElementById("success-message");
+    successDiv.innerHTML = `
+      <h2>Thank you</h2>
+      <p>Your PDF has been generated.</p>
+      <a href="${submission.download_url}" class="btn btn-primary">Download PDF</a>
+    `;
+    successDiv.style.display = "block";
+  },
+});
+```
 
 ## Styling the Form
 
-The embedded form comes with default styles, but you can customize the appearance to match your website:
+The form comes with its own styles, scoped to the `.dsp-web-form` element it draws inside your container. Change its
+colors, font and sizes with CSS custom properties:
 
-<Code code={`<style>
-    /* Customize form container */
-    .dsp-form {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+```css title="Custom form styles"
+.dsp-web-form {
+  /* Your page's font is the default */
+  --dsp-font-family: "Inter", sans-serif;
+  --dsp-primary: #28a745;
+  --dsp-primary-hover: #218838;
+  --dsp-radius: 4px;
+}
 
-    /* Style form inputs */
-    .dsp-form input[type="text"],
-    .dsp-form textarea {
-      border: 2px solid #007bff;
-      border-radius: 4px;
-    }
+/* Center the form, at most 600px wide */
+.dsp-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+```
 
-    /* Style submit button */
-    .dsp-form .alpaca-form-button-submit {
-      background-color: #28a745;
-      border-color: #28a745;
-      font-size: 18px;
-      padding: 10px 30px;
-    }
+You can pass the same values with the `theme` option, and show a dark theme with `darkMode: true` (or `"auto"` to follow
+the visitor's system setting).
 
-    /* Style clear button */
-    .dsp-form .alpaca-form-button-clear {
-      background-color: #6c757d;
-      border-color: #6c757d;
-    }
-
-</style>`} lang="css" title="Custom form styles" />
+<LinkCard
+  title="Styling Web Forms"
+  href="/docs/forms/js-libraries/web-forms-js/#styling-web-forms"
+  description="Every custom property, the dark theme and the form's classes"
+/>
 
 ## Next Steps
 
@@ -221,7 +225,7 @@ The embedded form comes with default styles, but you can customize the appearanc
 
 <LinkCard
   title="Web Forms Changelog"
-  href="/docs/changelogs/simple-forms-js/"
+  href="/docs/changelogs/web-forms-js/"
   description="Changelog entries for the Web Forms JavaScript library"
 />
 
