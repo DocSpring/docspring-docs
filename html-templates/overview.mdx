@@ -313,9 +313,10 @@ Click the "Settings" button in the header to set up the pages of an HTML/CSS tem
 
 - _Page Format_: Letter (the default), Legal, Tabloid, Ledger, CR80, A0, A1, A2, A3, A4, A5, A6, or Custom.
   Check _Landscape_ to use a landscape page (not available for Custom).
-- _Page Size_: The width and height of a Custom page (defaults to `8.5in` by `11in`).
+- _Page Size_: The width and height of a Custom page, each from `0.05in` to `200in` (defaults to `8.5in` by `11in`).
 - _Page Margins_: The top, bottom, left, and right margins (each defaults to `1in`). Set the margins to 0 to remove
-  the white border around the page.
+  the white border around the page. The left and right margins together must be less than the page's width, and the
+  top and bottom margins less than its height.
 - _Print Background_: Renders backgrounds that your CSS sets (unchecked by default). Backgrounds aren't drawn over the
   page margins.
 
