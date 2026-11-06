@@ -97,7 +97,7 @@ regenerate it. See [Security](#security) for what the token can and cannot do.
 
 ## Embed Domains
 
-Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Enter a comma-separated list of hostnames without `https://`, such as `example.com,app.example.com`. A wildcard such as `*.example.com` matches any subdomain, and you can include a port, such as `localhost:3000`. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. See [Security](#security) for what the embed token can and cannot do.
+Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Enter a comma-separated list of domains, such as `example.com,app.example.com`. A wildcard such as `*.example.com` matches any subdomain, an entry such as `https://app.example.com` allows only that scheme, and an entry with a port, such as `localhost:3000`, allows only that port (an entry without one allows any port). A path, such as `example.com/editor`, is dropped when you save: only the scheme, domain and port count. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. See [Security](#security) for what the embed token can and cannot do.
 
 ## Options
 
