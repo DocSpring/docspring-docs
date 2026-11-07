@@ -64,6 +64,12 @@ to the next one. A group or a list of fields stays in one section, and a
 field you add later goes in the section of the field before it in the sidebar. Once a template has sections, the web
 form shows its fields in the order you set in **Sections**, instead of the sidebar's order.
 
+People can open any section from the list beside the form, to see what's coming or to fill sections out in any order.
+**Next** checks the section they're on before it moves on, and the submit button checks the whole form. To make people
+fill out sections in order, turn on **Fill out sections in order** in the template's
+[Forms settings](/docs/template-editor/settings/#fill-out-sections-in-order): a later section then stays locked until they reach it
+with **Next**.
+
 Sections only change the web form: the visual form and signature requests show the PDF's fields as they are. The
 template's JSON schema lists its properties in the sections' order and has the sections in `x-form-sections`.
 Sections are saved with the template's fields, so once the template has a published

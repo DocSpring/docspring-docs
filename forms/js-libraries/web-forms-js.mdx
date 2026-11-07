@@ -79,6 +79,7 @@ nothing on the page matches `selector`. It returns nothing: the form loads the t
 | `successMessage`              | string or function | The template's setting | The success screen's message, as plain text, instead of the template's. `""` shows no message. It can have [variables](/docs/forms/web-forms/#variables), or be a function (see [Success screen](#success-screen)).                                                           |
 | `showFillAgainButton`         | boolean            | The template's setting | Whether the success screen has a **Fill out again** button                                                                                                                                                                                                                    |
 | `sectionList`                 | string             | `"left"`               | Where a form with [sections](#sections) shows the list of sections: `"left"` beside the form (above it when the form is narrower than 720px), or `"top"` above it at any width.                                                                                               |
+| `sectionsInOrder`             | boolean            | The template's setting | Whether a form with [sections](#sections) makes people fill them out in order, instead of opening any section from the list.                                                                                                                                                  |
 | `theme`                       | object             | None                   | Values for the form's [custom properties](#styling-web-forms), without the `--dsp-` prefix: `{ primary: "#0b6e4f", radius: "4px" }`                                                                                                                                           |
 | `darkMode`                    | boolean or string  | `false`                | `true` shows the form's dark theme, and `"auto"` follows the visitor's system setting. See [Dark theme](#dark-theme).                                                                                                                                                         |
 
@@ -201,8 +202,14 @@ When a template has [sections](/docs/forms/web-forms/#sections), the form shows 
 with "Step 1 of 3" beside it, its description, then its fields. **Next** checks the section's answers before it
 moves on, **Back** returns to the section before, and the submit button is on the last section. A list of the sections
 sits beside the form when the form is at least 720px wide, and above it when it's narrower. `sectionList: "top"` keeps
-it above the form at any width. People can go back to any section they've already been to from the list. A section whose fields [conditional
-logic](/docs/template-editor/conditional-logic/) hides is skipped.
+it above the form at any width. A section whose fields [conditional logic](/docs/template-editor/conditional-logic/)
+hides is skipped.
+
+People can open any section from the list, to see what's coming or to fill sections out in any order. Leaving a section
+this way doesn't check it: only **Next** checks the section they're on, and the submit button checks the whole form and
+opens the first section with errors. To make people fill out sections in order, turn on the template's **Fill out
+sections in order** setting, or use `sectionsInOrder: true`. A later section then stays locked until they reach it
+with **Next**.
 
 The sections are in the template's JSON schema, as `x-form-sections`: a list of `{ id, title, description, properties }`,
 where `properties` names the schema's top-level properties in that section. `processTemplateSchema` can change them.
@@ -212,7 +219,7 @@ A property that no section lists goes in the last section.
 
 The form saves what people enter in the browser's `localStorage`, under `docspring-web-form:<template ID>`, and
 restores it the next time the form loads in that browser, instead of `defaultData`. A form with
-[sections](#sections) opens on the section the visitor was on, and they can go back to the sections they'd reached.
+[sections](#sections) opens on the section the visitor was on.
 Submitting the form, or pressing Clear or **Fill out again**, removes it.
 
 When one browser fills in the same template for different people or records, remove the saved values before you
