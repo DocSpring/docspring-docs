@@ -247,18 +247,13 @@ keeps the other answers.
 
 ## Signature fields
 
-Signatures come only from [signature
-requests](/docs/forms/js-libraries/signature-requests-js/), which record who signed and when. A web form with a
-signature or initials field says at the top that it can't be signed as soon as it loads, even when the field is in a
-later section. Its signature pads, its Next button and its submit button are turned off, and DocSpring rejects a live
-submission with a signature or initials value. To print an image or a name on the PDF, use an Image or Text field
-instead.
+A signature or initials field has a pad to draw on, and DocSpring prints the drawing on the PDF. A signature drawn in
+a form doesn't show people the document they're signing, or record who signed and how they were identified. To collect
+legally binding electronic signatures, use a [signature request](/docs/forms/js-libraries/signature-requests-js/),
+which records who signed and when.
 
-On your template's hosted form, the **Test** switch (which only you see, signed in) turns the signature pads on for
-test submissions, with a warning at the top that they're for testing.
-
-On a [DocSpring Enterprise](/docs/enterprise/) install, signature pads work in live forms too, and DocSpring accepts
-live submissions with a signature.
+Web Forms JS 2.x sends its submissions through the API, which doesn't take signatures from accounts created since
+November 4, 2026. Use version 3.0.0 or later to sign in a form.
 
 ## Success screen
 
@@ -373,12 +368,10 @@ Set these CSS custom properties to change the form's colors, font and sizes:
 | `--dsp-primary`            | DocSpring blue               | The submit and Next buttons, the current section, checkboxes and radio buttons, links and the selected date |
 | `--dsp-primary-hover`      | Darker blue                  | The submit and Next buttons and links on hover                                                              |
 | `--dsp-primary-text`       | White                        | Text on `--dsp-primary`                                                                                     |
-| `--dsp-danger`             | Red                          | Errors, the asterisk on required fields, and the message at the top of a live form with a signature field   |
+| `--dsp-danger`             | Red                          | Errors, and the asterisk on required fields                                                                 |
 | `--dsp-danger-background`  | Pale red                     | The error message above the buttons, sections with errors, and the circle behind a failed PDF's icon        |
 | `--dsp-success`            | Green                        | Finished sections in the sections list, and the success screen's check mark                                 |
 | `--dsp-success-background` | Pale green                   | The circle behind the success screen's check mark                                                           |
-| `--dsp-warning`            | Amber                        | The warning at the top of a form with a signature field in test mode                                        |
-| `--dsp-warning-background` | Pale amber                   | Its background                                                                                              |
 | `--dsp-focus`              | Blue                         | Focus rings                                                                                                 |
 | `--dsp-radius`             | `6px`                        | Corners of fields, buttons and groups                                                                       |
 | `--dsp-control-height`     | `40px`                       | The height of text fields, dropdowns and buttons                                                            |
@@ -443,7 +436,6 @@ For anything the custom properties don't cover, style the form's classes, inside
 | `.dsp-section-title`, `.dsp-section-description` | The current section's title and description                                                                                |
 | `.dsp-section-step`                              | "Step 1 of 3"                                                                                                              |
 | `.dsp-form-error`                                | The message above the buttons                                                                                              |
-| `.dsp-signature-notice`                          | The message at the top of a form with a signature field. Test mode's warning also has `.dsp-signature-notice-test`.        |
 | `.dsp-actions`                                   | The buttons                                                                                                                |
 | `.dsp-button-submit`, `.dsp-button-clear`        | The submit and Clear buttons, which also have the 2.x classes `.alpaca-form-button-submit` and `.alpaca-form-button-clear` |
 | `.dsp-button-next`, `.dsp-button-back`           | The Next and Back buttons                                                                                                  |

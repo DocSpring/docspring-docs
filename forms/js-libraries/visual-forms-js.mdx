@@ -272,24 +272,15 @@ calling `onProcessed`.)
 
 ### Signature fields
 
-Signatures come only from [signature
-requests](/docs/forms/js-libraries/signature-requests-js/), which record who
-signed and when. In a form with a signature or initials field (from version
-2.22.0):
+A signature or initials field opens a pad to draw or type a signature, and
+DocSpring prints it on the PDF. A signature in a form doesn't record who signed
+or how they were identified. To collect legally binding electronic signatures,
+use a [signature request](/docs/forms/js-libraries/signature-requests-js/),
+which records who signed and when.
 
-- In test mode (the `test` option, or the **Test** switch on your template's
-  hosted form), the signature pad works, and a warning at the top of the form
-  says it's for testing.
-- A live form says at the top that it can't be signed as soon as it loads, even
-  when the signature field is on a later page. Its signature fields say "Test
-  mode only" and don't open, and it can't be submitted. DocSpring rejects a
-  live submission with a signature or initials value too.
-
-To print an image or a name on the PDF without a signature request, use an Image
-or Text field.
-
-On a [DocSpring Enterprise](/docs/enterprise/) install, signature fields work in
-live forms too.
+Versions before 2.22.0 send their submissions through the API, which doesn't
+take signatures from accounts created since November 4, 2026. Use version 2.22.0
+or later to sign in a form.
 
 ## Field Types Support
 
