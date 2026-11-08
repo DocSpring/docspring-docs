@@ -396,6 +396,10 @@ time is retried a few times before it fails.
 
 ## Previewing with Data
 
+In the template editor, the **Preview** tab shows the PDF filled in with sample data, made again after each save.
+The **Preview** button in the toolbar shows it beside your code instead. Drag the divider between them to change
+the preview's width; your browser remembers both.
+
 A [preview](/docs/api/#tag/templates/post/templates/{template_id}/previews) returns PNG images of a template's pages printed with the data you send, not a PDF, so you can check how the template prints with your data before you publish it or send live data. DocSpring renders the template's draft (or a published version) with the data and returns an image of each page. A preview makes no submission and uses no credits, and its pages are watermarked like a test PDF's. Previews work for PDF templates too. The [MCP server](/docs/mcp/)'s `preview_template` tool does the same for AI agents.
 
 ## Generating PDFs
