@@ -150,6 +150,10 @@ The default subject is "_Sender_ sent you _document_ to sign". Anything else in 
 web addresses in the subject and message are shown as plain text (`example[.]com`), so the signing button is the only
 link people can click.
 
+Zapier and Make read `{{ }}` as their own field mapping. In DocSpring's Zapier app, write the variables in square
+brackets, such as `[[ signer.name ]]`, and it sends them as `{{ signer.name }}`. In Make, write
+`{{"{{ signer.name }}"}}`.
+
 ### The signed PDF
 
 The signed PDF email attaches the PDF, and the audit trail when it isn't merged into the PDF. When they're over 7 MB, or
