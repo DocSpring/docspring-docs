@@ -12,14 +12,14 @@ the JavaScript libraries don't need `'unsafe-inline'` or `'unsafe-eval'`.
 
 For an account in the US region:
 
-| Directive     | Sources                                                     | For                                                                                                                                               |
-| ------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `script-src`  | `https://cdn.docspring.com`                                 | The libraries                                                                                                                                     |
-| `style-src`   | `https://cdn.docspring.com https://fonts.googleapis.com`    | The libraries' stylesheets. The visual form's imports Google Fonts.                                                                               |
-| `font-src`    | `https://cdn.docspring.com https://fonts.gstatic.com`       | The fonts those stylesheets load                                                                                                                  |
-| `connect-src` | `https://app.docspring.com https://api.docspring.com`       | Visual Forms JS and Web Forms JS, which load the template and save the submission                                                                 |
-| `img-src`     | `https://cdn.docspring.com https://app.docspring.com data:` | The visual form's page images and the loading spinner, plus the storage host page images redirect to, and the web form's icons and image previews |
-| `frame-src`   | `https://app.docspring.com`                                 | Signature Requests JS and Template Editor JS, which open their forms in an iframe                                                                 |
+| Directive     | Sources                                                     | For                                                                                                                                                            |
+| ------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `script-src`  | `https://cdn.docspring.com`                                 | The libraries                                                                                                                                                  |
+| `style-src`   | `https://cdn.docspring.com https://fonts.googleapis.com`    | The libraries' stylesheets. The visual form's imports Google Fonts.                                                                                            |
+| `font-src`    | `https://cdn.docspring.com https://fonts.gstatic.com`       | The fonts those stylesheets load                                                                                                                               |
+| `connect-src` | `https://app.docspring.com https://api.docspring.com`       | Visual Forms JS and Web Forms JS, which load the template and save the submission, and Signature Requests JS, which sends us its logs when a form doesn't load |
+| `img-src`     | `https://cdn.docspring.com https://app.docspring.com data:` | The visual form's page images and the loading spinner, plus the storage host page images redirect to, and the web form's icons and image previews              |
+| `frame-src`   | `https://app.docspring.com`                                 | Signature Requests JS and Template Editor JS, which open their forms in an iframe                                                                              |
 
 Web Forms JS shows the image at a web address someone types in an image field. To show it, add `https:` to
 `img-src`. Without it, the field says it has no preview, and the form still sends the address.

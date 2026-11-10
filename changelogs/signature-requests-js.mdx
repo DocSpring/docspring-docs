@@ -29,7 +29,21 @@ inside the Signature Requests iframe.
 
 ## Changelog
 
-### 3.0.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 3.0.2 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 10, 2026
+</div>
+
+- When the browser refuses to show the signing form (`frame_blocked`) on a
+  page that is itself inside a frame on another site, the error's message
+  names that site too. The browser checks every page around the form against
+  the template's Embed Domains setting, so each of those sites must be listed.
+  A page inside a sandboxed frame gets its own message.
+- Sends us its logs when the browser refuses to show the form, as it already
+  did when the form didn't load in time, so we can help you find the cause.
+
+### 3.0.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Oct 29, 2026
