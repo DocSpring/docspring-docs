@@ -7,7 +7,8 @@ sidebar:
 
 import { Image } from "astro:assets";
 import codeGeneratorModalImg from "@images/template_editor/code-generator-modal.jpg";
-import { Aside, LinkCard } from "@astrojs/starlight/components";
+import { Aside } from "@astrojs/starlight/components";
+import LinkCard from "@components/LinkCard.astro";
 
 The template editor's **Code** button turns your template's fields into typed model code, so your application can build and check submission data before it calls the API. DocSpring generates the code from your template's JSON schema with [quicktype](https://quicktype.io/).
 
