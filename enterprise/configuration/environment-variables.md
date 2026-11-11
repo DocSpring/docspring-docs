@@ -1168,6 +1168,27 @@ The AWS Lambda function (a name or ARN) that sends requests to URLs customers gi
 - Type: text
 - Example: `arn:aws:lambda:us-east-1:123456789012:function:outbound-http:live`
 
+### DOCSPRING_PUMA_IDLE_GC_MIB
+
+When a web worker has no requests in progress and Ruby's memory has grown by more than this many MiB since its last full garbage collection, the worker runs one, so it doesn't keep the memory of its busiest moment while idle. `0` turns it off.
+
+- Type: whole number
+- Default: `64`
+
+### DOCSPRING_PUMA_WORKER_MAX_AGE_MINUTES
+
+Restarts a web worker gracefully once it has run this many minutes, plus a random extra of up to a sixth of that, so workers don't restart together. Its requests finish first while the other workers carry on. Only in a container with a memory limit (cgroup v2) and with more than one worker process (`WEB_CONCURRENCY`). `0` turns it off.
+
+- Type: whole number
+- Default: `720`
+
+### DOCSPRING_PUMA_WORKER_MEMORY_RESTART_PERCENT
+
+When the web container's memory passes this percentage of its limit, restarts the web worker using the most memory, gracefully: its requests finish first while the other workers carry on. One worker at a time. Only in a container with a memory limit (cgroup v2) and with more than one worker process (`WEB_CONCURRENCY`). `0` turns it off.
+
+- Type: whole number
+- Default: `80`
+
 ### DOCSPRING_RESTRICTED_PATH
 
 The `PATH` that app processes switch to once they've booted, so they can only run the commands DocSpring needs. The Docker image sets it. Used with `DOCSPRING_SHOULD_RESTRICT_PATH`.
@@ -1279,7 +1300,7 @@ Set by Convox: the release ID. DocSpring logs it at startup.
 
 ### REQUEST_TIMEOUT
 
-How long, in seconds, a web request can run before it's stopped with a 503 error (in production).
+How long, in seconds, a web request can run before it's stopped with a 503 error (in production). A web worker that's restarting gets 5 seconds more than this to finish its requests (at least 30).
 
 - Type: whole number
 - Default: `15`
