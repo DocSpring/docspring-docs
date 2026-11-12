@@ -29,7 +29,37 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.22.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.23.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 12, 2026
+</div>
+
+- A date field with a _Difference_ format, such as _Difference: Years_, shows
+  the number the PDF will print, instead of the format's name. It counts in the
+  PDF's time zone: your account's, or the server's (US Eastern, or
+  `DOCSPRING_TIMEZONE` on DocSpring Enterprise) for templates created before
+  October 29, 2026 and accounts without a time zone.
+- On a phone, the form's header no longer covers what your page has above the
+  form. It's fixed to the top of the screen only when the form starts at the top
+  of the page. A form lower down keeps its header at the top of the form, and
+  brings it back into view as the page scrolls, unless you turn that off with
+  `adjustHeaderOnScroll: false`.
+- A form only loads on the sites in your template's **Embed Domains** setting
+  when the setting isn't blank. On another site it shows a message naming the
+  host to add, and your `onError` callback receives the
+  `embed_domain_not_allowed` error. **If you've listed only the sites where you
+  embed your template editor or signature requests, add the sites where you embed
+  this form before your pages load this version.** A page whose script URL has a
+  version number gets this version when you change that number. A page that
+  loads `/assets/embed/visual_form.js` from your DocSpring app host, with no
+  version number, gets it without any change: on the day it's released, or when
+  you upgrade DocSpring Enterprise. A blank setting doesn't restrict the form,
+  and the `domainVerification: false` option turns the check off while you
+  develop.
+  See [Embed Domains](/docs/guides/embedded-forms/embedded-visual-forms/#embed-domains).
+
+### 2.22.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Nov 8, 2026

@@ -205,3 +205,19 @@ links yourself (`send_email: false`). See
 
 If you need a higher rate limit than your plan provides, contact
 [support@docspring.com](mailto:support@docspring.com).
+
+### Plans purchased before prepaid credits
+
+On a plan purchased before prepaid credits, the limit is a number of requests in
+each 30-second period: 120, unless we've agreed a different limit with you. Your
+live API tokens and your test API tokens each have this limit, counted across
+all the tokens of that mode and all IP addresses.
+
+API v2 responses include the `RateLimit-*` headers described above, and a
+request over the limit gets `429 Too Many Requests` with a `Retry-After` header
+and the `rate_limited` error code.
+
+API v1 sends none of these headers for this limit. A request over it gets
+`429 Too Many Requests` with the plain-text body `Retry later`. Each period
+starts on the minute or the half minute, so wait for the next one before you
+retry, and use exponential backoff with jitter if retries are also limited.

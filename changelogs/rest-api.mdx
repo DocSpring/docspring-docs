@@ -18,6 +18,23 @@ clients are listed in each client's own changelog.
 
 ## Changelog
 
+### Rate limits per account on older plans
+
+- Accounts on a plan purchased before prepaid credits now have one API rate
+  limit for their live API tokens and one for their test API tokens, each
+  counted across all those tokens and IP addresses. The limit itself hasn't
+  changed, but it used to be counted separately for each IP address. Requests
+  over it get `429 Too Many Requests`. See
+  [Credits & Rate Limits](/docs/api-guide/credits-and-rate-limits/#plans-purchased-before-prepaid-credits).
+
+### Template settings when creating a template with API v1
+
+- Creating a template with API v1 now keeps a setting the request sends even
+  when its value equals the setting's built-in default, such as
+  `public_submissions: false` or `expire_after: 7`. Your account's **Template
+  defaults** page used to replace it. API v2 already worked this way. Settings
+  the request leaves out still get your account's template defaults.
+
 ### Signatures come only from signature requests
 
 - A value for a signature or initials field, in `data` or in a field

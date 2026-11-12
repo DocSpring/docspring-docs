@@ -98,7 +98,7 @@ regenerate it. See [Security](#security) for what the token can and cannot do.
 
 ## Embed Domains
 
-Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Enter a comma-separated list of domains, such as `example.com,app.example.com`. A wildcard such as `*.example.com` matches any subdomain, an entry such as `https://app.example.com` allows only that scheme, and an entry with a port, such as `localhost:3000`, allows only that port (an entry without one allows any port). A path, such as `example.com/editor`, is dropped when you save: only the scheme, domain and port count. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. See [Security](#security) for what the embed token can and cannot do.
+Add your domain to the template's **Embed Domains** setting so the editor can be loaded on your pages. Enter a comma-separated list of domains, such as `example.com,app.example.com`. A wildcard such as `*.example.com` matches any subdomain, an entry such as `https://app.example.com` allows only that scheme, and an entry with a port, such as `localhost:3000`, allows only that port (an entry without one allows any port). A path, such as `example.com/editor`, is dropped when you save: only the scheme, domain and port count. Note: when **Embed Domains** is set but the embedding page sends no `Referer` or `Origin` header, the editor refuses to load. Leave the field blank only when you do not want any domain restriction. The same setting limits where the template's [visual forms](/docs/guides/embedded-forms/embedded-visual-forms/#embed-domains) and live [signature requests](/docs/guides/embedded-forms/embedded-signature-requests/) load, so list the sites where you embed those too. See [Security](#security) for what the embed token can and cannot do.
 
 ## Options
 
@@ -223,15 +223,21 @@ error is resolved.
 
 ## Version Attribution
 
-Template API responses include `versions` metadata for published template versions. Publisher IDs are split by actor type:
+The API names who published each version in its `published_by`, in the template's
+`versions`, and who last changed the draft in the template's `last_changed_by`.
+Both have these fields, and are null when that wasn't recorded:
 
-| Field                      | Description                                                                                             |
-| -------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `published_by_type`        | `user` for a DocSpring account user, or `external_user` for an embedded editor user.                    |
-| `published_by_user_id`     | DocSpring user ID (`usr_...`) when `published_by_type` is `user`; omitted otherwise.                    |
-| `published_by_external_id` | Your `externalUser.external_id` when `published_by_type` is `external_user`; omitted when not provided. |
-| `published_by_name`        | Display name for the publisher.                                                                         |
-| `published_by_email`       | External publisher email address when provided.                                                         |
+| Field         | Description                                                                                                          |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `type`        | `user` for a user in your DocSpring account, `api` for an API token, or `external_user` for an embedded editor user. |
+| `user_id`     | The DocSpring user's ID (`usr_...`) for `user`, and null otherwise.                                                  |
+| `external_id` | Your `externalUser.external_id` for `external_user`, and null when you didn't provide one.                           |
+| `name`        | The DocSpring user's name, or the name you gave the embedded editor user.                                            |
+| `email`       | The email address you gave the embedded editor user, for `external_user`.                                            |
+
+API v1 returns them as flat fields on each version: `published_by_type`,
+`published_by_user_id`, `published_by_external_id`, `published_by_name` and
+`published_by_email`.
 
 ## Security
 
@@ -253,6 +259,12 @@ Sensitive settings such as webhook URLs, Slack webhook URLs, redirect URLs, and
 PDF encryption passwords are returned as `null` or safe defaults. Enable
 `embed_edit_allow_settings` only when the embedded user should both view and edit
 those settings.
+
+The embedded editor never receives the template's embed domains, its permanent
+document URL, or the email address or external ID of the user who last changed or
+published it. It receives the template's version history only when
+`embed_edit_allow_versioning` is `true`, and each version then names its publisher
+without their email address or external ID.
 
 Regardless of any capability, the embed token **cannot** change the template's **Embed Domains**, change the capability flags, lock the template, rotate its own token, copy the template, or delete the draft / entire template family. Those actions require account authentication (the dashboard or the authenticated API).
 

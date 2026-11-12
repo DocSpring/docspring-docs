@@ -25,6 +25,8 @@ _On the Submissions tab._ The _Expire submissions_ setting allows you to configu
 
 A submission that fails (for example, with invalid data) is kept for at least 48 hours before it expires, even if the expiration time is shorter, so that you can see what went wrong and a retry still has its data.
 
+On [DocSpring Enterprise](/docs/enterprise/), a submission that wasn't processed because the license wasn't valid keeps its data until you reprocess it from the submission's menu, once the license is valid again. When the new submission has made its PDF, the old one expires like any other failed submission.
+
 (Please note that electronic signatures and a SHA256 hash of the PDF are always retained for UETA and ESIGN compliance.)
 
 You can also [make an API request](/docs/api/#tag/submissions/delete/submissions/{submission_id}) to immediately expire a submission.
@@ -206,7 +208,7 @@ every mode, and is the page's meta description. It is not shown on embedded form
 
 These are on the **Embedding** tab.
 
-- **Embed domains**: Not shown in the embedded editor. A comma-separated list of domains where you embed the template editor or signature request forms. The template editor accepts wildcards such as `*.example.com` and isn't restricted when the list is blank (see [Embed Domains](/docs/guides/embedded-template-editor/#embed-domains)). Live [embedded signature requests](/docs/guides/embedded-forms/embedded-signature-requests/) only load on the listed sites, accept the same wildcards and ports, and don't load on any site when the list is blank; test signature requests load anywhere. A path (`example.com/forms`) is dropped when you save.
+- **Embed domains**: Not shown in the embedded editor. A comma-separated list of domains where you embed the template editor, visual forms or signature request forms. The template editor accepts wildcards such as `*.example.com` and isn't restricted when the list is blank (see [Embed Domains](/docs/guides/embedded-template-editor/#embed-domains)). [Embedded visual forms](/docs/guides/embedded-forms/embedded-visual-forms/#embed-domains) only load on the listed sites, accept the same wildcards and ports, and aren't restricted when the list is blank. Live [embedded signature requests](/docs/guides/embedded-forms/embedded-signature-requests/) only load on the listed sites, accept the same wildcards and ports, and don't load on any site when the list is blank; test signature requests load anywhere. A path (`example.com/forms`) is dropped when you save.
 - **Embed edit token**: Not shown in the embedded editor. The token you use with `template_editor.js` to embed this template editor. You can show or regenerate it. See [Embed Edit Token](/docs/guides/embedded-template-editor/#embed-edit-token).
 - **Embedded editor permissions**: Not shown in the embedded editor. Allow embedded editor users to change template settings, to publish, restore, and delete versions, or to replace the PDF document. By default they can only edit fields and layout. See [Security](/docs/guides/embedded-template-editor/#security).
 - **Predefined fields**: _PDF templates only._ The field names that embedded editor users can add. See [Use Predefined Fields](/docs/guides/embedded-template-editor/use-predefined-fields/).

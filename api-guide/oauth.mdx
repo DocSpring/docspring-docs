@@ -188,9 +188,9 @@ curl https://sync.api.docspring.com/api/v2/authentication \
 ```
 
 Access tokens work with API v2 (the `/api/v2` endpoints), and only in the `Authorization` header. API v1 doesn't
-accept them. They also open the `permanent_url` of a submission's or combined PDF's files, which is the only link to
-a PDF when the account has turned off signed download links. An account's connected apps share the account's rate
-limit.
+accept them. They also open the `permanent_url` of a submission's or combined PDF's files and of a submission's page
+images (`files.png.pages`), which is the only link to a file when the account has turned off signed download links.
+An account's connected apps share the account's rate limit.
 
 An app can only see and change the webhooks it created, and change only the email actions it created. They stop and
 are deleted when the app is disconnected, or connected again without the `integrations` scope. Apps can't set a

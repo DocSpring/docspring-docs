@@ -76,8 +76,9 @@ Options are configured per embed. They are not saved on the template.
 
 When `externalUser` is omitted, changes and published versions are attributed to
 `Embedded Template User`. Use `externalUser.external_id` for your application's
-stable user ID; DocSpring keeps it separate from DocSpring user IDs in version
-responses as `published_by_external_id`.
+stable user ID. The API returns it as `external_id` in the template's
+`last_changed_by` and in each version's `published_by`, separate from DocSpring
+user IDs. The embedded editor itself never receives it.
 
 `onDone` fires when the Done button is clicked after the editor is saved. The
 Done button is disabled while there are pending changes, while a save is in

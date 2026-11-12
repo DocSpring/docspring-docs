@@ -205,6 +205,27 @@ Dynamically modify field properties:
 
 })`} lang="javascript" title="Field overrides" />
 
+## Embed Domains
+
+A form only loads on the sites in your template's **Embed Domains** setting, on the **Embedding** tab of its [settings](/docs/template-editor/settings/). A blank setting doesn't restrict the form. The same setting lists where you embed your template editor and signature requests, so it needs all of those sites.
+
+List the sites separated by commas, such as `forms.example.com, *.example.net, localhost:3000`. An entry without a port allows any port, and `*.example.net` allows every subdomain of `example.net`.
+
+On any other site, the form shows a message naming the host to add, logs it to the browser console, and calls your `onError` callback with:
+
+<Code
+  code={`{
+  error: 'embed_domain_not_allowed',
+  message: 'Please add "www.example.com" to your template\'s Embed Domains on the settings page. ...'
+}`}
+  lang="javascript"
+  title="onError argument"
+/>
+
+While you develop, the `domainVerification: false` option turns the check off.
+
+The check runs in the visitor's browser, so it discourages reusing your form on other sites but can't prevent it, and it doesn't make the form private. To keep generated PDFs private, see [Private Submissions and API Tokens](/docs/forms/visual-forms/#private-submissions-and-api-tokens).
+
 ## Troubleshooting
 
 ### Common Issues
@@ -213,6 +234,7 @@ Dynamically modify field properties:
 
 - Check template ID is correct
 - Check that the template's "Online Form Privacy" setting is "Public"
+- If the template's [Embed Domains](#embed-domains) setting isn't blank, check that it lists this site
 - Check browser console for errors
 
 **Fields don't appear**
