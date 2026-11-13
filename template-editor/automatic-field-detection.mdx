@@ -21,7 +21,7 @@ If the checkbox is enabled:
 - **Fillable PDFs** (with embedded form fields): DocSpring imports the form fields and uses AI to give them clearer names and the right data types. It also adds fields the PDF's form leaves out, such as a signature line that's only printed on the page.
 - **Flat PDFs** (without embedded form fields): DocSpring finds the fields in the page layout and uses AI to name them.
 
-Along with names and types, the AI sets each field's title, description, whether it's required, decimal places, and read-only fields. It recognizes repeated rows as arrays and groups of checkboxes where several can be checked. Segmented fields, such as SSN boxes, are set up as [comb fields](/docs/template-editor/ssn-fields/).
+Along with names and types, the AI sets each field's title, description, whether it's required, decimal places, and read-only fields. It recognizes repeated rows as arrays and groups of checkboxes where several can be checked. Segmented fields, such as SSN boxes, are set up as [comb fields](/docs/template-editor/ssn-fields/), with Print digits only, Fill from the right or Pad with zeros where the form calls for them. An amount with separate boxes for its dollars and cents is set up as [one number](/docs/template-editor/ssn-fields/#dollars-and-cents), with a field for each part.
 
 If the checkbox is disabled, DocSpring imports a fillable PDF's form fields without AI, converting their names to DocSpring's format (lowercase snake_case, with a `/` for each `.`, so `form1.name` becomes `form1/name`). It doesn't detect fields on a flat PDF.
 

@@ -41,10 +41,12 @@ DocSpring will display the lines that divide each cell:
 
 These lines can be useful when you're not sure how many cells are in a field. For larger comb fields, continue incrementing the "Comb Cells" value until all of the lines match up.
 
+Each character is centered in its cell, so comb fields have no horizontal alignment. **Fill from the right** puts the value in the last cells instead, **Pad with zeros** fills the cells before it with zeros, and **Print digits only** prints only the value's digits.
+
 <Aside type="tip">
-  View the [SSN Fields](/docs/template-editor/ssn-fields/) tutorial to see how
-  you can use the "Comb Offset" option to format an SSN into three separate
-  sections.
+  View the [SSN and Comb Fields](/docs/template-editor/ssn-fields/) guide to see
+  how you can use the "Comb Offset" option to format an SSN into three separate
+  sections, and how comb fields work with numbers and dates.
 </Aside>
 
 ### Other Text Options
@@ -58,7 +60,7 @@ These lines can be useful when you're not sure how many cells are in a field. Fo
 - Color
 - Background Color
 - Opacity
-- Horizontal Alignment: _(Left, Center, Right)_
+- Horizontal Alignment: _(Left, Center, Right)_. Not for comb fields.
 - Vertical Alignment: _(Bottom, Center, Top)_
 - Overflow: _(Shrink to fit, Truncate)_. See [Handle Truncated Text](/docs/api-guide/generate-pdfs/handle-truncated-text/).
 - Min Length and Max Length: Added to the API schema as validations.

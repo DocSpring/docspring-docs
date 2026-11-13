@@ -113,11 +113,12 @@ set them on your account's **Template defaults** page.
 
 ## Show Continue Once Required Fields Are Filled In
 
-_On the Forms tab, for PDF templates only._ Visual forms and signature requests have a **Next** button that takes the user through each field in
-turn. By default, while the user is in a field, the **Continue** button only replaces it once every field has a value
-or has been visited. Check
-this setting to show **Continue** as soon as every required field is filled in, so users can skip the optional
-fields. The `allowSkippingOptionalFields` option of [Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) and
+_On the Forms tab, for PDF templates only. On by default._ Visual forms and signature requests have a **Next** button
+that takes the user through each field in turn. With this setting on, a **Continue** button appears next to it as soon
+as every required field is filled in, so users can skip the optional fields, and **I Agree** lists the ones they
+skipped. Turn it off to show **Continue** in place of **Next** only once every field has a value or has been visited.
+In the API it's the template's `continue_before_optional_fields`. The `allowSkippingOptionalFields` option of
+[Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) and
 [Signature Requests JS](/docs/forms/js-libraries/signature-requests-js/) overrides this setting either way.
 
 ## Submission Privacy

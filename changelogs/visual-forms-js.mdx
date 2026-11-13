@@ -29,7 +29,139 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.23.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.24.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 13, 2026
+</div>
+
+- Comb fields, which print one character in each box, take one character per
+  box. Typing fills a box and moves to the next one, across the parts of a value
+  split over several fields (an SSN's 3, 2 and 4 boxes), and every copy of the
+  value on the form shows what's typed. Backspace, Delete and the arrow keys
+  work across the boxes. A pasted value fills them from the box you're in, and
+  leaves out the dashes or spaces between the parts when it only fits without
+  them. A value typed with them does the same once the boxes run out, so an SSN
+  typed as `987-65-4321` ends up as `987654321`. Other text keeps its spaces
+  and punctuation, and typing past the last box does nothing.
+- A comb field with Fill from the right fills from its last box, like a
+  calculator, and one with Print digits only takes only digits.
+- A Number field on comb boxes keeps what's typed (`1.50`, `007`) while it has
+  the focus, and lines up on its decimal point with Fill from the right. An
+  amount pasted in is read as a number first (`$1,250.50`, or `25,50` for
+  25.5). A number with a digit that no box prints (more digits than its boxes,
+  or a gap in the fields' offsets) shows an error, since it would fail the
+  submission.
+- **Dollars and cents:** a Number field can print only the part of its number
+  before the decimal point, or only the part after it (the field's new
+  **Format** option). An amount printed as `$ ____ . __` is then one number
+  with a field for the dollars and a field for the cents, in comb boxes or in
+  ordinary ones. Each field shows and takes its own part, and what's typed is
+  saved as one number: `1250` in the dollars and `50` in the cents is 1250.5.
+  In comb boxes, typing a decimal point in the dollars moves to the cents. In
+  whole-number boxes without any for the cents, the digits typed after a
+  decimal point are left out, so `1250.00` is 1250. See [Dollars and
+  cents](/docs/template-editor/ssn-fields/#dollars-and-cents).
+- A Date field whose comb boxes print its month, day and year as digits is
+  typed into the boxes, and shows an error for a date that isn't complete or
+  doesn't exist. A date pasted as `11/08/2026` is read in the order of the
+  boxes, as the same digits typed into them are. When the year has two boxes,
+  00 to 49 are 2000 to 2049 and 50 to 99 are 1950 to 1999, and changing the day
+  or month of a date the form was given keeps its century. A date format with
+  a month name or a time keeps the date picker.
+- A text field shows its text at the size the PDF prints it: text that's too
+  long for its box at the field's font size shrinks to fit as it's typed, on
+  one line or several, as it does in the PDF. Before, only fields with several
+  lines shrank their text, by the browser's measure, and a one-line field
+  scrolled.
+- A text field says when what's typed won't fit in its box on the PDF, and how
+  many characters to take out ("Too long for this box: take out 3
+  characters"), as it's typed. The form measures the text in the font, size and
+  box the PDF prints it in, shrunk as far as the PDF would shrink it. Before,
+  the PDF cut off what didn't fit. The form can't be submitted until the text
+  fits. Text the form starts with (a default, your page's `defaultFormData`, or
+  a signature request's data from the API) isn't checked, and neither is a field
+  that stays editable in the PDF, since its text scrolls, except in a signature
+  request whose signed PDF can't be edited. Text of more than 5,000 characters
+  isn't checked.
+- Continue appears next to Next as soon as every required field is filled in,
+  for every template: [Show Continue Once Required Fields Are Filled
+  In](/docs/forms/visual-forms/#show-continue-once-required-fields-are-filled-in)
+  is now on by default. Next still goes through the optional fields, and the
+  "You've completed all the required fields" banner shows once it has been
+  through them all, not when the form opens. Before I Agree, the form lists the
+  optional fields that were skipped, with a link back to the first. Templates
+  that turn the setting off, and the `allowSkippingOptionalFields: false`
+  option, keep the old flow, where Continue replaces Next only once every field
+  has a value or has been visited. It's a new template setting
+  (`continue_before_optional_fields` in the API): versions 2.16.0 to 2.23.0
+  keep reading `allow_skipping_optional_fields`, so pages on those versions
+  don't change.
+- A field cleared back to empty counts as not filled in, so Next goes back to
+  it.
+- Next and Tab after the last field go to the first field not yet filled in or
+  visited, instead of back to the first field. On a long form, Next used to
+  walk back through every field already filled to reach it.
+- A field's options can have labels: the field's list shows each option's
+  label (Married filing jointly for `married_filing_jointly`), and a shape that
+  selects an option names it by its label. Once picked, the field shows the
+  option, as the PDF prints it, or its label when the field prints labels on the
+  PDF. The submission's data keeps the option. An option without a label shows
+  in sentence case when the field's options are all lowercase words joined by
+  underscores (Head of household for `head_of_household`). See [Field
+  Options](/docs/reference/field-data-types/#field-options).
+- A date field's calendar opens where there's room for it: above a field near
+  the bottom of the form, and lined up with the field's right edge near the
+  form's right edge. Before, it always opened below the field from its left
+  edge, and ran off the form.
+- A date typed into a date field is read when you leave the field or press
+  Enter, in more ways: `11/8/2026`, `11-8-2026`, `11082026`, `2026/11/08`,
+  `Nov 8, 2026`, `8 November 2026` or `08-Nov-2026`. Numbers are read in the
+  order of the template's date format, so `08/11/2026` is 8 November when the
+  template puts the day first. The year needs all four digits, as the field's
+  example shows it. Before, only `MM/DD/YYYY` and `YYYY-MM-DD` were kept, and
+  other text was dropped. Text that still isn't a date stays in the field,
+  which asks for a date instead of saying it's required.
+- Tab and Shift+Tab move from a date field to the next or previous field, not
+  into its calendar, and Enter or Escape closes the calendar.
+- A date field that Tab, Start or Next moves to takes what's typed, with its
+  date selected so typing replaces it. Before, its calendar opened and the
+  typing went nowhere. The field keeps the focus once a typed date is complete,
+  with its calendar open on that date's month, and typing over a date keeps
+  every key.
+- A field with a list of options that Tab, Start or Next moves to takes what's
+  typed, so typing `CA` finds CA and Tab or Enter picks it. Before, its list
+  didn't get the focus and the typing went nowhere.
+- Country fields offer the list of countries, as the web form does, and Address
+  fields take what's typed. Before, neither had a box to fill in, so a required
+  one couldn't be completed.
+- A Number field keeps what's typed while it has the focus, and reads a `$` and
+  the commas between thousands (`$1,250.50`). Before, it dropped a decimal
+  point followed by zeros as they were typed, so `25.00` was saved as `250` and
+  `1.05` as `15`, and a whole-number field cut `1.5` to `1`. A comma can be the
+  decimal mark, as many countries write it: `25,50` is 25.5 and `1.250,50` is
+  1250.5 (a comma with exactly three digits after it still separates
+  thousands, so `1,250` is 1250). A whole-number field reads a comma only
+  between thousands: `1,00` there is more often a mistyped `1,000` than 1.00,
+  so the field asks for a whole number. Text that isn't a number, or a whole
+  number, stays, and the field asks for one. On a phone, a
+  Number field with a minimum of 0 or more opens the number pad. Other Number
+  fields open the full keyboard, since an iPhone's number pad has no minus
+  sign.
+- A date edited in place in a template that puts the day first is read day
+  first. Before, changing `08/11/2026` to `09/11/2026` saved 11 September.
+- Tab from a date field to a check mark or a signature moves the keyboard
+  there too. Before, Space typed into the date.
+- A yes/no question printed as two check marks, one with Invert boolean
+  condition ("child" and "no child"), shows neither box checked until it's
+  answered, when the field is required. Before, the "no" box showed checked,
+  and clicking it answered yes.
+- Escape and a click outside the signature dialog close it, without saving what
+  was drawn or typed. Before, neither closed it.
+- A field without a title is named after its name with a letter at the end
+  capitalized: `list_a` is "List A", where it was "List a".
+
+### 2.23.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Nov 12, 2026

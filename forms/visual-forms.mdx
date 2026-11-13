@@ -82,13 +82,13 @@ After its `?` or `#`, the URL can have [variables](/docs/forms/web-forms/#variab
 
 ### Show Continue Once Required Fields Are Filled In
 
-The form header has a **Next** button that takes the user through each field in turn. By default, while the user is in
-a field, the **Continue** button only replaces it once every field has a value or has been visited. To let users skip
-the optional fields, check
-**Show Continue Once Required Fields Are Filled In** in the template's settings. **Continue** then appears as soon as
-every required field is filled in. You can also set it with the `allowSkippingOptionalFields` option when embedding
-the form, which overrides the template setting either way. Embedded visual forms use the setting and the option with
-[Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) version 2.16.0 or above.
+The form header has a **Next** button that takes the user through each field in turn. As soon as every required field
+is filled in, a **Continue** button appears next to it, so users can finish without going through the optional fields.
+**I Agree** then lists the optional fields they skipped, with a link back to them. To show **Continue** in place of
+**Next** only once every field has a value or has been visited, turn off **Show Continue Once Required Fields Are
+Filled In** in the template's settings. You can also set it with the `allowSkippingOptionalFields` option when
+embedding the form, which overrides the template setting either way. Embedded visual forms show **Continue** next to
+**Next** with [Visual Forms JS](/docs/forms/js-libraries/visual-forms-js/) version 2.24.0 or above.
 
 ### Required Field Color
 

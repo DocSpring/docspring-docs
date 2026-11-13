@@ -18,6 +18,27 @@ clients are listed in each client's own changelog.
 
 ## Changelog
 
+### Numbers in comb fields, and option labels
+
+- A _Number_ field printed in comb fields (one character per box) is never cut
+  off. When the number has a digit that no box prints, because it has more
+  digits than the fields have boxes or because the fields' offsets leave a gap
+  where a digit falls, API v2 returns `invalid_data` when you create the
+  submission, with an error that names the field, and an API v1 submission
+  ends in the `error` state when its PDF is generated. Before, the PDF printed
+  the digits that fit and left out the rest. For a signature request created
+  through API v1, the submission fails once every signer has finished, so
+  check the numbers you send against the template's boxes. See [SSN and comb
+  fields](/docs/template-editor/ssn-fields/#a-number-that-doesnt-fit).
+- A _Number_ field split across comb fields with offsets prints each field's
+  own digits. Before, every field printed the number from its first digit.
+- A template's JSON schema lists the labels of a field's options as
+  `x-option-labels`, for options that have labels or that are all lowercase
+  words joined by underscores (`head_of_household` shows as Head of
+  household). `enum` is unchanged, and so is the data a submission takes. A
+  field or group without a title is titled from its name with a letter at the
+  end capitalized (`list_a` is "List A", where it was "List a").
+
 ### Rate limits per account on older plans
 
 - Accounts on a plan purchased before prepaid credits now have one API rate

@@ -45,6 +45,8 @@ Or if you set the display type to "Text", the field could display the text "true
 
 If you add some Field Options, then the value must be one of those options. A select list will be displayed on online forms.
 
+Each option can have a label, which forms show in place of the option. With the option `llc` and the label "Limited liability company", the form lists "Limited liability company", and the submission's data keeps `llc`. An option without a label shows itself, except when the field's options are all lowercase words joined by underscores: then each one shows in sentence case, so `head_of_household` shows "Head of household". Give an option a label where sentence case gets it wrong (`llc` would show "Llc"). Set the labels under **Option labels** in the field's options. The PDF prints the option, unless you turn on **Print labels on the PDF**: then it prints the label. In the API, the labels are the field's `option_labels`, by option, and the template's JSON schema lists them in `x-option-labels`.
+
 <Image src={fieldOptionsImg} alt="Field Options" width={250} />
 
 ### Conditions
@@ -81,6 +83,10 @@ The template editor shows what's wrong under the condition as you type, and a te
 A _Number_ field can be an integer or a float. When _Integer_ is checked, the value must be an integer. (No decimal places.)
 
 When _Currency_ is checked, online forms show a currency input. When a _Number_ field is displayed as _Text_, _Decimal Places_ sets the number of fixed decimal places used to format the number. (Set it to `0` to round to the nearest integer.)
+
+A _Number_ field on [comb fields](/docs/template-editor/ssn-fields/#numbers) is split across their boxes, and can line up on its decimal point. A number with more characters than its boxes is an error.
+
+A _Number_ field can print only a part of its number: the **Format** option (`number_part` in the API) prints the part before the decimal point or the part after it. An amount printed as `$ ____ . __` is one number with two fields of the same name, one for [the dollars and one for the cents](/docs/template-editor/ssn-fields/#dollars-and-cents). Forms show each field its part, and put what's typed back together as one number.
 
 ### Validations
 
@@ -158,6 +164,8 @@ Some forms may have separate fields for month, day, and year. You could configur
 - `%Y` for year
 
 <Image src={dayMonthYearImg} alt="Separate date fields" width={400} />
+
+When the month, day and year go in boxes, make each field a [comb field](/docs/template-editor/ssn-fields/#dates) and use `%m`, `%d` and `%Y`, which always have the same number of digits. Visual forms then let you type the date across the boxes.
 
 ### Display Types
 

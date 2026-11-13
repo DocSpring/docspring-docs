@@ -29,7 +29,59 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 3.1.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 3.2.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 13, 2026
+</div>
+
+- **Option labels:** a field's options can have labels, which the form's radio
+  buttons and select lists show in place of the options themselves (Married
+  filing jointly for `married_filing_jointly`). The success screen's variables
+  show the label too, and the submission's data keeps the option. Set them up
+  under **Option labels** in the template editor's field options. An option
+  without a label shows in sentence case when the field's options are all
+  lowercase words joined by underscores (Head of household for
+  `head_of_household`). See [Field
+  Options](/docs/reference/field-data-types/#field-options).
+- A text field says when what's typed won't fit in its box on the PDF, and how
+  many characters to take out ("Too long for this box: take out 3
+  characters."), as it's typed. The form measures the text in the font, size
+  and box the PDF prints it in, shrunk as far as the PDF would shrink it.
+  Before, the PDF cut off what didn't fit. The form can't be submitted until
+  the text fits. Text the form starts with (a default or your page's
+  `defaultData`) isn't checked, and neither is a field that stays editable in
+  the PDF, since its text scrolls, a field that a rule hides, or text of more
+  than 5,000 characters.
+- A field with **Print digits only**, whose comb boxes print only the value's
+  digits, takes any punctuation between them (`123-45-6789`,
+  `+1 (555) 123-4567`), and says how many digits it takes when the value
+  doesn't fit ("Enter no more than 9 digits, and no letters."), instead of
+  "This isn't in the format this field needs."
+- A typed date needs all four digits of its year, as the field's example shows
+  it: `02.28.20` is no longer read as 2020, and the field asks for a date. A
+  date is also read with its year first (`2020/02/28`), with dashes around a
+  month's name (`28-Feb-2020`) and with the day of the week before it.
+- A number typed with a `$` or with commas between its thousands (`$25.00`,
+  `1,250.50`) is read as that number. Before, the field dropped the decimal
+  point as it was typed, so `$25.00` became `$2500`. A comma can be the
+  decimal mark, as many countries write it: `25,50` is 25.5 and `1.250,50` is
+  1250.5 (a comma with exactly three digits after it still separates thousands,
+  so `1,250` is 1250). A whole-number field reads a comma only between
+  thousands: `1,00` there is more often a mistyped `1,000` than 1.00, so the
+  field asks for a whole number. On a phone, a number field opens the number
+  pad only when its minimum is 0 or more, since an iPhone's number pad has no
+  minus sign.
+- A checkbox's description shows under its label. Before, it showed above the
+  box, where in a list of checkboxes it read as the one above's.
+- A group whose fields a rule hides leaves no gap where it was.
+- When a required field's label wraps, its `*` stays with the label's last
+  word. Before, on a narrow screen, it could sit alone on the next line.
+- A field or group without a title is named after its name with a letter at
+  the end capitalized: `list_a` is "List A", where it was "List a". (This
+  comes from the template's JSON schema, so every version shows it.)
+
+### 3.1.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Nov 8, 2026

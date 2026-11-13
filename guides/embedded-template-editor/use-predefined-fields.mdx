@@ -43,7 +43,10 @@ When predefined fields are enabled in the template editor, users can assign fiel
 `type` sets the field's data type, such as `string`, `number`, `boolean`,
 `date`, `email`, `image`, or `signature`. For `string` fields, you can also set
 `option_list` to a comma-separated list of allowed values, such as `"Yes,No"`
-(`optionList` in API v1).
+(`optionList` in API v1). Set `option_labels` to give the values labels for
+forms to show, such as
+`{"married_filing_jointly": "Married filing jointly"}` (`optionLabels` in API
+v1). The submission data keeps the values.
 
 Use `required_in_template` when a predefined field must be added to the template
 at least once (the default is `false`). This controls the missing/present indicator in the predefined

@@ -11,6 +11,11 @@ If the full text can't fit in a field and the field's "Overflow" option is set t
 DocSpring will store any truncated text in the submission.
 This will be returned as a `truncated_text` object when you make a **Get Submission** API request.
 
+Web forms, visual forms and signature requests say when what's typed won't fit in its field's box, and how many
+characters to take out, and they can't be submitted until it fits. Text they start with (a field's default, data your
+page or the API prefilled) isn't checked, and neither is right-to-left text (such as Hebrew or Arabic), so it can
+still be truncated, as can text in submissions from the API.
+
 ## Response Format
 
 <Code
