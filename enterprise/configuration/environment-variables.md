@@ -165,6 +165,12 @@ The client secret of the Google OAuth client in `DOCSPRING_GOOGLE_OAUTH_CLIENT_I
 - Type: text
 - Formerly: `GOOGLE_OAUTH_CLIENT_SECRET`
 
+### DOCSPRING_GRAVATAR_ENABLED
+
+Shows the Gravatar (gravatar.com) of people who haven't uploaded a profile photo, which makes their browsers request images from Gravatar. When it's off, those people get their initials and no page loads anything from Gravatar. On for DocSpring's hosted service; off on Enterprise installs unless set to `true`.
+
+- Type: on/off
+
 ### DOCSPRING_MANDATORY_OTP
 
 Makes every user set up two-factor authentication before they can use the app.
