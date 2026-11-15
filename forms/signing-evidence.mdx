@@ -1,0 +1,59 @@
+---
+title: Signing Evidence and Retention
+description: What to keep from each signing, how long DocSpring keeps it, and what stays when it expires
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import LinkCard from "@components/LinkCard.astro";
+
+Every signature request produces evidence of who signed, when and how. This page covers what you should keep, and what DocSpring keeps and for how long.
+
+## Keep the completion package
+
+The signed document and its evidence are your records. UETA and ESIGN let you keep them electronically, as long as they stay accurate and you can reproduce them later. Keep these three files for as long as you need the signing to stand up, in your own storage:
+
+| File              | In the API               | What it is                                                                                                                                                                                     |
+| ----------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The signed PDF    | `files.pdf`              | The document, with the audit trail added to the end when the template's `merge_audit_trail_pdf` is on                                                                                          |
+| The audit trail   | `files.audit_trail`      | Who signed, when and how                                                                                                                                                                       |
+| The hash manifest | `files.signing_manifest` | The audit data behind the audit trail, as JSON: the hashes of the document and the audit trail, and each signing event and signature image with the salt and hash that the record holds for it |
+
+The links are on the [submission](/docs/api/#tag/submissions/get/submissions/{submission_id}) and in version 4 webhooks, so the simplest way to keep them is to download them when you receive `submission.processed`. [Email actions](/docs/template-editor/email-actions/) can also send you the PDF and audit trail.
+
+<Aside type="caution">
+  Once a signed document is deleted, DocSpring can't give you these files again.
+  The signing record can show that a copy is unchanged, but it can't reproduce
+  the document or show who signed it.
+</Aside>
+
+## How long DocSpring keeps signed documents
+
+The **Signed documents** setting on your account's Data retention tab decides this. New accounts keep signed documents until you delete them. A template can [set its own expiry](/docs/template-editor/settings/#expire-submissions) instead, and a request's `expires_in` overrides both.
+
+Test submissions are deleted after 30 days at the latest.
+
+## What's deleted when a signed document expires
+
+- its data and metadata, and the submitter's IP address, browser and location
+- the signed PDF and any other files it made
+- the audit trail and hash manifest
+- its signature requests: the signers' names, email addresses, answers and signatures
+- the records of each signer's authentication, and every signing event
+- the emails sent about it
+
+A waiting signature request stops working too: its signing link says the document is no longer available.
+
+## What stays
+
+- The submission's ID, state, template, test or live status, times and document hashes.
+- The [signing record](/docs/forms/how-signing-works/#the-signing-record), for at least 10 years, including after you delete your account. It holds hashes, IDs, dates, the number of signers and how each one was authenticated, and no names, email addresses, IP addresses or document contents. Test and demo signings have none.
+
+## When you delete your account
+
+Deleting your account deletes all of its signed documents and their evidence too, except the signing records. It happens at least 14 days later, and until then any user of the account can cancel it by signing in. See our [Privacy Policy](https://docspring.com/privacy/#retention-and-deletion).
+
+<LinkCard
+  title="How DocSpring Signing Works"
+  description="How signers are authenticated, what's recorded, and how a document can be verified later"
+  href="/docs/forms/how-signing-works/"
+/>

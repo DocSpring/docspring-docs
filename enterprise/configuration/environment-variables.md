@@ -1073,6 +1073,68 @@ The Sentry DSN for server errors. Leave it unset to turn error reporting off.
 
 - Type: text
 
+## Data retention
+
+### DOCSPRING_ACCOUNT_DELETION_NOTICES_ENABLED
+
+Lets `rake timers:data_retention` email the users of each account that has been suspended and unused for over a year that its data will be deleted in 30 days, at most 500 accounts a night. Until it's on, the task logs how many are due.
+
+- Type: on/off
+
+### DOCSPRING_ACCOUNT_PURGES_ENABLED
+
+Lets `rake timers:data_retention` permanently delete the data of suspended, unused accounts once the 30 days of their notice are over (`DOCSPRING_ACCOUNT_DELETION_NOTICES_ENABLED`). Accounts with signed documents also need `DOCSPRING_SIGNING_RECORD_PURGE_ENABLED`. Until it's on, the task logs how many are due.
+
+- Type: on/off
+
+### DOCSPRING_EXPORT_ARCHIVE_EXPIRY_ENABLED
+
+Lets `rake timers:data_retention` delete the files of account exports and imports over 6 months old. Until it's on, the task logs how many are due.
+
+- Type: on/off
+
+### DOCSPRING_REMOVED_USER_PURGE_ENABLED
+
+Lets `rake timers:data_retention` permanently delete users 30 days after they were removed from their account. Until it's on, the task logs how many are due.
+
+- Type: on/off
+
+### DOCSPRING_REQUESTED_ACCOUNT_PURGES_ENABLED
+
+Lets `rake timers:data_retention` permanently delete the data of accounts deleted with Delete Account, or scheduled for deletion by an admin, once their 14 days are over. With this and `DOCSPRING_SIGNING_RECORD_PURGE_ENABLED` on, Delete Account and its email give the date. Until it's on, the task logs how many are due, and a deleted account's data stays until an admin removes it.
+
+- Type: on/off
+
+### DOCSPRING_SECURITY_HISTORY_RETENTION_ENABLED
+
+Lets `rake timers:data_retention` delete audit rows, sign-in records, visits and events and the records of sent emails that are over 3 years old, and audit rows and admin notes whose record no longer exists. Until it's on, the tasks log what they would delete.
+
+- Type: on/off
+
+### DOCSPRING_SIGNING_RECORD_BACKFILL_ENABLED
+
+Lets `rake timers:data_retention` write the integrity records of signed documents completed before these records existed, up to 20,000 a night. `rake signing_records:backfill_all` writes them all in one run, and needs this setting too. Until it's on, the task logs how many are missing.
+
+- Type: on/off
+
+### DOCSPRING_SIGNING_RECORD_PURGE_ENABLED
+
+Lets expiry delete a signed document's signing data (signers, events, signature images and audit trail) with its PDF, and lets account purges reach accounts with signed documents. Turn it on once `rake signing_records:reconcile` shows zero missing. Until it's on, expiry keeps that data and those accounts aren't purged.
+
+- Type: on/off
+
+### DOCSPRING_TEMPLATE_TRASH_PURGE_ENABLED
+
+Lets `rake timers:data_retention` permanently delete templates 30 days after they were moved to Trash, and shows that date on the Trash page. Until it's on, the task logs how many are due, and templates stay in Trash.
+
+- Type: on/off
+
+### DOCSPRING_TEST_SUBMISSION_EXPIRY_ENABLED
+
+Lets `rake timers:data_retention` delete the data and files of test submissions over 30 days old, up to 100,000 a night. Until it's on, the task logs how many are due.
+
+- Type: on/off
+
 ## Enterprise license
 
 ### DOCSPRING_LICENSE

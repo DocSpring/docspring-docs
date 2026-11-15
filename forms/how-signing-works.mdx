@@ -1,0 +1,58 @@
+---
+title: How DocSpring Signing Works
+description: How signers are authenticated, what DocSpring records during a signing, and how a signed document can be verified later
+---
+
+import LinkCard from "@components/LinkCard.astro";
+
+This page describes what happens during a signature request and what evidence it produces, so that you can answer questions from your own customers, auditors and lawyers. It describes how the product works and isn't legal advice.
+
+## How signers are authenticated
+
+You choose how each signer is authenticated, and you tell DocSpring about it when you [create the signature request](/docs/api-guide/create-signature-requests/):
+
+- **First factor** (`auth_type`): `password`, `oauth`, `email_link`, `phone_number`, `ldap` or `saml`.
+- **Second factor** (`auth_second_factor_type`): `none`, `phone_number`, `totp`, `mobile_push`, `security_key` or `fingerprint`.
+
+When DocSpring emails the signing link, DocSpring records that it sent the link to the signer's address and when they opened it. Otherwise these details are what your account reported, and the audit trail shows them as reported by your account.
+
+## What's recorded
+
+DocSpring records each event of a signing, with its time and, when a signer's browser made the request, its IP address and browser:
+
+- the signing link was sent, by DocSpring or by you
+- the signer viewed the document
+- the signer accepted the terms
+- the signer signed, or declined
+- every signer finished
+- an email about the signing bounced or was marked as spam
+
+Once it's written, an event can't be changed or removed by mistake: the database refuses any update or delete of these records, except when the signing's data is deleted under your [retention settings](/docs/forms/signing-evidence/).
+
+## How the document and audit trail are sealed
+
+When the last signer finishes, DocSpring produces the signed PDF and its audit trail, which is a certificate of who signed, when and how. It's added to the end of the PDF when the template's `merge_audit_trail_pdf` is on.
+
+The certificate shows two hashes: the **Document SHA-256**, of the document before the certificate and any password were added, and the **Audit trail hash**, of the certificate's details and events. The hash manifest holds the same hashes, and each event and signature image with a random salt and its own hash, so one can be shown to match without revealing the others.
+
+## The signing record
+
+A live signing isn't finished until DocSpring has written its signing record. The record holds hashes of the signed PDF, the audit trail, the signing events and the signature images, with the account, submission and template IDs, the times, the number of signers and how each one was authenticated. Each event's and signature image's hash includes its salt from the hash manifest, so it can't be matched without the manifest. The record holds no signers' names, email addresses or IP addresses, and no document contents.
+
+DocSpring keeps the record for at least 10 years. For the first 10 years it's in storage that can't be changed or deleted, including by DocSpring. That's what makes it evidence: the database's protection stops mistakes, and this storage shows that a record hasn't been altered since it was written.
+
+Test and demo signings have no signing record.
+
+## Verifying a document later
+
+Anyone with a copy of a signed PDF or an audit trail can check it at [docspring.com/verify](https://docspring.com/verify), or [eu.docspring.com/verify](https://eu.docspring.com/verify) for a document signed in the EU region. The PDF stays in the browser: only its SHA-256 hash is sent to DocSpring.
+
+When the file matches a record, the page shows what the file is, when the signing finished, how each signer was authenticated, when the record was written, and the template's ID when the file belongs to one signing. It never shows who signed, or your account or submission ID.
+
+A match means the file is the one DocSpring produced. No match doesn't mean the document is forged, because a record matches only the exact file: saving it again, printing it to PDF or adding pages gives it a different hash. A signing that finished before DocSpring kept these records got its record later, from what DocSpring held then, and the page says so. Its record and manifest leave out the audit trail hash, because DocSpring can't rebuild the certificate's details exactly as they were at signing.
+
+<LinkCard
+  title="Signing Evidence and Retention"
+  description="What to keep from each signing, and what stays when it expires"
+  href="/docs/forms/signing-evidence/"
+/>

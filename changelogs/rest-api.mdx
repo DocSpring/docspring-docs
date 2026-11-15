@@ -69,6 +69,70 @@ clients are listed in each client's own changelog.
   (Visual Forms JS 2.22.0 and the hosted visual form) no longer create their
   submissions through the API. Earlier versions of the embeds still do.
 
+### Account expiry settings
+
+- Accounts have their own
+  [expiry settings](/docs/template-editor/settings/#the-accounts-expiry-settings),
+  on the Account page's Data retention tab: one for submissions without
+  signature requests, one for signed documents (submissions with signature
+  requests) and one for combined PDFs. The first two cover the submissions of
+  templates that don't set their own expiry, and the third covers combined PDFs
+  created without `expires_in`. New accounts delete submissions after 30 days
+  and combined PDFs after 1 day, and keep signed documents until they're
+  deleted. Existing accounts have all three off, so their live submissions stay
+  until they turn one on. Test submissions are deleted after 30 days on every
+  account of the hosted service. An account whose template defaults expired new templates'
+  submissions has that length in the first two instead, so its new templates
+  expire as they did.
+- `submission.expired` and `combined_submission.expired` webhooks now arrive
+  for records with a stored file. They weren't being sent. A changed expiry
+  setting that deletes older records sends one for each.
+- An OAuth app needs the `delete` scope to shorten a template's expiry through
+  API v2, since that deletes stored submissions. API tokens are unaffected.
+- A signing page opened with a signature request ID that doesn't exist answers
+  410 `submission_expired`, where it answered 404 `not_found`.
+- Templates have a new setting, `override_account_expiry`, in both API
+  versions' template responses and create and update requests. When it's
+  `true`, the template's `expire_submissions`, `expire_after` and
+  `expiration_interval` decide when all its submissions expire, with or
+  without signature requests, including never. When it's `false`, the
+  account's settings do. Existing templates have it on where
+  `expire_submissions` is on, and in the accounts whose template defaults
+  expired new templates' submissions. Turning `expire_submissions` on also
+  turns it on, unless the same request sets it, so integrations that only set
+  `expire_submissions` keep working. So does creating a template through
+  either API version with `expire_submissions` set, on or off: `false` keeps
+  its submissions until you delete them, as it did before.
+- An account deleted with **Delete Account** refuses every API request, reads
+  included, with a `403` and `"code": "account_suspended"` until one of its
+  users signs in to cancel the deletion.
+- A combined PDF created without `expires_in` follows the account's setting.
+  Before, it was kept until you deleted it. A request's `expires_in` still
+  overrides the template's and the account's settings. An `expires_in` of 0 or
+  less counts as not sent, so the account's setting decides.
+- Changing an expiry setting now applies to the submissions and combined PDFs
+  already stored. Turning it on or shortening it deletes the ones already older
+  than the new setting, starting 24 hours after we email the account's owner
+  and whoever made the change. Turning it off or lengthening it moves their
+  `expires_at` later, or clears it, at once. Before, a change applied only to
+  new ones.
+- A processed submission's `expires_at` counts from its `processed_at`. Before,
+  it counted from a save a few seconds later.
+
+### Expired signed documents
+
+- When a submission with signature requests expires, its signature requests,
+  their events and its audit trail are deleted along with its data and PDFs,
+  and the API no longer lists the signature requests. We keep a record of the
+  signing's hashes, described in
+  [Signing evidence and retention](/docs/forms/signing-evidence/).
+- API v2 and webhook version 4 list a signed submission's hash manifest as
+  `files.signing_manifest`. It's the audit data that the signing's record
+  holds hashes of, so keep it with the signed PDF.
+- A signing link for a signature request that no longer exists answers 410
+  with `submission_expired`, as a link to an expired submission does. Before,
+  an unknown signature request ID answered 404 with `not_found`.
+
 ### Signature request emails
 
 - DocSpring emails the signers of an API v2 signature request a link to sign,

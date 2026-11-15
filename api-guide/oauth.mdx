@@ -41,7 +41,9 @@ browser can call them.
 | `integrations` | Create webhooks and email actions, and update and delete the ones the app created |
 
 `read` is the default when a request has no `scope`. Combining PDFs with `delete_custom_files: true` also needs
-`delete`, because it deletes the custom files. Seeing webhooks needs `integrations`, because they include their
+`delete`, because it deletes the custom files. So does a template update that makes its stored submissions expire
+sooner (turning its expiry on or shortening it, or turning off its override when the account's settings keep
+submissions for less time). Seeing webhooks needs `integrations`, because they include their
 signing secret and headers.
 
 `integrations` was called `webhooks` until email actions came. Apps can still ask for `webhooks`, which works the

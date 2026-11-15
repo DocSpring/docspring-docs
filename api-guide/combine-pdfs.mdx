@@ -119,7 +119,7 @@ combined PDF's ID (`com_1234567890abcdef01.pdf`).
 
 ### Expiration and Password
 
-- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF, its metadata and its password. A combined PDF that fails is kept for at least 48 hours, then expires.
+- `expires_in`: Number of seconds after processing until DocSpring deletes the merged PDF, its metadata and its password, sooner or later than the [account's expiry setting for PDF tools](/docs/template-editor/settings/#the-accounts-expiry-settings). Without it, the account's setting applies, and with that off the merged PDF is kept until you delete it. A combined PDF that fails is kept for at least 48 hours, then expires.
 - `password`: Encrypt the merged PDF with this password.
 
 ### Credit Usage

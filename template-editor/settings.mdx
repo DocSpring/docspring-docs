@@ -18,18 +18,42 @@ _On the General tab._ Locked templates cannot be changed or deleted. See [Locked
 
 ## Expire Submissions
 
-_On the Submissions tab._ The _Expire submissions_ setting allows you to configure a data retention policy for your submissions.
+_On the Submissions tab._ A template's submissions follow [your account's expiry settings](#the-accounts-expiry-settings) unless **Override the account's expiry settings** is on. With it on, the template sets its own for all its submissions, shorter or longer than the account's:
 
-- If _Expire submissions_ is **unchecked** (the default), we will store all submission data and generated PDFs indefinitely. (Nothing will ever be deleted automatically.)
-- If _Expire submissions_ is **checked**, we will automatically delete all submission data and metadata, generated PDFs, any uploaded images, and the submitter's IP address, browser and location after a certain period of time. The expiration time is set beside it (_5 minutes_, _24 hours_, _7 days_, etc.)
+- If _Expire submissions_ is **off**, we store the template's submission data and the files they make (PDFs, Word documents and OpenDocument files) until you delete them, whatever the account's settings.
+- If _Expire submissions_ is **on**, we delete each submission's data and metadata, the PDF, Word document or OpenDocument file it made, any uploaded images, and the submitter's IP address, browser and location after the time set beside it (_5 minutes_, _24 hours_, _7 days_, etc.)
+
+A template with signature or initials fields gets its submissions from signature requests, so for it, _Expire submissions_ also deletes their signed PDFs, audit trails and the records of who signed and when. We keep a record of each signing's hashes for at least 10 years, so a copy can still be verified: see [Signing evidence and retention](/docs/forms/signing-evidence/). The editor warns you about it while it's on.
+
+Expiry counts from when each submission is processed. A request's `expires_in` overrides both the template's and the account's settings.
 
 A submission that fails (for example, with invalid data) is kept for at least 48 hours before it expires, even if the expiration time is shorter, so that you can see what went wrong and a retry still has its data.
 
-On [DocSpring Enterprise](/docs/enterprise/), a submission that wasn't processed because the license wasn't valid keeps its data until you reprocess it from the submission's menu, once the license is valid again. When the new submission has made its PDF, the old one expires like any other failed submission.
-
-(Please note that electronic signatures and a SHA256 hash of the PDF are always retained for UETA and ESIGN compliance.)
+Test submissions are deleted after 30 days at the latest.
 
 You can also [make an API request](/docs/api/#tag/submissions/delete/submissions/{submission_id}) to immediately expire a submission.
+
+### The account's expiry settings
+
+_On the Account page's Data retention tab._ Three settings decide how long the account keeps what it stores. Each has its own card and **Save** button:
+
+- **Submissions**: submissions without signature requests, from templates that don't override the account (through the API or your forms) and from form library fills. New accounts start at 30 days.
+- **Signed documents**: submissions with signature requests, from templates that don't override the account. New accounts keep them until you delete them.
+- **PDF tools**: the PDFs you combine with the API, unless the request sets `expires_in`. New accounts start at 1 day.
+
+Accounts created before these settings were added have all three off, so they keep their live submissions until they're deleted. Test submissions are deleted after 30 days on every account. The exception is an account whose **Template defaults** expired new templates' submissions: its **Submissions** and **Signed documents** settings have that length, so its new templates still expire as they did.
+
+The tab also says how many templates set their own expiry. New templates follow these settings. A template sets its own only when you turn on **Override the account's expiry settings** in its settings, or an API request turns on `expire_submissions`, creates the template with `expire_submissions` set (on or off) or sets `override_account_expiry`: **Template defaults** has no expiry settings.
+
+### Changing an expiry setting
+
+Changing one of the account's expiry settings, or a template's, applies to the submissions and combined PDFs you already store, not only to new ones:
+
+- **Turning expiry on, or shortening it**, deletes what's already older than the new setting. About a minute after the change, we email the account's owner and whoever made the change, with how many are that old and when they'll be deleted: 24 hours after the email, oldest first. To keep them, change the setting back before then. If nothing is that old yet, there's no email, and the new setting applies as each one reaches that age.
+- Each save sends one email, even when it changes the expiry of a template's submissions both with and without signature requests.
+- On the Account page, saving a change that deletes older data asks first, with the count. The template editor saves as you go, so it shows a notice with the date instead.
+- **Turning expiry off, or lengthening it**, applies at once: what you store is kept for the new length, or until you delete it.
+- Submissions and combined PDFs created with their own `expires_in`, and ones still waiting for signatures or credits, keep their own expiry.
 
 ## Allow Additional Properties
 

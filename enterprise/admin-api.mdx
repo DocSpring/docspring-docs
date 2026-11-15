@@ -177,6 +177,7 @@ Response (`200`):
   "skip_webhook_settings": false,
   "error_message": null,
   "state": "processed",
+  "archive_expired_at": null,
   "created_at": "2018-10-20T13:00:00Z",
   "updated_at": "2018-10-20T13:00:00Z"
 }
@@ -187,7 +188,9 @@ An export is stored as one or more `.tar.gz` parts. When the export's `state` is
 every part. With S3 storage, these are signed URLs that expire after 48 hours. To
 import the export on another server, save `index_data` to a JSON file and upload
 that file as the `archive` parameter (see [Import an archive](#import-an-archive)).
-`archive_url` is `null` for exports.
+`archive_url` is `null` for exports. `archive_expired_at` is `null` until an
+archive's files are deleted. After that, `index_data` and `archive_url` are `null`
+and the export can't be retried.
 
 ### Export an account
 

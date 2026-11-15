@@ -146,6 +146,9 @@ the account is reactivated within 30 days. Reactivating it from the **Billing**
 page moves it to the free Developer plan (the earlier plan can't be restored);
 subscribe to a paid plan there for more credits and higher limits.
 
+An account that its owner has deleted gets this `403` for every request, reads
+included, until one of its users signs in to cancel the deletion.
+
 ## Rate limits (HTTP 429)
 
 API limits are shared across all API keys and IP addresses on the account.

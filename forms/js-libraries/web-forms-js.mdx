@@ -313,12 +313,12 @@ generated, the form doesn't redirect: it says why above its buttons and calls `o
 
 The `submission` object passed to `onSave` and `onProcessed` contains:
 
-| Property       | Type   | Description                                                                |
-| -------------- | ------ | -------------------------------------------------------------------------- |
-| `id`           | string | The submission's ID                                                        |
-| `state`        | string | Its state, such as `"pending"` or `"processed"`                            |
-| `download_url` | string | A URL to download the PDF. `null` until the PDF is processed.              |
-| `expires_at`   | string | When `download_url` expires (ISO 8601). `null` until the PDF is processed. |
+| Property       | Type   | Description                                                                                                                                                                                                                                                                                                                             |
+| -------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`           | string | The submission's ID                                                                                                                                                                                                                                                                                                                     |
+| `state`        | string | Its state, such as `"pending"` or `"processed"`                                                                                                                                                                                                                                                                                         |
+| `download_url` | string | A temporary URL to download the PDF. It stops working after a short time, so don't store it. To get a new one, call [`GET /submissions/{submission_id}`](/docs/api/#tag/submissions/get/submissions/{submission_id}) from your server and use `files.pdf`. `null` until the PDF is processed, or if your account turns these links off. |
+| `expires_at`   | string | When the submission expires and its data and PDF are deleted (ISO 8601). `null` until the PDF is processed, or if it's kept until you delete it.                                                                                                                                                                                        |
 
 ## Errors
 

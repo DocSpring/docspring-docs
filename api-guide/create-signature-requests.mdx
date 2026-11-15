@@ -158,8 +158,9 @@ brackets, such as `[[ signer.name ]]`, and it sends them as `{{ signer.name }}`.
 
 The signed PDF email attaches the PDF, and the audit trail when it isn't merged into the PDF. When they're over 7 MB, or
 the template's **Signed PDF** setting asks for links, the email has a download link instead. Download links work for 7
-days, then the page offers to email a new one to the same address. Accounts that have signed a BAA get links by
-default.
+days, then the page offers to email a new one to the same address. Once a submission expires, its files are deleted and
+its links stop working, so when that comes first the email gives the shorter time. Accounts that have signed a BAA get
+links by default.
 
 When one of your [email actions](/docs/template-editor/email-actions/) sends the submission's PDF to a signer, a `cc`
 address or a notification address, that address gets the email action's email instead of DocSpring's, so nobody gets
