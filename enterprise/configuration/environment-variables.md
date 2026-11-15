@@ -333,9 +333,21 @@ The secret Rails signs and encrypts sessions, cookies and tokens with. Generate 
 
 ## Database and Redis
 
+### ADMIN_DATABASE_URL_DIRECT
+
+The PostgreSQL connection URL that database migrations use (`bin/pre_release`): a user that can change the schema, connecting to PostgreSQL directly rather than through a connection pooler. Optional on Enterprise installs, which use `DATABASE_URL` without it.
+
+- Type: text
+
 ### DATABASE_URL
 
 The PostgreSQL connection URL, with the user name, password, host, port and database name: `postgres://USER:PASSWORD@HOST:5432/DATABASE`. PostgreSQL 14 or later is required. Values in the URL take precedence over the `DOCSPRING_DATABASE_*` settings.
+
+- Type: text
+
+### DATABASE_URL_DIRECT
+
+The PostgreSQL connection URL for the background job scheduler (GoodJob), connecting to PostgreSQL directly, because GoodJob can't work through a connection pooler such as PgBouncer. Optional on Enterprise installs, which use `DATABASE_URL` without it.
 
 - Type: text
 
@@ -701,7 +713,7 @@ Makes API requests that generate PDFs wait until the PDFs are ready before respo
 
 ### DOCSPRING_SYNCHRONOUS_TIMEOUT_LIMIT
 
-How long, in seconds, a request waits for its PDF when `DOCSPRING_SYNCHRONOUS_API` is on. `REQUEST_TIMEOUT` also limits every web request, so raise that as well.
+How long, in seconds, a request waits for its PDF when `DOCSPRING_SYNCHRONOUS_API` is on. Web requests then get at least this plus 30 seconds before `REQUEST_TIMEOUT` stops them.
 
 - Type: whole number
 - Default: `300`
@@ -1181,6 +1193,12 @@ When a web worker has no requests in progress and Ruby's memory has grown by mor
 - Type: whole number
 - Default: `64`
 
+### DOCSPRING_PUMA_READINESS_PORT
+
+A second port on which the web server answers readiness checks (any path) with 200 while at least one of its workers is running and checking in, and 503 otherwise. Unlike a request to the app, it answers even when every request thread is busy, so a busy server isn't taken out of the load balancer. Only in production, with worker processes (`WEB_CONCURRENCY` of 1 or more).
+
+- Type: whole number
+
 ### DOCSPRING_PUMA_WORKER_MAX_AGE_MINUTES
 
 Restarts a web worker gracefully once it has run this many minutes, plus a random extra of up to a sixth of that, so workers don't restart together. Its requests finish first while the other workers carry on. Only in a container with a memory limit (cgroup v2) and with more than one worker process (`WEB_CONCURRENCY`). `0` turns it off.
@@ -1306,10 +1324,10 @@ Set by Convox: the release ID. DocSpring logs it at startup.
 
 ### REQUEST_TIMEOUT
 
-How long, in seconds, a web request can run before it's stopped with a 503 error (in production). A web worker that's restarting gets 5 seconds more than this to finish its requests (at least 30).
+How long, in seconds, a web request can run before it's stopped with a 503 error (in production). The web worker that ran it then restarts: with two or more workers (`WEB_CONCURRENCY`), one at a time, once its idle connections have closed (about a minute), and with one worker, straight away. With `WEB_CONCURRENCY` of `0` the web server itself stops, for your container's restart policy to start it again. Enterprise installs get at least 210 seconds, which covers the Admin API's synchronous imports and exports, and with `DOCSPRING_SYNCHRONOUS_API` on, at least `DOCSPRING_SYNCHRONOUS_TIMEOUT_LIMIT` plus 30 seconds, so a request can wait for its PDF. A web worker that's restarting gets 5 seconds more than the timeout to finish its requests (at least 30).
 
 - Type: whole number
-- Default: `15`
+- Default: `30`
 
 ### SERVICE
 

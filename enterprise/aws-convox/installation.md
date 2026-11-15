@@ -170,6 +170,12 @@ connection, the Redis connection and the Rails cache.
 `/health/site` is a minimal health check that only checks that the Rails
 application has booted and can respond to HTTP requests.
 
+A request to the app waits for a free web server thread, so when every thread is
+busy, these checks can time out even though the server is fine. With
+`DOCSPRING_PUMA_READINESS_PORT` set, the web server also answers readiness checks
+on that port (any path), while its workers are running, without waiting for a
+thread. It needs worker processes (`WEB_CONCURRENCY` of 1 or more).
+
 ## Back up your Terraform state
 
 Convox creates a Terraform config directory in your home directory. On macOS, it
