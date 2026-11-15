@@ -1,6 +1,6 @@
 ---
 title: AI Field Detection
-description: Set up AI field detection and AI field naming on DocSpring Enterprise, with the ai-field-detection image and Claude or OpenAI.
+description: Set up AI field detection and AI field naming on DocSpring Enterprise, with the model in the Enterprise image and Claude or OpenAI.
 sidebar:
   label: AI Field Detection
   order: 5
@@ -15,8 +15,8 @@ DocSpring Enterprise install.
 It has two parts, and you can turn on either or both:
 
 - **AI field detection** finds the fields on a flat PDF's pages. It runs in
-  DocSpring's own workers, with models built into the `-ai-field-detection`
-  variant of the Enterprise image. Nothing leaves your install.
+  DocSpring's own workers, with a model built into the Enterprise image.
+  Nothing leaves your install.
 - **AI field naming** sends page images to an AI provider to name and type the
   fields, and to set up conditional logic and required fields. It uses Claude
   (through the Claude API or Amazon Bedrock) or OpenAI, with your own account.
@@ -35,22 +35,29 @@ types and descriptions and the template's rules, not page images.
 
 ## Turn on AI field detection
 
-1. Switch the **web** and **worker** services to the `-ai-field-detection`
-   variant of the image. Each release has one: its tag is the release's version
-   tag followed by `-ai-field-detection` (for example
-   `<version>-ai-field-detection`), and `latest-ai-field-detection` follows the
-   newest release. Both architectures (AMD64 and ARM64) are included. The
-   variant turns detection on for you.
-2. Give the worker more memory. Detection needs about 1 GB of memory for each
-   page it's detecting, and each worker process detects up to
-   `DOCSPRING_AI_FIELD_SETUP_CONCURRENCY` pages at once (default `4`). Add about
-   4 GB to the worker's memory limit, or lower
-   `DOCSPRING_AI_FIELD_SETUP_CONCURRENCY` on a smaller worker.
+Detection is off until you turn it on, because it needs more memory than most
+installs give their workers.
 
-The models are built into the image, so detection works without internet access
-and doesn't download anything when it starts. The
-[DocSpring Enterprise releases](https://docspring.com/enterprise-releases) page
-lists the version tags.
+1. Give the worker more memory. Detection needs about 1 GB of free memory, and
+   detects one page at a time in each worker container, so add about 1 GB to
+   the worker's memory limit.
+2. Set `DOCSPRING_AI_FIELD_DETECTION_ENABLED=true` on the **web** and **worker**
+   services.
+
+The model is built into the image, so detection works without internet access
+and doesn't download anything when it starts.
+
+Before it detects a page, DocSpring checks how much memory the worker's
+container has free under its limit. With less than a page needs, it doesn't
+start: the template editor says AI field detection couldn't run on that page
+because the server ran short of memory, and the worker's log says how much was
+free. The worker's other jobs carry on. A container without a memory limit
+isn't checked.
+
+The `-ai-field-detection` image tags are no longer published. One release
+(`d00027eac5`) had them. If you use one, switch to the release's plain tag (for
+example `<version>` or `latest`) and set
+`DOCSPRING_AI_FIELD_DETECTION_ENABLED=true`.
 
 ## Turn on AI field naming
 
@@ -109,7 +116,7 @@ variables as your services.
 
 ```bash
 # Detects fields on a generated test page, the same way the workers do: checks
-# that the models load, fit in memory and find fields
+# that the model loads, fits in memory and finds fields
 bundle exec rails checks:field_detection
 
 # Sends one small request to your AI provider: checks the credentials and the

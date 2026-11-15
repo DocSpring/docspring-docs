@@ -413,7 +413,7 @@ The AWS secret access key for `DOCSPRING_AWS_ACCESS_KEY_ID`.
 
 ### DOCSPRING_AWS_S3_ROLE_ACCESS_KEY_ID
 
-The AWS access key ID DocSpring uses to assume the IAM roles set up for the AWS S3 integration (uploading PDFs to your users' own buckets), with `DOCSPRING_AWS_S3_ROLE_ACCESS_KEY_SECRET`.
+Optional. The AWS access key ID DocSpring uses to assume the IAM roles set up for the AWS S3 integration (uploading PDFs to your users' own buckets), with `DOCSPRING_AWS_S3_ROLE_ACCESS_KEY_SECRET`. Leave both unset, along with `DOCSPRING_AWS_ACCESS_KEY_ID` and its secret, and DocSpring assumes those roles with the AWS SDK's default credentials, such as an instance role, an EKS Pod Identity or IAM Roles for Service Accounts. That identity needs `sts:AssumeRole` on each role, and each role's trust policy must name it.
 
 - Type: text
 - Default: the value of [`DOCSPRING_AWS_ACCESS_KEY_ID`](#docspring_aws_access_key_id)
@@ -421,7 +421,7 @@ The AWS access key ID DocSpring uses to assume the IAM roles set up for the AWS 
 
 ### DOCSPRING_AWS_S3_ROLE_ACCESS_KEY_SECRET
 
-The AWS secret access key for `DOCSPRING_AWS_S3_ROLE_ACCESS_KEY_ID`.
+Optional. The AWS secret access key for `DOCSPRING_AWS_S3_ROLE_ACCESS_KEY_ID`.
 
 - Type: text
 - Default: the value of [`DOCSPRING_AWS_ACCESS_KEY_SECRET`](#docspring_aws_access_key_secret)
@@ -770,15 +770,9 @@ The page the template editor's help button opens. Defaults to DocSpring's templa
 
 ## Templates and forms
 
-### COMMONFORMS_LITE_MODELS_DIR
-
-Where the AI field detection model files are. The `-ai-field-detection` Enterprise image sets it, and DocSpring passes it on to the detector.
-
-- Type: text
-
 ### DOCSPRING_AI_FIELD_DETECTION_ENABLED
 
-Runs AI field detection in DocSpring's own workers. The `-ai-field-detection` Enterprise image turns it on and includes the models. Detection needs about 1 GB of worker memory for each page it's detecting.
+Runs AI field detection in DocSpring's own workers, with the model in the Enterprise image. Off by default: detection needs about 1 GB of free worker memory (it detects one page at a time in each worker container), so give the workers that memory before you turn it on. A page fails with a message, without starting, when the worker's container has less free. See [AI field detection](https://docspring.com/docs/enterprise/configuration/ai-field-detection/).
 
 - Type: on/off
 - Formerly: `AI_FIELD_DETECTION_ENABLED`
@@ -1147,12 +1141,6 @@ Your DocSpring Enterprise license key. DocSpring Enterprise needs it to run in p
 
 ## Platform
 
-### APP
-
-Set by Convox: the app's name. DocSpring logs it at startup.
-
-- Type: text
-
 ### AWS_CONTAINER_CREDENTIALS_FULL_URI
 
 Set by EKS Pod Identity. When it's set, DocSpring uses the pod's IAM role for AWS services that don't have their own access keys.
@@ -1175,18 +1163,6 @@ Set by IAM Roles for Service Accounts (IRSA), with `AWS_WEB_IDENTITY_TOKEN_FILE`
 ### AWS_WEB_IDENTITY_TOKEN_FILE
 
 Set by IAM Roles for Service Accounts (IRSA), with `AWS_ROLE_ARN`.
-
-- Type: text
-
-### BUILD
-
-Set by Convox: the build ID. DocSpring logs it at startup.
-
-- Type: text
-
-### BUILD_DESCRIPTION
-
-Set by Convox: the build's description. DocSpring logs it at startup.
 
 - Type: text
 
@@ -1320,36 +1296,12 @@ Threads each GoodJob worker process runs jobs on in production, such as account 
 - Type: whole number
 - Default: `3`
 
-### LANG
-
-The locale for the commands DocSpring runs (PDF tools, Chromium). The Docker image sets `C.UTF-8`.
-
-- Type: text
-
-### NODE_PATH
-
-Where the Node scripts DocSpring runs find their packages. The Docker image sets it. Defaults to `node_tools/node_modules` in the app's directory.
-
-- Type: text
-
-### PATH
-
-Where the commands DocSpring runs are found. In production, app processes switch it to `DOCSPRING_RESTRICTED_PATH` once they've booted.
-
-- Type: text
-
 ### PORT
 
 The port the web server listens on. The Docker image sets `4001`.
 
 - Type: whole number
 - Default: `3000`
-
-### RACK
-
-Set by Convox: the rack's name. DocSpring logs it at startup.
-
-- Type: text
 
 ### RAILS_ENV
 
@@ -1378,24 +1330,12 @@ Serves the compiled assets in `public/` from the app, compressed. The Docker ima
 
 - Type: on/off
 
-### RELEASE
-
-Set by Convox: the release ID. DocSpring logs it at startup.
-
-- Type: text
-
 ### REQUEST_TIMEOUT
 
 How long, in seconds, a web request can run before it's stopped with a 503 error (in production). The web worker that ran it then restarts: with two or more workers (`WEB_CONCURRENCY`), one at a time, once its idle connections have closed (about a minute), and with one worker, straight away. With `WEB_CONCURRENCY` of `0` the web server itself stops, for your container's restart policy to start it again. Enterprise installs get at least 210 seconds, which covers the Admin API's synchronous imports and exports, and with `DOCSPRING_SYNCHRONOUS_API` on, at least `DOCSPRING_SYNCHRONOUS_TIMEOUT_LIMIT` plus 30 seconds, so a request can wait for its PDF. A web worker that's restarting gets 5 seconds more than the timeout to finish its requests (at least 30).
 
 - Type: whole number
 - Default: `30`
-
-### SERVICE
-
-Set by Convox: the service's name (web, worker). DocSpring logs it at startup.
-
-- Type: text
 
 ### TZ
 
