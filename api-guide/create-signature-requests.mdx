@@ -13,10 +13,8 @@ This feature allows you to request information or signatures from one or more pe
 
 Once all of the signature requests have been completed, we will generate the final PDF, and DocSpring can send a webhook notification to your server. If a signer [declines to sign](/docs/forms/signature-requests/#declining-to-sign), the submission is cancelled instead and no PDF is generated.
 
-Each signature request that asks its signer to sign or initial adds **60 credits**
-to the final live PDF's cost. Signature requests that only collect values add
-nothing: you pay only for the PDF. Creating signature requests, issuing access tokens, and recording events
-have no separate charge. Watermarked test submissions and previews are free.
+Each signature request adds **60 credits** to the final live PDF's cost. Creating
+signature requests, issuing access tokens, and recording events have no separate charge. Watermarked test submissions and previews are free.
 
 <LinkCard
   title="How Credits Work"
@@ -31,7 +29,8 @@ See the [Signature Requests](/docs/forms/signature-requests/) documentation for 
 ## API Endpoint
 
 This uses the same API endpoint as a regular PDF generation request, with an additional `signature_requests` array.
-Signature requests are for PDF templates only.
+Signature requests work with every template type. An HTML template's, a Word template's or a page design's document is
+made before anyone signs: see [how that works](/docs/forms/signature-requests/#html-templates-word-templates-and-page-designs).
 
 <LinkCard
   title="POST /api/v2/templates/{template_id}/submissions"
@@ -58,13 +57,15 @@ The request body must be a JSON object with the following properties:
   - `interval_days` _(integer, required)_: Days between reminders, from 1 to 30.
   - `max_count` _(integer, required)_: The most reminders each person gets, from 1 to 10.
 - `signature_requests` _(array of objects, optional)_: Up to 100 signature requests. Each object in the array can have the following properties:
-  - `role` _(string, optional)_: Which of the template's signers this person is: `Signer 1`, `Signer 2` and so on. Without roles, the first signature request is `Signer 1`, the second `Signer 2`, and so on.
+  - `role` _(string, optional)_: Which of the template's signers this person is: one of its [signer roles](/docs/forms/signer-roles/), by key (`tenant`) or by place (`Signer 1` is the first). A template without roles has `Signer 1`, `Signer 2` and so on. Without `role`, the first signature request is `Signer 1`, the second `Signer 2`, and so on.
     - To leave a signer out, give every signature request its `role` and leave that signer's out. Either every signature request has a `role` or none does.
     - `Signer 1`'s details go in the template's [`@@signature_requests/0` fields](/docs/template-editor/field-names/#special-field-names-for-signature-requests), `Signer 2`'s in `@@signature_requests/1`, and so on. A signer you leave out has no signature request, so its fields stay empty.
   - `email` _(string, optional)_: The user's email address. Required when DocSpring emails them. Otherwise we recommend including it, because it is shown in the audit trail.
   - `name` _(string, optional)_: The user's name.
-  - `fields` _(array of field names, required)_: The field names that this person must fill in.
+  - `fields` _(array of field names, optional)_: The fields this person fills in or signs, besides the ones the template gives their role. A submission's only signature request can leave it out: the person gets every field without a role that `data` doesn't fill in.
+    - With two or more signature requests, every required field that `data` doesn't fill in needs a signer. See [who fills in a field](/docs/forms/signer-roles/#who-fills-in-a-field).
     - Each field can only be in one signature request.
+    - A field that an HTML template, a Word template or a page design uses outside its form fields, such as `{{ address }}`, can only go to the signer who signs first. See [Asking a signer for a value the document uses](/docs/forms/signature-requests/#asking-a-signer-for-a-value-the-document-uses).
     - For a list, name the field with `~` for its items (`items/~/code`) to ask for every item, or name one item (`items/0/code`) to ask for only that one.
     - A field that `data` already has a value for is a 422, unless you set `prefilled_values_editable` to let the person change the value.
     - A name that the template doesn't have saves the submission as `invalid_data`, and the request returns a 422 with its `submission_id`. Set `ignore_unknown_fields` to leave those names out instead, which lets you send one field list with several templates.
@@ -142,7 +143,7 @@ paid plan or has bought a credit pack.
 `email_subject` and `email_message` can use these variables:
 
 - `{{ signer.name }}` and `{{ signer.email }}`: the person the email is for
-- `{{ document.name }}`: the template's name
+- `{{ document.name }}`: the template's name, or "the document" when it has none
 - `{{ sender.name }}`: the sender's name
 - `{{ account.name }}`: your account's name
 

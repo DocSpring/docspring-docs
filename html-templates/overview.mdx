@@ -149,27 +149,30 @@ Text signatures will import the required typeface, and render the `name` inside 
 </span>
 ```
 
-You can pass the following options to the `signature` tag, to control the width and height of image signatures, or the font size and weight of text signatures. (These options are added as inline CSS styles.)
+Only signers can sign. Saving the code adds a signature field for each `signature` tag, and the API refuses a value for
+one in `data` ([Create signature requests](/docs/api-guide/create-signature-requests/)). When a submission has
+[signature requests](/docs/forms/signature-requests/), a signer who's given the field signs in the tag's place, in a box
+of the tag's `width` and `height`.
 
-| Option        | Signature Type | Default Value  |
-| ------------- | -------------- | -------------- |
-| `width`       | Image          | `(from image)` |
-| `height`      | Image          | `(from image)` |
-| `font-size`   | Text           | `16px`         |
-| `font-weight` | Text           | `normal`       |
-| `color`       | Text           | `black`        |
+You can pass the following options to the `signature` tag, to control the width and height of image signatures and of a signer's box, or the font size and weight of text signatures. (These options are added as inline CSS styles.)
+
+| Option        | Used For                  | Default Value                                                                                                      |
+| ------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `width`       | Image, and a signer's box | From the image. A signer's box is `5cm` wide                                                                       |
+| `height`      | Image, and a signer's box | From the image. A signer's box is `2cm` tall                                                                       |
+| `font-size`   | Text                      | `16px`                                                                                                             |
+| `font-weight` | Text                      | `normal`                                                                                                           |
+| `color`       | Text                      | `black`                                                                                                            |
+| `role`        | A signer                  | None. The key of the [signer role](/docs/forms/signer-roles/) that signs it, or `sender` when the data fills it in |
 
 There is also a `preview_type` option, which allows you to control the type of signature that is shown in preview PDFs. We show an image signature by default. Use `preview_type: text` to show a text signature.
 
 Examples:
 
-```html
+```liquid
 {% signature signature_field, width: 300px %}
-```
-
-```html
-{% signature signature_field, preview_type: text, font-size: 24px, color: #333
-%}
+{% signature signature_field, preview_type: text, font-size: 24px, color: #333 %}
+{% signature tenant_signature, role: tenant %}
 ```
 
 ### Initials
@@ -205,13 +208,14 @@ Text initials will import the required typeface and render the initials inside a
 
 The `initials` tag accepts the same options as the `signature` tag:
 
-| Option        | Initials Type | Default Value  |
-| ------------- | ------------- | -------------- |
-| `width`       | Image         | `(from image)` |
-| `height`      | Image         | `(from image)` |
-| `font-size`   | Text          | `16px`         |
-| `font-weight` | Text          | `normal`       |
-| `color`       | Text          | `black`        |
+| Option        | Used For                  | Default Value                                                                                                      |
+| ------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `width`       | Image, and a signer's box | From the image. A signer's box is `2cm` wide                                                                       |
+| `height`      | Image, and a signer's box | From the image. A signer's box is `1cm` tall                                                                       |
+| `font-size`   | Text                      | `16px`                                                                                                             |
+| `font-weight` | Text                      | `normal`                                                                                                           |
+| `color`       | Text                      | `black`                                                                                                            |
+| `role`        | A signer                  | None. The key of the [signer role](/docs/forms/signer-roles/) that signs it, or `sender` when the data fills it in |
 
 Use the `preview_type` option to control how initials appear in preview PDFs. Preview image initials are shown by default. Use `preview_type: text` to display text initials instead.
 
@@ -224,6 +228,53 @@ Examples:
 ```html
 {% initials initials_field, preview_type: text, font-size: 18px, color: #333 %}
 ```
+
+### Form Fields
+
+A form field is a place in the document for a value that a [signer](/docs/forms/signature-requests/) fills in. When a
+submission has signature requests, a signer who's given the field fills it in on the signing page. Anywhere else, it
+prints the field's value from the data, and a preview outlines it.
+
+```liquid
+{% form_field tenant_name %}
+{% form_field start_date, kind: date, width: 4cm %}
+{% form_field plan, kind: dropdown, options: "Monthly, Yearly" %}
+{% form_field billing, kind: radio, option: Card %} Card {% form_field billing, kind: radio, option: Invoice %} Invoice
+{% form_field tenant_signature, kind: signature, role: tenant %}
+{% form_field signed_on, kind: date_signed, role: tenant %}
+```
+
+| Option     | Description                                                                                                                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `kind`     | `text` (the default), `date`, `checkbox`, `radio` (one button of a group), `dropdown`, `signature`, `initials` or `date_signed`, which DocSpring fills in with the date its signer signs                                                   |
+| `width`    | Its width, such as `6cm`, `30mm`, `1.5in`, `72pt` or `200px`. The default depends on its kind: 6 cm for text and 5 cm for a signature                                                                                                      |
+| `height`   | Its height. The default depends on its kind: 0.8 cm for text and 2 cm for a signature                                                                                                                                                      |
+| `options`  | A drop-down's options, separated by commas: `options: "Monthly, Yearly"`                                                                                                                                                                   |
+| `option`   | What a radio button's field holds when it's chosen: `option: Card`. Required for a radio button                                                                                                                                            |
+| `required` | `true` or `false`, whether its field is added as required. Default `true`, or `false` for a checkbox. A `date_signed` field is always added as optional, since DocSpring fills it in. After that, the field's **Required** setting decides |
+| `role`     | The key of the [signer role](/docs/forms/signer-roles/) that fills it in, or `sender` when the submission's data fills it in                                                                                                               |
+
+A form field needs a field on the template's field list, which [DocSpring adds](#fields) when you save the template. If
+you delete the field from the list, submissions and previews fail with a message that names it. A signer can also fill
+in a `signature` or `initials` tag's field, at the tag's `width` and `height`.
+
+Radio buttons with the same field are one group, with a tag for each option: the signer chooses one, and without
+signers the button whose option is the field's value is marked.
+
+A checkbox and a radio button draw their own outline, ticked or not, so the document shows where they are. A text
+field has none: put it on a line or in a table cell of your own.
+
+A signer's text prints at the size and in the color of the text around the tag, so it reads as part of the
+document, and so do a checkbox's outline and check and a radio button's outline and dot. The rest comes from the
+template's **Field defaults** (in its [settings](/docs/template-editor/settings/)): the typeface, bold, uppercase,
+alignment and character spacing for text, the check's character, and the date formats for dates and `date_signed`
+fields.
+
+Inside a `{% for room in rooms %}` loop, name the field after the loop's variable to give each item its own:
+`{% form_field room.initials, kind: initials %}`. In a signature request, a required form field that an `{% if %}` leaves
+out of the document fails the submission, so turn off the **Required** setting of one that the data can leave out
+([details](/docs/forms/signature-requests/#form-fields)). Changing a tag's `required` doesn't change a field that's
+already on the list.
 
 ### Images
 
@@ -295,6 +346,9 @@ When you save your code in the template editor, DocSpring adds a field for each 
 the header and footer HTML, and the SCSS. Fields stay when you delete their tags, so delete a field you no longer need
 in the field list. The editor only removes a field it added while you were still typing, such as `discount_ra` on the
 way to `discount_rate`, if you haven't changed the field.
+
+Creating a template or changing its code with [the API](/docs/api/#tag/templates/post/templates) does the same, unless
+you send `sync_fields: false` to manage the fields yourself.
 
 - `{{ customer.name }}` adds a `customer` object with a `name` field.
 - `{% for item in line_items %}` adds a `line_items` list, and `{{ item.price }}` inside the loop adds a `price` field

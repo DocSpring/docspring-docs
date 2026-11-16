@@ -12,8 +12,9 @@ Create a signature request to collect UETA and ESIGN compliant electronic signat
 
 When you make an API request to fill out a PDF, you can specify that some fields must be filled in by certain people (including signature or initials fields). The PDF submission will be in a pending state until all of its signature requests have been completed. DocSpring emails each person a link to sign, or you can send them the links yourself, or embed the form on your own website. When everyone has filled in the form, the PDF will be generated, DocSpring emails it to the people who signed, and we can send your server a webhook notification.
 
-Signature requests work with PDF templates: signers fill in and sign the fields on the template's pages. HTML templates,
-Word templates and page designs can't have signature requests yet.
+Signature requests work with every template type. On a PDF template, signers fill in and sign the fields on the
+template's pages. An HTML template, a Word template or a page design has no pages until its document is made, so
+DocSpring makes the document first: see [HTML templates, Word templates and page designs](#html-templates-word-templates-and-page-designs).
 
 To collect UETA and ESIGN compliant electronic signatures, DocSpring must record an audit trail that includes user authentication. This means that you need to send us some details about how and when your users have been authenticated.
 
@@ -37,7 +38,100 @@ When you send the links yourself or embed the form in your app, create the signa
 
 This process ensures that DocSpring can record a complete audit trail of events, making all electronic signatures legally binding.
 
-A signed PDF never has editable form fields, so nobody can change a value after it was signed. When a signature request asks someone to sign or initial, every field in the final PDF is static, even if the submission sets `editable: true` or the template generates editable PDFs ([Editable PDFs](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/#editable-pdfs)).
+A signed PDF never has editable form fields, so nobody can change a value after it was signed. When a signature request asks someone to sign or initial, every field in the final PDF is static, even if the submission sets `editable: true` or the template generates editable PDFs ([Editable PDFs](/docs/api-guide/generate-pdfs/generate-pdfs-via-api/#editable-pdfs)). Signature requests that only collect values keep the PDF's editable form fields.
+
+## HTML Templates, Word Templates and Page Designs
+
+DocSpring makes the document when you create the signature requests, with the data you send. Signers read that
+document and fill in its form fields. Once everyone has signed, DocSpring fills in their values on the same document,
+without making it again, so each person signs what they read. It's always a PDF.
+
+### Form fields
+
+Signers fill in the template's form fields:
+
+- HTML templates: the [`form_field`, `signature` and `initials` tags](/docs/html-templates/overview/#form-fields).
+- Word templates: the [`form_field`, `signature` and `initials` tags](/docs/word-templates/tags/#form-fields).
+- Page designs: the [form field elements](/docs/page-designer/layout-format/form-field/).
+
+Each form field has a field on the template's field list, which DocSpring adds when you save the template. If you
+delete the field from the list, submissions and previews fail with a message that names it.
+
+A form field that no signer fills in prints its value from `data`.
+
+A required form field must be in the document. When an `{% if %}` or a section's condition leaves one out for the data
+you send, the submission fails with a message that names it, because its signer couldn't finish without it. Turn off the
+field's **Required** setting in the field list when the data can leave it out. A tag's or element's `required` only
+sets the field when it's added to the field list: after that, the field's **Required** setting decides, and changing
+`required` doesn't change it. A field that a [show/hide rule](/docs/template-editor/conditional-logic/) hides for this
+data doesn't count.
+
+In a `{% for %}` loop or a repeating section, each item has its own field, and every item in the data needs its own when
+it's required. Name the field after the loop's variable, as in `{% form_field room.initials, kind: initials %}` inside
+`{% for room in rooms %}`. A signature request's `fields` can list them one at a time, `rooms/0/initials`, or all together,
+`rooms/~/initials`. A list with no items has nothing to fill in.
+
+A signer's field is always a value in the data, wherever the template reads it from: an item of a sorted or filtered
+list (`{% assign by_floor = rooms | sort: "floor" %}`) is still that room, and a name set with a plain `assign` is still
+that field. A value the template makes itself, with `capture` or a filter such as `upcase`, isn't a field, so no signer
+can fill it in. A form field on an item of a sorted or filtered list needs the item to be an object
+(`{% form_field room.initials %}`): for a list of plain values, loop over the list itself.
+
+### Who fills in each field
+
+Give the fields to signers with each signature request's `fields`, or with the template's
+[signer roles](/docs/forms/signer-roles/): a tag's or element's `role` gives a form field to one of them, and `role:
+sender` means `data` fills it in. A submission's only signature request can leave out `fields`, and gets every field
+without a role that `data` doesn't fill in.
+
+### The document doesn't change once it's made
+
+Nothing that a signer fills in can change the rest of the document. A [show/hide
+rule](/docs/template-editor/conditional-logic/) can read the data you send, and decide which form fields are drawn and
+required, but creating a signature request is a 422 when a rule reads a field that a signer fills in on the document.
+
+For the same reason, a signer can't fill in a form field whose value the text uses too, such as `{{ tenant_name }}`
+beside `{% form_field tenant_name %}`: the text would stay empty next to the name they typed. Creating the signature
+request is a 422 that names the field. Send the field in `data`, which fills in both, or use it in one place.
+
+### Asking a signer for a value the document uses
+
+The text of a document can use a value outside a form field, such as `{{ address }}`. That value has to be there when
+the document is made, so send it in `data`, or use a form field instead.
+
+The signer who signs first can also be asked for it, by listing the field in their `fields`. That's a submission's only
+signer, or with `signing_order: sequential`, the only signer in the first `signing_step`. Listing it for anyone else is
+a 422.
+
+1. When they open their link, the signing page asks for those values, on a form with only those fields.
+2. DocSpring makes the document with their answers, usually in a few seconds. Until then, nobody can open it.
+3. They read the document and sign it. The **Change answers** button takes them back to the form, and the document is
+   made again with their new answers. It can be made 5 times in all, and never once someone has signed.
+
+A date they answer reaches the template as `YYYY-MM-DD`. To print it another way, use the `date` filter:
+`{{ start_date | date: "%B %-d, %Y" }}`.
+
+### When the document is ready
+
+Creating the signature requests returns straight away, and DocSpring makes the document in the background, usually in a
+few seconds. Until it's ready, a signing link or an embedded signing form shows that the document is being prepared and
+opens it once it's there, and DocSpring sends its emails to signers only then.
+
+If the document can't be made (a Liquid error, a required form field that the data leaves out, one of the limits
+below), the submission's `state` is `error`, its `error_message` says why, and the
+[`submission.failed`](/docs/webhooks/events/#submissions) webhook is sent. Nobody can sign it: fix the template or the
+data and create a new submission.
+
+### Limits
+
+- The document can have up to 100 pages and 1,000 form fields for signers.
+- Each form field is in the document once. One in a header, a footer or a table's repeated header row would be on
+  every page, and one taller than the space left on its page would be split in two: both fail the submission with a
+  message that names the field. Signature, initials and date signed fields can't go in a page design's header or footer.
+- Signers fill in text, dates, numbers, check boxes, radio buttons, drop-down lists, signatures and initials. They
+  can't fill in image fields.
+- The signed document is always a PDF that can't be edited. A Word template's `output_format` of `docx` or `odt` and
+  `editable: true` are refused with signature requests.
 
 ## Declining to Sign
 
@@ -56,10 +150,7 @@ If you read submissions or signature requests with a DocSpring [API client](/doc
 ## Credit Usage
 
 The final live PDF costs its own generation credits plus **60 credits for
-each signature request that asks its signer to sign or initial**. Signature
-requests that only collect values, such as text, numbers and dates, add nothing: you pay only
-for the PDF. There is no
-separate charge for creating a
+each signature request**. There is no separate charge for creating a
 request, issuing access tokens, recording events, or generating previews.
 Watermarked test submissions are free, and they're deleted after 30 days at the latest.
 
@@ -141,6 +232,12 @@ When an embedded form is displayed on a mobile device, it will always be shown i
 </Aside>
 
 ## Related Resources
+
+<LinkCard
+  title="Signer Roles"
+  href="/docs/forms/signer-roles/"
+  description="Name the people who sign a template, and say who fills in each of its fields"
+/>
 
 <LinkCard
   title="Step-by-Step Implementation Guide"

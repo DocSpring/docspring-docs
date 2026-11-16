@@ -29,7 +29,35 @@ You can also [get these release notes by email](https://app.docspring.com/email/
 
 ## Changelog
 
-### 2.24.1 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+### 2.25.0 <span class="ml-2.5 relative -top-0.5"><Badge text="Latest" variant="success" size="small"></Badge></span>
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
+  Released on Nov 17, 2026
+</div>
+
+- A template's signer roles name its signature request date fields too:
+  `@@signature_requests/tenant/completed_at` shows when the tenant's signature
+  request was completed, as `@@signature_requests/0/completed_at` does for the
+  first signer.
+- The date fields DocSpring fills in (`@@date`, `@@datetime` and the signature
+  request dates) show the date and time the PDF prints, in your account's time
+  zone and the PDF's format. They used to show the time on the signer's own
+  clock, which could be a day ahead of or behind the PDF's. A date value
+  written with a UTC offset is shown in that time zone too. On a signing page,
+  `@@date` and `@@datetime` show when the submission was created, as the PDF
+  prints them, not the time now.
+- Signing pages can show the document of an HTML template, a Word template or
+  a page design, so signature requests work for every template type.
+- A signer who answered questions before their document was made has a
+  **Change answers** button, which goes back to those questions.
+- A signer who changed those answers in another tab can't sign the document
+  from before them: the signing page asks them to reload it and read the new
+  one.
+- A checkbox's or radio button's box covers its whole field. It was 2 pixels
+  smaller than the field, so an outline printed in the document showed past
+  its right and bottom edges.
+
+### 2.24.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">
   Released on Nov 14, 2026

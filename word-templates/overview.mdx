@@ -81,9 +81,12 @@ upload it in **Settings** (see below). Anything in the document that the editor 
 still appears in your PDFs and Word documents.
 
 - Type `{{` to see suggestions for your fields. Choose a field to insert it, or keep typing to add a new one. The
-  **Field** button in the toolbar lists your fields too. A field in a list, such as each item's `description` in
+  **Insert a field** button in the toolbar (`{ }`) lists your fields too. A field in a list, such as each item's `description` in
   `line_items`, goes in the `{% for %}` loop around the cursor, or comes with a new loop.
 - Click a tag to change its expression.
+- The **Insert a form field** menu beside it inserts a [form field](/docs/word-templates/tags/#form-fields) for a signer:
+  choose the signer, then the kind of field (text, a checkbox, a signature and so on). Click in a form field's tag to
+  change its kind, field, signer and size in the right pane.
 - The toolbar has paragraph styles (Normal text, Title, Subtitle, Heading 1 to 3, and the document's own styles),
   fonts, sizes, text and highlight colors, bulleted and numbered lists, indents, alignment, line and paragraph spacing,
   links, pictures, tables and page breaks. **Clear formatting** removes the formatting you've added to the selected
@@ -118,6 +121,8 @@ so do tags the editor doesn't show, in footnotes or text boxes.
 - `{% for item in line_items %}` adds a `line_items` list, and `{{ item.price }}` inside the loop adds a `price` field
   to each item.
 - `{% image logo %}` adds an image field, and `{% signature signer_signature %}` a signature field.
+- `{% form_field tenant_name %}` adds a field that a [signer](/docs/forms/signature-requests/) fills in. See
+  [Form fields](/docs/word-templates/tags/#form-fields).
 
 Each new field's type comes from how the tags use it: a value formatted with the `date` filter becomes a date field,
 and one used with `currency` or `times` a number field. Other values are text fields. New fields are required. Click a
@@ -125,7 +130,9 @@ field to change its type, make it optional or set a default value. Optional fiel
 are blank, so you can check them with `{% if %}`.
 
 The fields work the same way as they do for other templates: the API validates submission data against them, and
-[web forms](/docs/forms/web-forms/) are built from them.
+[web forms](/docs/forms/web-forms/) are built from them. A new document sent with [the
+API](/docs/api/#tag/templates/put/templates/{template_id}/document) adds fields the same way, unless you send
+`sync_fields: false` to manage them yourself.
 
 ## Output Format
 

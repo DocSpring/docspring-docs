@@ -49,8 +49,7 @@ The **Design** tab shows the page, with three panels:
   You can also drag a field onto the page. Dropped on a text box, it goes into the text where you drop it. Dropped
   anywhere else, it becomes a new element there: a text box with the field, a picture for an image field, or a table
   for a list (in a stack below the section, since a table grows with its rows). An image field in each item of a list
-  can only be dropped inside a repeating section over that list. Signature and initials fields can't go on the page
-  (see [Signature requests](#signature-requests)).
+  can only be dropped inside a repeating section over that list.
 
 - **Outline** shows everything on the page as a tree. Click an item to select it.
 
@@ -160,10 +159,12 @@ its settings too. A field you delete while the design still uses it isn't added 
 
 ## Signature requests
 
-Page designs can't have [signature requests](/docs/forms/signature-requests/) yet: they work with PDF templates.
-A page design doesn't print signatures from the submission data, since a signature only comes from the person signing,
-and it has no signature fields to sign in a PDF reader yet. A picture of a signature is an
-[image](/docs/page-designer/layout-format/image/).
+[Signature requests](/docs/forms/signature-requests/#html-templates-word-templates-and-page-designs) work with page
+designs. DocSpring makes the document when you create them, and signers fill in its
+[form fields](/docs/page-designer/layout-format/form-field/) on the signing page.
+
+A page design doesn't print signatures from the submission data, since a signature only comes from the person signing.
+A picture of a signature is an [image](/docs/page-designer/layout-format/image/).
 
 ## Embedded template editor
 

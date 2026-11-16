@@ -1,0 +1,147 @@
+---
+title: Signer Roles
+description: Name the people who sign a template, and say who fills in each of its fields
+---
+
+import LinkCard from "@components/LinkCard.astro";
+
+A template's signer roles are the people who sign it, such as Tenant and Landlord. Each field says which of them fills
+it in, so a [signature request](/docs/forms/signature-requests/) only has to say who the person is.
+
+Roles work with every template type, and you don't need them: without roles, a template's signers are `Signer 1`,
+`Signer 2` and so on, and each signature request lists its `fields`.
+
+## Add signer roles
+
+In the template editor, click **Signers** and add a signer for each role. Each one has:
+
+| Setting | What it does                                                                                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role    | What the template editor calls them, such as Tenant.                                                                                                                      |
+| Key     | How the API and your template's code name them, such as `tenant`.                                                                                                         |
+| Name    | The signer's name, when a signature request doesn't give one: fixed text or a value from the submission's data, such as `{{ tenant.first_name }} {{ tenant.last_name }}`. |
+| Email   | The signer's email address, when a signature request doesn't give one: a fixed address or a value from the submission's data, such as `{{ tenant.email }}`.               |
+
+A value from the submission's data is one of the template's fields, so that a mistyped name can't leave a signer
+without an email. The template editor and the API refuse a name or email that uses anything else, unless the template
+allows additional properties in its data.
+
+The API's [`signer_roles`](/docs/api/#tag/templates/put/templates/{template_id}) setting sets the same list. It replaces
+the whole list: a role you leave out is deleted, and its fields have no signer.
+
+Roles don't decide who signs first. That's each signature request's
+[`signing_step`](/docs/api-guide/create-signature-requests/), with `signing_order: sequential`.
+
+## Say who fills in each field
+
+Give each field a signer, or **Sender** when the submission's data fills it in.
+
+- In the template editor, use the field's **Signer** setting. In the API, it's the field's `signer_role`.
+- In an HTML or Word template, a [form field](/docs/html-templates/overview/#form-fields) can say it in the code, and
+  the code decides:
+
+  ```liquid
+  {% form_field tenant_signature, kind: signature, role: tenant %}
+  {% form_field monthly_rent, role: sender %}
+  ```
+
+- In a page design, a [form field](/docs/page-designer/layout-format/form-field/) can say it with its `role`, and the
+  design decides.
+
+A **Sender** field is part of the data you send, and it's checked like the rest of your data: a required one must be in
+`data`. No signer is asked for it, and listing it in a signature request's `fields` is a 422.
+
+## Send a template with roles
+
+Name each signer's role, by its key or its place in the list (`Signer 1` is the first). Either every signature request
+has a `role` or none does, and each role can only have one.
+
+```json
+{
+  "test": false,
+  "data": { "monthly_rent": "$1,200" },
+  "signature_requests": [
+    { "role": "tenant", "name": "John Smith", "email": "john@example.com" },
+    { "role": "landlord", "name": "Jane Smith", "email": "jane@example.com" }
+  ]
+}
+```
+
+A signature request's `fields` adds fields that have no role. A field with a role can only go to that role's signature
+request, so listing it in another one is a 422.
+
+## Who fills in a field
+
+### One signer
+
+A submission's only signature request gets every field without a role that `data` doesn't fill in, so it doesn't need
+`fields` or a `role`:
+
+```json
+{
+  "test": false,
+  "signature_requests": [{ "name": "John Smith", "email": "john@example.com" }]
+}
+```
+
+### Two or more signers
+
+Every required field that `data` doesn't fill in needs a signer, because DocSpring can't tell who should fill it in. A
+required field without one is a 422 that names it. To fix it, do one of these:
+
+- Give the field a signer or **Sender** in the template.
+- List it in a signature request's `fields`.
+- Send its value in `data`.
+- Turn off its **Required** setting. An optional field that nobody is given stays empty.
+
+A signature request without `fields` gets its role's fields: the role its `role` names, or without any `role`, the
+template's role in the same place (the second signature request is `Signer 2`). So the template must give that role
+fields. On a template without roles, each signature request needs `fields`.
+
+When a template gives its roles names of their own (**Tenant** and **Landlord**, not **Signer 1** and **Signer 2**),
+two or more signature requests each need a `role` in API v2. Without one, signature requests sent in a different order
+would give each person the other's fields, so the request is a 422. API v1's data requests can't name a role: they are
+always the template's signers in order, so send them in the order of the template's roles.
+
+### A role with no signature request
+
+You can leave a role out, and `data` fills in its fields for that submission: a required one must be in `data`.
+
+```json
+{
+  "test": false,
+  "data": { "landlord_name": "Jane Smith", "landlord_phone": "555-0100" },
+  "signature_requests": [
+    { "role": "tenant", "name": "John Smith", "email": "john@example.com" }
+  ]
+}
+```
+
+Data can't sign for someone, so a required signature, initials or date signed field on the role you left out is a 422.
+Add a signature request for the role, or make the field optional. An optional one stays empty.
+
+### No signature requests
+
+Roles don't apply: `data` fills in every field, including a role's, as it does for any submission.
+
+## Print when someone signed
+
+A date field named `@@signature_requests/tenant/completed_at` prints when that signer completed their signature request
+(`viewed_at` is when they opened it). The number in `@@signature_requests/0/completed_at` means the same thing by place:
+`0` is the first role. See [special field names](/docs/template-editor/field-names/#special-field-names-for-signature-requests).
+
+In an HTML template, a Word template or a page design, use a form field with `kind: date_signed` instead.
+
+## Related Resources
+
+<LinkCard
+  title="Signature Requests"
+  href="/docs/forms/signature-requests/"
+  description="How signature requests work, for every template type"
+/>
+
+<LinkCard
+  title="Create Signature Requests API Guide"
+  href="/docs/api-guide/create-signature-requests/"
+  description="Every option of a signature request"
+/>

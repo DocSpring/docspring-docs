@@ -77,10 +77,25 @@ The date when this submission was created.
 
 The date and time when this submission was created.
 
+### How the date fields print
+
+Each of these fields prints in its own **Format** when it has one. Without one, `@@date` prints in the template's
+default date format, and `@@datetime` and the signature request dates below print the date and the time: the
+template's default date and time format if you have changed it, or otherwise its date format followed by the hour and
+minute, such as `11/16/2026 09:25`.
+
+These dates and times are in your account's time zone, which you can set in your
+[account settings](https://app.docspring.com/account), wherever the person filling in or signing the form is. The form
+shows them as the PDF prints them. Templates created before October 29, 2026, and accounts without a time zone, use
+the server's: US Eastern, or
+[`DOCSPRING_TIMEZONE`](/docs/enterprise/configuration/environment-variables/#docspring_timezone) on DocSpring
+Enterprise.
+
 ## Special Field Names for Signature Requests
 
 `<index>` is the signature request's `sort_order`: `Signer 1` is 0, `Signer 2` is
-1, and so on. In API v1, it's the request's position in the `data_requests` list
+1, and so on, and a [signer role](/docs/forms/signer-roles/)'s key works too:
+`@@signature_requests/tenant/completed_at`. In API v1, it's the request's position in the `data_requests` list
 you sent when you created the submission, starting at 0. A position with no
 signature request leaves its fields empty.
 

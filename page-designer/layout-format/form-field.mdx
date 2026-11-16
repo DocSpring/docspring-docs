@@ -1,31 +1,46 @@
 ---
 title: Form field
-description: Fillable PDF form fields in a page design, filled in from your data and editable in a PDF reader
+description: Form fields in a page design, filled in from your data, on a form or by a signer, or in a PDF reader
 sidebar:
   order: 14
 ---
 
-A form field is a field of the PDF's own form: the PDF is generated with it filled in from the submission's data, and
-whoever opens the PDF can change it in their PDF reader. Use a [text element](/docs/page-designer/layout-format/text/)
-or a [checkbox](/docs/page-designer/layout-format/checkbox/) for values nobody should change.
+A form field is a value that can come from three places, and each one has a field on the template's field list, added
+when the design saves:
 
-| Property     | Required | Description                                                                                                                                                                                                       |
-| ------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kind`       | Yes      | `text`, `checkbox`, `radio` (one button of a group) or `dropdown`                                                                                                                                                 |
-| `fieldName`  | Yes      | The field's name in the PDF, up to 100 characters, without a period. Radio buttons with the same name are one group                                                                                               |
-| `value`      | No       | What a text field holds, or the option a drop-down selects: text and [field](/docs/page-designer/layout-format/fields-and-expressions/) nodes, as a [QR code's value](/docs/page-designer/layout-format/qr-code/) |
-| `multiline`  | No       | `true` makes a text field several lines tall, wrapping its text                                                                                                                                                   |
-| `maxLength`  | No       | The most characters a text field takes                                                                                                                                                                            |
-| `options`    | No       | A drop-down's options, as a list of text. Required for a drop-down                                                                                                                                                |
-| `option`     | No       | What a radio group holds when this button is chosen. Required for a radio button                                                                                                                                  |
-| `checked`    | No       | A [condition](/docs/page-designer/layout-format/conditions/) that checks a checkbox or radio button when it's true, such as `order.paid` or `size == "L"`                                                         |
-| `readOnly`   | No       | `true` stops the field being changed in a PDF reader                                                                                                                                                              |
-| `fontSize`   | No       | The text's size in points, 4 to 72. 10 when left out                                                                                                                                                              |
-| `color`      | No       | The text's color, and the color of a checkbox's check or a radio button's dot. Black when left out                                                                                                                |
-| `align`      | No       | `left` (the default), `center` or `right`                                                                                                                                                                         |
-| `border`     | No       | The field's outline, a [stroke](/docs/page-designer/layout-format/box-style-and-strokes/#strokes). 1 point black when left out, none when `null`                                                                  |
-| `background` | No       | The color inside the field. Transparent when left out or `null`                                                                                                                                                   |
-| `radius`     | No       | Rounds the field's corners, in points. A radio button is round unless it has a radius                                                                                                                             |
+- **The submission's data.** The value prints as plain text on the page, with no field in the PDF. To keep it editable,
+  turn on the field's **Editable** setting, or send `editable: true` with the submission.
+- **A signer.** A [signature request](/docs/forms/signature-requests/#html-templates-word-templates-and-page-designs)
+  shows the form field on the signing page, for the person given the field to fill in. A signed PDF is never editable.
+  When the signature requests only collect values, the PDF keeps its form fields as it would without them, and the
+  signer's value follows the field's **Editable** setting like a value from the data. A signer given a group of radio
+  buttons chooses one of them.
+- **Whoever opens the PDF.** With no value in the data, the PDF has a field of its own form, to fill in with a PDF reader.
+  Turn off the field's **Required** setting for this, or the submission has to give it a value.
+
+If you delete the field from the field list, submissions and previews fail with a message that names it.
+
+| Property      | Required | Description                                                                                                                                                                                                       |
+| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kind`        | Yes      | `text`, `date`, `checkbox`, `radio` (one button of a group), `dropdown`, `signature`, `initials` or `date_signed`, which DocSpring fills in with the date its signer signs                                        |
+| `fieldName`   | Yes      | The field's name in the PDF, up to 100 characters, without a period. Radio buttons with the same name are one group                                                                                               |
+| `value`       | No       | What a text field holds, or the option a drop-down selects: text and [field](/docs/page-designer/layout-format/fields-and-expressions/) nodes, as a [QR code's value](/docs/page-designer/layout-format/qr-code/) |
+| `multiline`   | No       | `true` makes a text field several lines tall, wrapping its text                                                                                                                                                   |
+| `maxLength`   | No       | The most characters a text field takes. See [Long values](#long-values) for its default                                                                                                                           |
+| `options`     | No       | A drop-down's options, as a list of text. Required for a drop-down                                                                                                                                                |
+| `option`      | No       | What a radio group holds when this button is chosen. Required for a radio button                                                                                                                                  |
+| `checked`     | No       | A [condition](/docs/page-designer/layout-format/conditions/) that checks a checkbox or radio button when it's true, such as `order.paid` or `size == "L"`                                                         |
+| `role`        | No       | The key of the [signer role](/docs/forms/signer-roles/) that fills it in, or `sender` when the submission's data fills it in                                                                                      |
+| `required`    | No       | Whether its field is added as required. See [Required fields](#required-fields) for its default                                                                                                                   |
+| `readOnly`    | No       | `true` stops the field being changed in a PDF reader                                                                                                                                                              |
+| `fontSize`    | No       | The text's size in points, 4 to 72. 10 when left out                                                                                                                                                              |
+| `color`       | No       | The text's color, and the color of a checkbox's check or a radio button's dot. Black when left out                                                                                                                |
+| `align`       | No       | `left` (the default), `center` or `right`                                                                                                                                                                         |
+| `overflow`    | No       | What happens to a value too long for the field: `shrink` (the default) or `fixed`. See [Long values](#long-values)                                                                                                |
+| `minFontSize` | No       | The smallest size a value shrinks to, in points, 4 to 72. 5 when left out                                                                                                                                         |
+| `border`      | No       | The field's outline, a [stroke](/docs/page-designer/layout-format/box-style-and-strokes/#strokes). 1 point black when left out, none when `null`                                                                  |
+| `background`  | No       | The color inside the field. Transparent when left out or `null`                                                                                                                                                   |
+| `radius`      | No       | Rounds the field's corners, in points. A radio button is round unless it has a radius                                                                                                                             |
 
 The field fills its element inside the border. A checkbox or radio button is square, as large as fits in the element,
 and centered in it. In a stack or column, a field without a `height` is 20 points tall, a text field with several lines
@@ -35,16 +50,59 @@ In a [repeating section](/docs/page-designer/layout-format/sections/#repeat), ea
 own, named with the item's number: a `quantity` field is `quantity_1` in the first item, `quantity_2` in the second, and
 so on. Each item's radio buttons are a group of their own.
 
+Those are the fields' names in the PDF. A signature request's `fields` names an item's field by its place in the data
+instead: in a section that repeats over `line_items`, the first item's `quantity` field is `line_items/0/quantity`, and
+`line_items/~/quantity` is every item's. A signer can only fill in a repeating section's fields when the section repeats
+over a list from the data.
+
 A drop-down selects the option that matches its `value` exactly. Without a `value`, or when it comes out blank, the
 drop-down starts with an empty choice, selected, before its options. A value that isn't one of the options fails the
 submission, since the drop-down can't show it. Text in a field is drawn in Helvetica, whatever the design's fonts: PDF
 readers draw a field's text in the field's own font when it's changed. Form fields are always upright, as PDF readers
 don't turn them, so they have no `rotation`.
 
-Each kind takes only its own properties: `value`, `multiline`, `maxLength` and `align` for text, `checked` for a
-checkbox, `option` and `checked` for a radio button, and `options`, `value` and `align` for a drop-down. A drop-down's
-options must all be different. Fields other than radio buttons need names of their own: when two have the same name,
-the second is named with `_2` on the end, the third with `_3`, and so on.
+Each kind takes only its own properties: `value`, `multiline`, `maxLength`, `align`, `overflow` and `minFontSize` for
+text, `value`, `align`, `overflow` and `minFontSize` for a date, `checked` for a checkbox, `option` and `checked` for a
+radio button, `options`, `value`, `align`, `overflow` and `minFontSize` for a drop-down, and `align`, `overflow` and
+`minFontSize` for a date signed field. A signature or initials field takes none of them. Every kind but a date signed
+field takes `required`. A drop-down's options must all be different. Fields other than radio buttons need names of their
+own: when two have the same name, the second is named with `_2` on the end, the third with `_3`, and so on.
+
+A `signature`, `initials` or `date_signed` field can't go in a header or footer, which would put it on every page. With
+no signers, a signature or initials field whose **Required** setting is off is an empty signature field to sign in a PDF
+reader, and a date signed field is a text field.
+
+## Required fields
+
+A form field is required by default, as an HTML or Word template's is. A checkbox isn't, and neither is a field with its
+own `value` or `checked`, which has something to show without one. A date signed field has nothing to require: DocSpring
+fills it in.
+
+A submission with no signature requests must give a required field a value, or it's a 422. So when a field can be left
+empty, for someone to fill in with a PDF reader or because your data doesn't always have it, turn off **Required** in the
+form field's settings, or set `required: false` in the layout.
+
+`required` only sets the field when it's added to the field list. After that, the field's **Required** setting decides,
+and changing `required` in a layout doesn't change it.
+
+In a signature request, a required field must also be in the document. If a section's condition leaves one out for this
+data, the submission fails with a message that names it. In a repeating section, that goes for each item in the data.
+See [Form fields](/docs/forms/signature-requests/#form-fields).
+
+## Long values
+
+A value prints at the field's `fontSize`, and on one line unless the field is `multiline`. When it doesn't fit, it
+shrinks, down to `minFontSize`. With `overflow: "fixed"` it keeps its size and what doesn't fit is cut off, at the end of
+a word, and at the end of a line when the field has several.
+
+A text field that shrinks takes about as many characters as fit at its smallest size unless you give it a `maxLength`.
+A longer value is a 422 from the API and can't be typed on the signing page. It's an estimate, of half the text's size for
+each character: a value of wide letters can still be too long, and it's then cut off at the end of a word. A field set to
+`fixed` has no limit unless you give it one.
+
+A value cut off in a page design isn't listed in a submission's
+[`truncated_text`](/docs/api-guide/generate-pdfs/handle-truncated-text/). A field that stays editable in the PDF keeps
+its `fontSize`, and its text scrolls.
 
 ## Example
 

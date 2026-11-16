@@ -99,9 +99,10 @@ curl https://sync.api.docspring.com/api/v2/templates/tpl_1234567890abcdef01/subm
   }'
 ```
 
-An HTML template doesn't need fields: Liquid renders the data you send. If you add
-fields to the template in the editor, DocSpring checks the data against them (see
-[Troubleshooting](#troubleshooting)).
+DocSpring added a field for each value the template uses when you created it, and it
+checks the data against them (see [Troubleshooting](#troubleshooting)). Click a field in
+the editor to change its type or make it optional. To manage the fields yourself, send
+`sync_fields: false` with the template.
 
 ## 4. Download the PDF
 

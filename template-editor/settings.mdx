@@ -10,7 +10,11 @@ Click **Settings** in the template editor's top bar to change a template's setti
 setting below says which tab it's on.
 
 The **Field defaults** tab sets the typeface, colors, date formats and other options that fields use when they don't
-set their own.
+set their own. In an HTML or Word template, they're how its form fields print the values that signers fill in
+([HTML](/docs/html-templates/overview/#form-fields), [Word](/docs/word-templates/tags/#form-fields)), apart from the
+text's size and the text's and checks' color, which follow the text around each form field's tag. A page design's
+form fields set their own size, color and alignment, and print in Helvetica, so its tab has only the date formats and
+the color that marks the fields a signer must fill in.
 
 ## Locked
 
@@ -68,11 +72,11 @@ _On the PDF output tab._ When **Encrypt PDFs with a password** is checked, gener
 
 ## Merge Audit Trail With Signature Request PDFs
 
-_On the PDF output tab, for PDF templates only._ When checked, audit trail pages are appended to the generated PDF when a submission has signature requests. When unchecked, the audit trail PDF can be downloaded separately.
+_On the PDF output tab._ When checked, audit trail pages are appended to the generated PDF when a submission has signature requests. When unchecked, the audit trail PDF can be downloaded separately.
 
 ## Add Submission ID Footers to Signature Requests
 
-_On the PDF output tab, for PDF templates only._ When checked, the submission ID is added to the bottom right corner of each page when a submission has signature requests.
+_On the PDF output tab._ When checked, the submission ID is added to the bottom right corner of each page when a submission has signature requests.
 
 ## Parse Dates Using the Template's Date Format
 
@@ -137,7 +141,7 @@ set them on your account's **Template defaults** page.
 
 ## Show Continue Once Required Fields Are Filled In
 
-_On the Forms tab, for PDF templates only. On by default._ Visual forms and signature requests have a **Next** button
+_On the Forms tab. On by default._ Visual forms and signature requests have a **Next** button
 that takes the user through each field in turn. With this setting on, a **Continue** button appears next to it as soon
 as every required field is filled in, so users can skip the optional fields, and **I Agree** lists the ones they
 skipped. Turn it off to show **Continue** in place of **Next** only once every field has a value or has been visited.
@@ -178,7 +182,7 @@ and message. See [Email Actions](/docs/template-editor/email-actions/).
 
 ## Signature Request Emails
 
-_On the Emails tab, for PDF templates only._ How DocSpring emails the people who sign this template's
+_On the Emails tab._ How DocSpring emails the people who sign this template's
 [signature requests](/docs/api-guide/create-signature-requests/#emails-from-docspring). A request's own `reply_to` and
 `notification_emails` replace the template's. You can set them for new templates on your account's **Template
 defaults** page, and with the `signature_request_*` options in the [templates API](/docs/api/#tag/templates).

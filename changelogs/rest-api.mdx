@@ -18,6 +18,24 @@ clients are listed in each client's own changelog.
 
 ## Changelog
 
+### Signature requests for every template type
+
+- HTML templates, Word templates and page designs can have signature requests. See [how they
+  work](/docs/forms/signature-requests/#html-templates-word-templates-and-page-designs).
+- [Creating or updating a template](/docs/api/#tag/templates/post/templates) takes `sync_fields`, which is on by
+  default: an HTML template's code, a Word template's document and a page design's layout add a field for each value
+  they read for the first time. Send `sync_fields: false` to manage the fields yourself. An HTML template's submissions
+  now check their data against the fields that this adds, so a value the code reads is required unless you make its
+  field optional.
+- Templates have `signer_roles`, the people who sign their submissions, and a field's `signer_role` says which of them
+  fills it in or signs it, or `sender` for a field that `data` fills in. Creating or updating a template takes
+  `signer_roles`, and adding or updating fields takes `signer_role`. See [Signer roles](/docs/forms/signer-roles/).
+- A signature request's `fields` is optional. A signature request with a `role` gets the fields the template gives
+  that role, and a submission's only signature request can leave out both: it gets every field without a role that
+  `data` doesn't fill in.
+- Templates have `signature_request_cc`, which creating or updating a template takes too: who gets a copy of the
+  completed document when DocSpring emails a submission's signers, with the submission's `cc`.
+
 ### Numbers in comb fields, and option labels
 
 - A _Number_ field printed in comb fields (one character per box) is never cut

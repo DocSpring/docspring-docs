@@ -46,13 +46,8 @@ Two charges are added on top:
 
 - **Source PDFs** ([combined PDFs](/docs/api-guide/combine-pdfs/)): 4 credits
   for each source document. Generating the source PDFs is charged separately.
-- **Signers** (e-signatures): 60 credits for each signature request whose signer
-  is asked to sign or initial, whatever the size of the PDF. A signature request asks
-  for a signature when its `fields` include a signature or initials field, or,
-  without a `fields` list, when the template has a signature or initials field
-  that your API request didn't fill in. Signature requests that only collect values
-  such as text, numbers and dates add nothing. The charge is made with the final
-  live PDF; creating requests, recording events, issuing access tokens, and
+- **Signers** (e-signatures): 60 credits for each signature request, whatever the
+  size of the PDF. The charge is made with the final live PDF; creating requests, recording events, issuing access tokens, and
   generating previews have no separate charge.
 
 Retained documents have a separate [storage charge](#stored-documents) after

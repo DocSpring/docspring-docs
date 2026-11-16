@@ -121,8 +121,8 @@ v2 checks submission data more strictly:
 - A value for a field shown as a barcode or QR code must be one it can show: the right number of digits for an EAN or
   UPC barcode, only ASCII characters for Code 128, not too long for a QR code. v1 accepted it and the submission
   failed when the PDF was generated.
-- Each signature request needs `fields`, and an `auth_type` unless DocSpring emails the signer. Each field can be in
-  only one signature request. A signature request's `email` is an email address, or `null` for none: an empty one is
+- Each signature request needs an `auth_type` unless DocSpring emails the signer, and with two or more, every field
+  that `data` doesn't fill in needs a signer when it's required. Each field can be in only one signature request. A signature request's `email` is an email address, or `null` for none: an empty one is
   a `422` (v1 accepted it). A field that `data` already fills in needs `prefilled_values_editable`. A field name the template doesn't have is an
   error, unless the signature request sets `ignore_unknown_fields`.
 - Signatures come only from signature requests. A value for a signature or initials field, in `data` or in a field
@@ -256,6 +256,10 @@ temporary link in `document.download_url` (v1's `document_url`), and a custom fi
   v1), and `has_fillable_fields` (v1's `has_acroform_fields`). Templates don't return `detect_fields`: send it when you
   create a template, with `field_source`, `field_naming` and `field_logic` (see
   [Automatic field detection](/docs/template-editor/automatic-field-detection/#api)).
+- Creating or updating a template takes `sync_fields`, on by default: an HTML template's code adds a field for each
+  value it reads for the first time, as a Word template's document and a page design's layout do in both versions, and
+  its submissions check their data against those fields. Send `sync_fields: false` to manage the fields yourself. API
+  v1 doesn't add fields to an HTML template, and has no `sync_fields`.
 - Lists return template summaries; `getTemplate` returns the template with its `defaults`, `field_dependencies`, HTML
   and versions, but not its fields yet (see [Operations](#operations)).
 - Templates have no `webhook_url` or `webhook_options`. Create a [webhook](/docs/webhooks/overview/) with
@@ -307,8 +311,9 @@ keeps working for 7 more days. Create a token each time you open the form or sen
 
 To leave a signer out, give each signature request its `role` (`Signer 1`, `Signer 2` and so on: `Signer 1` fills the
 template's `@@signature_requests/0` fields) and leave that signer's out. v1's `skipped` placeholders are gone, and so are
-`fields` and `auth_type`'s exemption for them: every signature request needs `fields`, and an `auth_type` unless
-DocSpring emails the signer.
+`fields` and `auth_type`'s exemption for them: every signature request needs an `auth_type` unless DocSpring emails the
+signer, and with two or more, every required field that `data` doesn't fill in needs a signer: see
+[Signer roles](/docs/forms/signer-roles/#who-fills-in-a-field).
 
 ## Waiting for PDFs
 

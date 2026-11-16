@@ -126,6 +126,62 @@ Picture tags insert a picture where the tag is. Each takes a field, and optional
   picture tags.
 </Aside>
 
+## Form Fields
+
+A form field is a place in the document for a value that a [signer](/docs/forms/signature-requests/) fills in. When a
+submission has signature requests, a signer who's given the field fills it in on the signing page. Anywhere else, it
+prints the field's value from the data.
+
+In the template editor, the toolbar's **Insert a form field** menu (beside **Insert a field**) inserts one where the cursor is, so you don't have to type its
+tag. Under **Signer**, choose who fills in the form fields you insert: one of the template's
+[signers](/docs/forms/signer-roles/), **Sender** when the submission's data fills them in, or **Unassigned** to leave it
+to each field's **Signer** setting. **Manage signers…** opens the list of signers. Then choose the kind of field. The new field gets
+a name of its own, such as `tenant_signature`, and inside a `{% for %}` loop it's named after the loop's variable.
+
+Click in a form field's tag, or in a `signature` or `initials` tag, to change its kind, field, signer, options and size
+in the right pane. The editor writes the tag for you. You can also type one, in the editor or in Word:
+
+```text
+{% form_field tenant_name %}
+{% form_field start_date, kind: date, width: 4cm %}
+{% form_field plan, kind: dropdown, options: "Monthly, Yearly" %}
+{% form_field billing, kind: radio, option: Card %} Card {% form_field billing, kind: radio, option: Invoice %} Invoice
+{% form_field tenant_signature, kind: signature, role: tenant %}
+{% form_field signed_on, kind: date_signed, role: tenant %}
+```
+
+| Option     | Description                                                                                                                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `kind`     | `text` (the default), `date`, `checkbox`, `radio` (one button of a group), `dropdown`, `signature`, `initials` or `date_signed`, which DocSpring fills in with the date its signer signs                                                   |
+| `width`    | Its width, such as `6cm`, `30mm`, `1.5in`, `72pt` or `200px`. The default depends on its kind: 6 cm for text and 5 cm for a signature                                                                                                      |
+| `height`   | Its height. The default depends on its kind: 0.8 cm for text and 2 cm for a signature                                                                                                                                                      |
+| `options`  | A drop-down's options, separated by commas: `options: "Monthly, Yearly"`                                                                                                                                                                   |
+| `option`   | What a radio button's field holds when it's chosen: `option: Card`. Required for a radio button                                                                                                                                            |
+| `required` | `true` or `false`, whether its field is added as required. Default `true`, or `false` for a checkbox. A `date_signed` field is always added as optional, since DocSpring fills it in. After that, the field's **Required** setting decides |
+| `role`     | The key of the [signer role](/docs/forms/signer-roles/) that fills it in, or `sender` when the submission's data fills it in                                                                                                               |
+
+A form field needs a field on the template's field list, which DocSpring adds when the document is saved. If you delete
+the field from the list, submissions and previews fail with a message that names it. A signer can also fill in a
+`signature` or `initials` tag's field, at the tag's `width` and `height`.
+
+Radio buttons with the same field are one group, with a tag for each option: the signer chooses one, and without
+signers the button whose option is the field's value is marked.
+
+A checkbox and a radio button draw their own outline, ticked or not, so the document shows where they are. A text
+field has none: put it on a line or in a table cell of your own.
+
+A signer's text prints at the size and in the color of the text around the tag, so it reads as part of the
+document, and so do a checkbox's outline and check and a radio button's outline and dot. The rest comes from the
+template's **Field defaults** (in its [settings](/docs/template-editor/settings/)): the typeface, bold, uppercase,
+alignment and character spacing for text, the check's character, and the date formats for dates and `date_signed`
+fields.
+
+Inside a `{% for room in rooms %}` loop, name the field after the loop's variable to give each item its own:
+`{% form_field room.initials, kind: initials %}`. In a signature request, a required form field that an `{% if %}` leaves
+out of the document fails the submission, so turn off the **Required** setting of one that the data can leave out
+([details](/docs/forms/signature-requests/#form-fields)). Changing a tag's `required` doesn't change a field that's
+already on the list.
+
 ## Submission and Template Details
 
 ```
