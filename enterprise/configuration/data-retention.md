@@ -49,17 +49,17 @@ Read the log with `convox logs`.
 
 Set each one to `true` to turn it on.
 
-| Setting                                        | What it deletes                                                                                                                          |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `DOCSPRING_TEST_SUBMISSION_EXPIRY_ENABLED`     | The data and files of test submissions over 30 days old.                                                                                 |
-| `DOCSPRING_TEMPLATE_TRASH_PURGE_ENABLED`       | Templates 30 days after they were moved to Trash. The Trash page then shows each template's date.                                        |
-| `DOCSPRING_REMOVED_USER_PURGE_ENABLED`         | Users 30 days after they were removed from their account.                                                                                |
-| `DOCSPRING_EXPORT_ARCHIVE_EXPIRY_ENABLED`      | The files of account exports and imports over 6 months old.                                                                              |
-| `DOCSPRING_SECURITY_HISTORY_RETENTION_ENABLED` | Audit rows, sign-in records, visits, events and records of sent emails over 3 years old.                                                 |
-| `DOCSPRING_SIGNING_RECORD_PURGE_ENABLED`       | A signed document's signers, events, signature images and audit trail, when the document expires. See below before you turn it on.       |
-| `DOCSPRING_REQUESTED_ACCOUNT_PURGES_ENABLED`   | The data of accounts deleted with **Delete Account**, 14 days later.                                                                     |
-| `DOCSPRING_ACCOUNT_DELETION_NOTICES_ENABLED`   | Nothing. It emails the users of accounts that have been suspended and unused for over a year that their data will be deleted in 30 days. |
-| `DOCSPRING_ACCOUNT_PURGES_ENABLED`             | The data of those accounts, once the 30 days of their notice are over.                                                                   |
+| Setting                                        | What it deletes                                                                                                                                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DOCSPRING_TEST_SUBMISSION_EXPIRY_ENABLED`     | The data and files of test submissions over 30 days old.                                                                                                                                                      |
+| `DOCSPRING_TEMPLATE_TRASH_PURGE_ENABLED`       | Templates 30 days after they were moved to Trash. The Trash page then shows each template's date.                                                                                                             |
+| `DOCSPRING_REMOVED_USER_PURGE_ENABLED`         | Users 30 days after they were removed from their account.                                                                                                                                                     |
+| `DOCSPRING_EXPORT_ARCHIVE_EXPIRY_ENABLED`      | The files of account exports and imports over 6 months old.                                                                                                                                                   |
+| `DOCSPRING_SECURITY_HISTORY_RETENTION_ENABLED` | Audit rows, sign-in records, visits, events and records of sent emails over 3 years old.                                                                                                                      |
+| `DOCSPRING_SIGNING_RECORD_PURGE_ENABLED`       | A signed document's signers, events, signature images and audit trail, when the document expires. See below before you turn it on.                                                                            |
+| `DOCSPRING_REQUESTED_ACCOUNT_PURGES_ENABLED`   | The data of accounts deleted with **Delete Account**, 14 days later.                                                                                                                                          |
+| `DOCSPRING_ACCOUNT_DELETION_NOTICES_ENABLED`   | Nothing. It emails the users of accounts that have been suspended and unused for over a year that their data will be deleted in 30 days. It sends nothing until `DOCSPRING_ACCOUNT_PURGES_ENABLED` is on too. |
+| `DOCSPRING_ACCOUNT_PURGES_ENABLED`             | The data of those accounts, once the 30 days of their notice are over.                                                                                                                                        |
 
 Every setting is described on the
 [Environment Variables](/docs/enterprise/configuration/environment-variables/#data-retention)

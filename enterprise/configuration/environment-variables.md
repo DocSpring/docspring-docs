@@ -1071,7 +1071,7 @@ The Sentry DSN for server errors. Leave it unset to turn error reporting off.
 
 ### DOCSPRING_ACCOUNT_DELETION_NOTICES_ENABLED
 
-Lets `rake timers:data_retention` email the users of each account that has been suspended and unused for over a year that its data will be deleted in 30 days, at most 500 accounts a night. Until it's on, the task logs how many are due.
+Lets `rake timers:data_retention` email the users of each account that has been suspended and unused for over a year that its data will be deleted in 30 days, at most 500 accounts a night. Until it's on, the task logs how many are due. On an Enterprise install it sends nothing until `DOCSPRING_ACCOUNT_PURGES_ENABLED` is on too, since each email gives the date of the deletion.
 
 - Type: on/off
 
