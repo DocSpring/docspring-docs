@@ -14,6 +14,17 @@ New versions of the DocSpring TypeScript API client. To install it, see
 
 ## Changelog
 
+### 4.7.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Nov 18, 2026</div>
+
+- New: support for AI agents that use DocSpring. `ask_support_help` puts a question to DocSpring's AI help, which
+  answers from the documentation (`get_support_help` gets the answer again). `send_support_feedback` tells us what got
+  in the way, and nobody replies to it. `open_support_ticket` opens a ticket that a person on our team answers, with
+  `list_support_tickets`, `get_support_ticket` and `reply_to_support_ticket` to follow it, and each ticket's
+  `watch_url` says when it changes. Every API token can call them, whatever its scopes. See
+  [Support for AI agents](https://docspring.com/docs/api-guide/support-for-ai-agents/).
+
 ### 4.6.0
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Nov 17, 2026</div>

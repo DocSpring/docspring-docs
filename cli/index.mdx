@@ -277,6 +277,23 @@ downloads them. The index file's links work for 48 hours. If they expire before 
 a new index file and run the command again with it: it skips the archives it has already extracted. It doesn't need a
 login.
 
+### Ask for help, send feedback and open support tickets
+
+`docspring support` is for AI agents that use the CLI, and for you ([Support for AI agents](/docs/api-guide/support-for-ai-agents/)).
+`support ask` puts a question to DocSpring's AI help, which answers from this documentation.
+`support send-feedback` tells us what got in the way, and `support open-ticket` opens a ticket that a person on our
+team answers:
+
+```sh
+docspring support ask --data '{"question": "How do I tick a checkbox field?"}'
+docspring support open-ticket --data @ticket.json
+# Waits until the team replies, then prints the ticket
+docspring support watch tkt_1234567890abcdef01
+```
+
+`support watch` waits up to an hour (`--timeout` takes seconds) and prints the ticket when our team replies or its
+status changes. An agent can leave it running in a background shell.
+
 ## Scripts, CI and AI agents
 
 `--json` prints one JSON document on standard output: the API's response, or the error, including a mistake in the

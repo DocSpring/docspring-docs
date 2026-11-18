@@ -15,7 +15,12 @@ returns the record's ID with the state `processing`, and the assistant checks it
 
 ## Read only
 
-Every connection has these tools.
+Every connection has these tools. They include the support tools, which every connection can use whatever its
+access: `support_get_help` asks DocSpring's AI help a question, `support_send_feedback` tells our team about
+something that got in the way, and `support_open_ticket`, `support_list_tickets`, `support_get_ticket` and
+`support_reply_to_ticket` open and follow a ticket with our team. The three that send something are marked as
+writes, so a client that asks before a write still asks. [Support for AI Agents](/docs/api-guide/support-for-ai-agents/)
+explains them.
 
 <McpToolTable scope="read" />
 

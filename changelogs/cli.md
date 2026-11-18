@@ -13,6 +13,16 @@ New versions of the DocSpring CLI. To install it, see [DocSpring CLI](/docs/cli/
 
 ## Changelog
 
+### 1.1.0
+
+<div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Nov 18, 2026</div>
+
+- New: `docspring support`, for AI agents that use the CLI and for you. `support ask` puts a question to DocSpring's
+  AI help, which answers from the documentation, and `support get-answer` reads an answer again. `support send-feedback` tells us what got in the way.
+  `support open-ticket` opens a ticket that a person on our team answers, with `support list-tickets`,
+  `support get-ticket` and `support reply` to follow it, and `support watch` waits until the team replies, then prints
+  the ticket. See [Support for AI agents](https://docspring.com/docs/api-guide/support-for-ai-agents/).
+
 ### 1.0.1
 
 <div class="mt-2.5 text-sm text-gray-500 dark:text-gray-400">Released on Nov 3, 2026</div>
