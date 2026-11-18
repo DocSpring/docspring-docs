@@ -8,17 +8,21 @@ import LinkCard from "@components/LinkCard.astro";
 When an AI agent works with DocSpring for you and something goes wrong, it can do three things without leaving its
 session. Each has its own rules.
 
-| What the agent does | Who answers                                  | Does it ask you first?       |
-| ------------------- | -------------------------------------------- | ---------------------------- |
-| Asks for help       | DocSpring's AI help, from this documentation | No                           |
-| Sends feedback      | Nobody: feedback goes one way                | No. It tells you afterwards  |
-| Opens a ticket      | A person on DocSpring's team                 | Yes, unless you asked for it |
+| What the agent does | Who answers                               | Does it ask you first?       |
+| ------------------- | ----------------------------------------- | ---------------------------- |
+| Asks for help       | DocSpring's AI help, from what we publish | No                           |
+| Sends feedback      | Nobody: feedback goes one way             | No. It tells you afterwards  |
+| Opens a ticket      | A person on DocSpring's team              | Yes, unless you asked for it |
 
 DocSpring follows [Standard Support](https://standardsupport.dev), an open design for these tools, so an agent that has
 used them with another product already knows how they work here.
 
 Every API token and connected app can use all of this, whatever access it was given: a read-only connection can
 still report a problem.
+
+Before we store a question, feedback, a ticket or a reply, or pass a question to the AI help, we remove the tokens and
+keys we recognise and the values of a submission's `data` object, keeping its field names. That's a safety net:
+agents are told never to send secrets or your users' data.
 
 ## Three ways to reach it
 
@@ -40,8 +44,9 @@ the request in our logs.
 
 ## Ask for help
 
-A question about DocSpring, answered at once from this documentation: how to do something, what an error means,
-whether something is supported.
+A question about DocSpring: how to do something, what an error means, whether something is supported. It's the same
+AI help as the chat on our website and in this documentation. It answers from what we publish: this documentation,
+the API reference, the changelog, our agent skills, and our notes on known limitations and what's planned.
 
 ```bash
 curl https://sync.api.docspring.com/api/v2/support/help \
@@ -49,7 +54,7 @@ curl https://sync.api.docspring.com/api/v2/support/help \
   -d '{"question": "How do I tick a checkbox field when I create a submission?", "error": "data.agree must be a boolean"}'
 ```
 
-The response has `answered` (whether the documentation had an answer), the `answer`, the `sources` it came from, and
+The response has `answered` (whether it found an answer), the `answer`, the `sources` it came from, and
 `next`, which says what to do when the answer doesn't solve the problem.
 
 - It needs no credentials. With an API token, the question counts against your account's daily limit, which is
@@ -57,8 +62,8 @@ The response has `answered` (whether the documentation had an answer), the `answ
   the API answers `429` with the code `support_help_limit_reached`.
 - It knows nothing about your account, your templates or your documents, and can't look anything up. For "why did my
   submission fail?", read the submission's error, then open a ticket if you need us to look.
-- Each question is answered by itself. For a follow-up, include what was asked and answered before that matters,
-  in the question or, as a chat does, as `conversation` (the earlier turns).
+- For a follow-up, send the questions and answers so far as `conversation`, oldest first, as the chat on our website
+  does. The MCP tool takes no conversation, so an agent puts what matters from earlier answers in its question.
 - On a `sync.api` host the response waits for the answer. On other hosts it comes back with `state: "pending"`:
   read it with `GET /support/help/{id}` until its state changes.
 - Never include secrets, credentials or your users' data in a question.
