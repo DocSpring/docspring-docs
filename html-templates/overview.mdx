@@ -93,6 +93,10 @@ never escape a value twice, so `{{ notes | escape | newline_to_br }}` prints the
 When it's off, every value is printed as HTML, as it is. Use `{{ value | escape }}` for text that could contain `<` or
 `&`. Before you turn the setting on for a template, add `| raw` to the values that hold HTML.
 
+A template with the setting off can't
+[ask a signer for a value its Liquid uses](/docs/forms/signature-requests/#asking-a-signer-for-a-value-the-document-uses):
+the signer's answer would be printed as HTML in a document that other people sign.
+
 ### Liquid Filters
 
 When you upload an existing PDF, our template editor includes features such as date formatting,

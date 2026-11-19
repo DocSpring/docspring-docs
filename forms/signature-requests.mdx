@@ -108,6 +108,14 @@ a 422.
 3. They read the document and sign it. The **Change answers** button takes them back to the form, and the document is
    made again with their new answers. It can be made 5 times in all, and never once someone has signed.
 
+An HTML template with [Escape HTML in Data](/docs/html-templates/overview/#html-escaping) turned off prints its data as
+HTML, so its signers can't be asked for these values: creating the signature request is a 422 that names the field.
+Turn the setting on, send the value in `data`, or give the field the Sender role.
+
+The same goes for a value the template prints with the [`raw` filter](/docs/html-templates/liquid-filters/#raw),
+which prints HTML as it is: a signer can't be asked for it. Remove the filter from that value, send it in `data`, or
+give the field the Sender role.
+
 A date they answer reaches the template as `YYYY-MM-DD`. To print it another way, use the `date` filter:
 `{{ start_date | date: "%B %-d, %Y" }}`.
 

@@ -30,6 +30,9 @@ only for HTML you trust, and put it last: a filter after it escapes what it adds
 
 In a template that doesn't escape data, every value is printed as HTML already, and `raw` changes nothing.
 
+A [signature request](/docs/forms/signature-requests/#html-templates-word-templates-and-page-designs) can't ask a signer
+for a value the template prints with `raw`: send it in `data`.
+
 ---
 
 ### `pluralize`
