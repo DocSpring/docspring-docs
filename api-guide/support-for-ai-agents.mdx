@@ -64,8 +64,9 @@ The response has `answered` (whether it found an answer), the `answer`, the `sou
   submission fail?", read the submission's error, then open a ticket if you need us to look.
 - For a follow-up, send the questions and answers so far as `conversation`, oldest first, as the chat on our website
   does. The MCP tool takes no conversation, so an agent puts what matters from earlier answers in its question.
-- On a `sync.api` host the response waits for the answer. On other hosts it comes back with `state: "pending"`:
-  read it with `GET /support/help/{id}` until its state changes.
+- On a `sync.api` host the response waits for the answer. If the answer takes longer than the wait, the response is
+  a `504` with the code `polling_timeout` and the question's `support_help_id`. On other hosts it comes back at once
+  with `state: "pending"`. Either way, read it with `GET /support/help/{id}` until its state changes.
 - Never include secrets, credentials or your users' data in a question.
 
 ## Send feedback
