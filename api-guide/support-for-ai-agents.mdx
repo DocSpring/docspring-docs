@@ -26,21 +26,25 @@ agents are told never to send secrets or your users' data.
 
 ## Three ways to reach it
 
-| What              | MCP tool                  | API                                         | CLI                               |
-| ----------------- | ------------------------- | ------------------------------------------- | --------------------------------- |
-| Ask for help      | `support_get_help`        | `POST /support/help`                        | `docspring support ask`           |
-| Read an answer    |                           | `GET /support/help/{id}`                    | `docspring support get-answer`    |
-| Send feedback     | `support_send_feedback`   | `POST /support/feedback`                    | `docspring support send-feedback` |
-| Open a ticket     | `support_open_ticket`     | `POST /support/tickets`                     | `docspring support open-ticket`   |
-| List tickets      | `support_list_tickets`    | `GET /support/tickets`                      | `docspring support list-tickets`  |
-| Read a ticket     | `support_get_ticket`      | `GET /support/tickets/{ticket_id}`          | `docspring support get-ticket`    |
-| Reply to a ticket | `support_reply_to_ticket` | `POST /support/tickets/{ticket_id}/replies` | `docspring support reply`         |
-| Wait for a reply  |                           | `GET` the ticket's `watch_url`              | `docspring support watch`         |
+| What              | MCP tool                          | API                                         | CLI                               |
+| ----------------- | --------------------------------- | ------------------------------------------- | --------------------------------- |
+| Ask for help      | `support`, action `help`          | `POST /support/help`                        | `docspring support ask`           |
+| Read an answer    |                                   | `GET /support/help/{id}`                    | `docspring support get-answer`    |
+| Send feedback     | `support_send`, action `feedback` | `POST /support/feedback`                    | `docspring support send-feedback` |
+| Open a ticket     | `support_send`, action `ticket`   | `POST /support/tickets`                     | `docspring support open-ticket`   |
+| List tickets      | `support`, action `list_tickets`  | `GET /support/tickets`                      | `docspring support list-tickets`  |
+| Read a ticket     | `support`, action `get_ticket`    | `GET /support/tickets/{ticket_id}`          | `docspring support get-ticket`    |
+| Reply to a ticket | `support_send`, action `reply`    | `POST /support/tickets/{ticket_id}/replies` | `docspring support reply`         |
+| Wait for a reply  |                                   | `GET` the ticket's `watch_url`              | `docspring support watch`         |
 
-The [MCP server](/docs/mcp/) tells agents about the tools in its instructions, and every error one of its tools
-returns ends with the request's ID and where to take it. The API's error responses carry the same ID in
-`error.request_id` and the `X-Request-Id` header: send it as `request_ids` with feedback or a ticket, and we can find
-the request in our logs.
+The [MCP server](/docs/mcp/) has two support tools, so they take little of an agent's context. `support` only reads,
+so an agent can ask a question or read a reply without interrupting you. `support_send` sends something to our team,
+so an MCP client that asks before a tool writes anything asks here too. Each takes an `action` and that action's
+fields, and `support` with action `guide` gives an agent every field and rule.
+
+The MCP server tells agents about the tools in its instructions, and every error one of its tools returns ends with
+the request's ID and where to take it. The API's error responses carry the same ID in `error.request_id` and the
+`X-Request-Id` header: send it as `request_ids` with feedback or a ticket, and we can find the request in our logs.
 
 ## Ask for help
 
@@ -63,7 +67,7 @@ The response has `answered` (whether it found an answer), the `answer`, the `sou
 - It knows nothing about your account, your templates or your documents, and can't look anything up. For "why did my
   submission fail?", read the submission's error, then open a ticket if you need us to look.
 - For a follow-up, send the questions and answers so far as `conversation`, oldest first, as the chat on our website
-  does. The MCP tool takes no conversation, so an agent puts what matters from earlier answers in its question.
+  does. Over MCP, help takes no conversation, so an agent puts what matters from earlier answers in its question.
 - On a `sync.api` host the response waits for the answer. If the answer takes longer than the wait, the response is
   a `504` with the code `polling_timeout` and the question's `support_help_id`. On other hosts it comes back at once
   with `state: "pending"`. Either way, read it with `GET /support/help/{id}` until its state changes.
@@ -166,7 +170,7 @@ while true; do
   new_etag="$(awk 'tolower($1)=="etag:" {print $2}' "$headers" | tr -d '\r')"
   rm -f "$headers"
   if [ "$status" = "200" ] && [ -n "$etag" ] && [ "$new_etag" != "$etag" ]; then
-    echo "The support ticket changed: $body. Read it with support_get_ticket."
+    echo "The support ticket changed: $body. Read it with support, action get_ticket."
     exit 0
   fi
   [ "$status" = "200" ] && etag="$new_etag"
